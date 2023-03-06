@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+
+    networks:
+      - netname
+
+networks:
+  netname:
+    name: $NET_NAME
