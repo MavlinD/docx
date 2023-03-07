@@ -4,11 +4,11 @@ version = "0.1.0"
 description = ""
 authors = ["Mavlin Dm. <mavlind@list.ru>"]
 readme = "README.md"
-# packages = [{include = "docx_tpl"}]
+packages = [{include = "docx_tpl"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-# docxtpl = "^0.16.5"
+docxtpl = "^0.16.5"
 
 
 [build-system]
