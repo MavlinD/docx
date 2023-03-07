@@ -9,8 +9,21 @@ packages = [{include = "docx_tpl"}]
 [tool.poetry.dependencies]
 python = "^3.9"
 docxtpl = "^0.16.5"
+fastapi = "^0.92.0"
+uvicorn = {extras = ["standard"], version = "^0.20.0"}
+logrich = "^0.7.0"
 
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+watchdog = "^2.3.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.black]
+line-length = 100
+include = '\.pyi?$'
+quiet = true
+fast = true
