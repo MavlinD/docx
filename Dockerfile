@@ -56,7 +56,7 @@ USER $USERNAME
 # modify path variable
 ENV PATH="$APP_HOME/.local/bin:$PATH"
 
-#COPY docx_tpl /home/appuser/src
+#COPY docx /home/appuser/src
 #COPY . /home/appuser/src
 #COPY
 CMD sh entrypoint.sh

@@ -1,18 +1,13 @@
-from pprint import pprint
-
-# import uvicorn
 import uvicorn
-from docxtpl import DocxTemplate
-import argparse
-import pathlib
 
 from fastapi import FastAPI
 from logrich.logger_ import errlog
 from logrich.logger_assets import console
 from rich.style import Style
 
-from config import config
-from router import init_router
+# from config import config
+from src.docx.router import init_router
+from src.docx.config import config
 
 
 def app() -> FastAPI:

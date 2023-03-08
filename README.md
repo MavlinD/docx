@@ -6,5 +6,5 @@
 # сборка образа
 d build -t docx-tpl .
 # запуск с параметрами
-d run --rm docx-tpl python docx_tpl/main.py tst
+d run --rm docx-tpl python docx/main.py tst
 ```

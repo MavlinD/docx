@@ -3,7 +3,7 @@ import pathlib
 
 from pydantic import BaseModel, Field, validator
 
-from config import config
+from src.docx.config import config
 
 
 class DocxCreate(BaseModel):

@@ -1,14 +1,13 @@
 import pathlib
 
-from docxtpl import DocxTemplate
-
 from fastapi import FastAPI, Depends
 from fastapi.types import DecoratedCallable
 from starlette import status
+from docxtpl import DocxTemplate
 
-from assets import APIRouter
-from config import config
-from schemas import DocxCreate, DocxResponse
+from src.docx.assets import APIRouter
+from src.docx.config import config
+from src.docx.schemas import DocxCreate, DocxResponse
 
 
 router = APIRouter()

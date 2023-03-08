@@ -2,7 +2,6 @@ import asyncio
 import pathlib
 from typing import AsyncGenerator
 from typing import Generator
-import sys
 
 import pytest
 from _pytest.config import ExitCode
@@ -17,11 +16,9 @@ from logrich.logger_ import log  # noqa
 
 from logrich.logger_assets import console
 
-BASE_DIR = pathlib.Path().resolve()  # noqa
-sys.path.append(f"{BASE_DIR}/docx_tpl")  # noqa
-from helpers.tools import print_request, print_endpoints
-from config import config
-from main import app as app_
+from src.docx.helpers.tools import print_request, print_endpoints
+from src.docx.config import config
+from src.docx.main import app as app_
 from repo_assets import get_test_status_badge
 
 

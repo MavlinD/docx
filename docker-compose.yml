@@ -15,7 +15,7 @@ services:
     init: true
     volumes:
       - ./downloads:/home/appuser/src/downloads
-      - ./docx_tpl/.history:/home/appuser/commandhistory
+      - ./docx/.history:/home/appuser/commandhistory
 
     networks:
       - netname

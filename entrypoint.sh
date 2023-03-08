@@ -1,6 +1,6 @@
 #!/bin/bash
 
 # ls
-cd docx_tpl
+cd docx
 python main.py $@
 # python

@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "docx-tpl"
+name = "docx"
 version = "0.1.0"
 description = ""
 authors = ["Mavlin Dm. <mavlind@list.ru>"]
 readme = "README.md"
-packages = [{include = "docx_tpl"}]
+packages = [{include = "src/docx"}]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
