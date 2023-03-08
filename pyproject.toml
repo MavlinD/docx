@@ -7,19 +7,30 @@ readme = "README.md"
 packages = [{include = "docx_tpl"}]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+# python = "^3.9"
+python = ">=3.8,<3.12"
 docxtpl = "^0.16.5"
 fastapi = "^0.92.0"
-uvicorn = {extras = ["standard"], version = "^0.20.0"}
 logrich = "^0.7.0"
+uvicorn = {extras = ["standard"], version = "^0.20.0"}
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.1.0"
-watchdog = "^2.3.1"
-pytest = "^7.2.2"
-httpx = "^0.23.3"
 asgi-lifespan = "^2.0.0"
+black = "^23.1.0"
+httpx = "^0.23.3"
+mypy = "^1.1.1"
+poetry-plugin-sort = "^0.1.1"
+pre-commit = "^3.1.1"
+pylint = "^2.17.0"
+pytest = "^7.2.2"
+pytest-asyncio = "^0.20.3"
+pytest-picked = "^0.4.6"
+pytest-testmon = "^1.4.5"
+pytest-watch = "^4.2.0"
 requests = "^2.28.2"
+types-requests = "^2.28.11.15"
+types-toml = "^0.10.8.5"
+watchdog = "^2.3.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -31,3 +42,11 @@ line-length = 100
 include = '\.pyi?$'
 quiet = true
 fast = true
+
+# [tool.pytest.ini_options]
+# minversion = "6.0"
+# addopts = "-ra -q"
+# testpaths = [
+#     "tests",
+#     "docx_tpl",
+# ]

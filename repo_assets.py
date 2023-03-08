@@ -8,7 +8,7 @@ import toml
 
 async def update_version_badge() -> None:
     """обновляет бейдж версии"""
-    pyproject = toml.load(open(os.path.join("api", "pyproject.toml")))
+    pyproject = toml.load(open(os.path.join("pyproject.toml")))
     VERSION = pyproject["tool"]["poetry"]["version"]
     content = f"https://img.shields.io/badge/version-{VERSION}-%230071C5?style=for-the-badge&logo=semver&logoColor=orange"
     await update_badge(search="\[version-badge\]: .*", content=f"[version-badge]: {content}")
@@ -53,7 +53,7 @@ async def write_file(content: str, file_name: str = "temp.txt") -> None:
         fp.write(content)
 
 
-async def update_badge(search: str, content: str, file_name: str = "../README.md") -> str:
+async def update_badge(search: str, content: str, file_name: str = "README.md") -> str:
     """обновляет ссылки на бейджи"""
     base_dir = os.path.dirname(__file__)
 

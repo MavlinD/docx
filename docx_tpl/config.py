@@ -21,7 +21,7 @@ from pydantic import BaseSettings
 from logrich.logger_ import log  # noqa
 
 
-DOTENV_FILE = "./../.env"
+DOTENV_FILE = "./.env"
 
 
 @lru_cache()

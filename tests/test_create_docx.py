@@ -25,9 +25,8 @@ async def test_create_docx(
         "context": {"username": "Васян Хмурый", "place": "Кемерово"},
     }
     resp = await client.post(
-        routes.request_to_create_docx(
-            json={"payload": payload},
-        )
+        routes.request_to_create_docx,
+        json={"payload": payload},
     )
     # log.debug(resp)
     data = resp.json()

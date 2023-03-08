@@ -1,6 +1,8 @@
 import asyncio
+import pathlib
 from typing import AsyncGenerator
 from typing import Generator
+import sys
 
 import pytest
 from _pytest.config import ExitCode
@@ -12,8 +14,11 @@ from fastapi import FastAPI
 from httpx import AsyncClient, URL
 
 from logrich.logger_ import log  # noqa
+
 from logrich.logger_assets import console
 
+BASE_DIR = pathlib.Path().resolve()  # noqa
+sys.path.append(f"{BASE_DIR}/docx_tpl")  # noqa
 from helpers.tools import print_request, print_endpoints
 from config import config
 from main import app as app_
@@ -24,6 +29,7 @@ def pytest_sessionfinish(session: Session, exitstatus: int | ExitCode) -> None:
     """получит бейдж для статуса тестов"""
     print()
     if config.LOCAL:
+        log.debug(config.LOCAL)
         asyncio.run(get_test_status_badge(status=exitstatus))
 
 
