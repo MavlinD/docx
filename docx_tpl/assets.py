@@ -1,6 +1,4 @@
-import os
-import toml
-from typing import Any, Callable, Dict
+from typing import Any, Callable
 
 from fastapi import APIRouter as FastAPIRouter
 from fastapi.types import DecoratedCallable
@@ -25,17 +23,3 @@ class APIRouter(FastAPIRouter):
             return add_alternate_path(func)
 
         return decorator
-
-
-def get_project() -> Dict:
-    """return project file"""
-    BASE_DIR = os.path.dirname(__file__)
-    pyproject = toml.load(open(os.path.join(BASE_DIR, "..", "..", "pyproject.toml")))
-    return pyproject["tool"]["poetry"]
-
-
-def get_key(key: str) -> str:
-    """получим ключ из файла на диске"""
-    BASE_DIR = os.path.dirname(__file__)
-    with open(os.path.join(BASE_DIR, key), mode="r", encoding="utf-8") as f:
-        return f.read().strip()
