@@ -53,7 +53,7 @@ async def write_file(content: str, file_name: str = "temp.txt") -> None:
         fp.write(content)
 
 
-async def update_badge(search: str, content: str, file_name: str = "README.md") -> str:
+async def update_badge(search: str, content: str, file_name: str = "../README.md") -> str:
     """обновляет ссылки на бейджи"""
     base_dir = os.path.dirname(__file__)
 

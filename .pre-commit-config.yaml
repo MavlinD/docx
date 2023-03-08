@@ -16,7 +16,7 @@ repos:
 
       - id: make-badges
         name: make-badges
-        entry: get_badges.py
+        entry: repo/get_badges.py
         language: script
         pass_filenames: false
         verbose: true

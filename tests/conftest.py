@@ -1,5 +1,4 @@
 import asyncio
-import pathlib
 from typing import AsyncGenerator
 from typing import Generator
 
@@ -10,7 +9,7 @@ from _pytest.main import Session
 from _pytest.nodes import Item
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
-from httpx import AsyncClient, URL
+from httpx import AsyncClient
 
 from logrich.logger_ import log  # noqa
 
@@ -19,7 +18,7 @@ from logrich.logger_assets import console
 from src.docx.helpers.tools import print_request, print_endpoints
 from src.docx.config import config
 from src.docx.main import app as app_
-from repo_assets import get_test_status_badge
+from repo.repo_assets import get_test_status_badge
 
 
 def pytest_sessionfinish(session: Session, exitstatus: int | ExitCode) -> None:
