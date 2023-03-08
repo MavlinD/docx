@@ -51,8 +51,8 @@ async def create_docx(
     tpl = f"templates/{payload.template}"
     doc = DocxTemplate(tpl)
     # content = {"username": "Васян Хмурый", "place": "Кемерово"}
-    content = payload.content
-    doc.render(content)
+    context = payload.context
+    doc.render(context)
     BASE_DIR = pathlib.Path().resolve().parent
     doc.save(BASE_DIR.joinpath(f"{config.DOWNLOADS_DIR}/{payload.filename}.docx"))
     resp = DocxResponse(

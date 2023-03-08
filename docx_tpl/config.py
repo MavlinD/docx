@@ -39,6 +39,8 @@ class Settings(BaseSettings):
     DOWNLOADS_URL: str = "downloads"
     DEBUG: bool = True
     RELOAD: bool = True
+    LOCAL: bool = True
+    TESTING: bool = True
     API_PORT_INTERNAL: int = os.getenv("API_PORT_INTERNAL", 8000)
     # API_PORT_INTERNAL: int = 8000
     API_HOSTNAME: str = "0.0.0.0"

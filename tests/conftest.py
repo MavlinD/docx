@@ -1,0 +1,109 @@
+import asyncio
+from typing import AsyncGenerator
+from typing import Generator
+
+import pytest
+from _pytest.config import ExitCode
+
+from _pytest.main import Session
+from _pytest.nodes import Item
+from asgi_lifespan import LifespanManager
+from fastapi import FastAPI
+from httpx import AsyncClient, URL
+
+from logrich.logger_ import log  # noqa
+from logrich.logger_assets import console
+
+from helpers.tools import print_request, print_endpoints
+from config import config
+from main import app as app_
+from repo_assets import get_test_status_badge
+
+
+def pytest_sessionfinish(session: Session, exitstatus: int | ExitCode) -> None:
+    """получит бейдж для статуса тестов"""
+    print()
+    if config.LOCAL:
+        asyncio.run(get_test_status_badge(status=exitstatus))
+
+
+def pytest_configure() -> None:
+    """предотвратить поломку основной БД"""
+    if not config.TESTING:
+        log.warning(
+            "Переведите приложение в режим тестирования:\n" "установите переменную TESTING=True"
+        )
+        pytest.exit("Условие запуска тестов")
+
+
+@pytest.fixture(autouse=True)
+def run_before_and_after_tests(tmpdir: str) -> Generator:
+    """Fixture to execute asserts before and after a test is run"""
+    print()
+    yield
+
+
+@pytest.fixture
+async def app() -> AsyncGenerator[FastAPI, None]:
+    yield app_()
+
+
+def pytest_sessionstart(session: Session) -> None:  # noqa
+    """пусть будет"""
+    pass
+
+
+def pytest_runtest_call(item: Item) -> None:
+    """печатает заголовок теста"""
+    console.rule(f"[green]{item.parent.name}[/]::[yellow bold]{item.name}[/]")  # type: ignore
+
+
+@pytest.fixture
+async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, object]:
+    """Async server client that handles lifespan and teardown"""
+    async with LifespanManager(app):
+        async with AsyncClient(
+            app=app,
+            base_url="http://test",
+            event_hooks={
+                "request": [print_request],
+            },
+        ) as client_:
+            try:
+                yield client_
+            except Exception as exc:
+                log.error(exc)
+            finally:
+                pass
+
+
+# @pytest.fixture
+# async def create_group_fixture(app: FastAPI) -> GroupOut | GroupAlreadyExists:
+#     """добавляет группу"""
+#     group = await create_group(
+#         groupname=config.TEST_GROUP,
+#     )
+#     return group
+
+
+class Routs:
+    def __init__(self, app: FastAPI) -> None:
+        # Request for create docx
+        self.app = app
+        self.request_to_create_docx = app.url_path_for("create_docx")
+
+    # def request_to_create_docx2(
+    #     self,
+    #     # filename: str, template:str,
+    #     payload: dict,
+    # ) -> URL | str:
+    #     return self.app.url_path_for("create_docx", payload=payload)
+
+    def print(self) -> None:
+        print_endpoints(self.app)
+
+
+@pytest.fixture
+def routes(app: FastAPI) -> Routs:
+    """ """
+    return Routs(app)

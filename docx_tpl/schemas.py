@@ -34,7 +34,7 @@ class DocxCreate(BaseModel):
             raise ValueError("Template not exist!")
         return v
 
-    content: dict = {}
+    context: dict = {}
 
 
 class DocxResponse(BaseModel):
