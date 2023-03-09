@@ -1,6 +1,6 @@
-import os
+import pathlib
 from functools import lru_cache
-from pydantic import BaseSettings
+from pydantic import BaseSettings, validator
 from logrich.logger_ import log  # noqa
 
 
@@ -20,6 +20,15 @@ class Settings(BaseSettings):
     TEMPLATES_DIR: str = "src/docx/templates"
     DOWNLOADS_DIR: str = "downloads"
     DOWNLOADS_URL: str = "downloads"
+
+    @validator("DOWNLOADS_DIR", allow_reuse=True)
+    def create_downloads_dir(cls, v: str) -> str:
+        """make place if not exist"""
+        place = pathlib.Path(v)
+        if not place.is_dir():
+            place.mkdir()
+        return v
+
     DEBUG: bool = True
     RELOAD: bool = True
     LOCAL: bool = True

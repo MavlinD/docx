@@ -32,7 +32,7 @@ async def create_docx(
     doc.save(path_to_save)
     resp = DocxResponse(
         filename=path_to_save,
-        url=f"{config.DOWNLOADS_URL}/{payload.template}",
+        url=f"{config.DOWNLOADS_URL}/{payload.filename}.docx",
     )
     return resp
 
