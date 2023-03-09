@@ -1,6 +1,7 @@
 from typing import Annotated
 import pathlib
 
+from logrich.logger_ import log  # noqa
 from pydantic import BaseModel, Field, validator
 
 from src.docx.config import config
@@ -28,11 +29,12 @@ class DocxCreate(BaseModel):
     ]
 
     @validator("template")
-    def template_must_be_exist(cls, v: str) -> str:
-        tpl_exists = pathlib.Path(f"templates/{v}").is_file()
-        if not tpl_exists:
-            raise ValueError("Template not exist!")
-        return v
+    def template_must_be_exist(cls, v: str) -> pathlib.Path:
+        """make Path from string"""
+        tpl_place = pathlib.Path(f"{config.TEMPLATES_DIR}/{v}")
+        if not tpl_place.is_file():
+            raise ValueError(f"Template {tpl_place} not exist!")
+        return tpl_place
 
     context: dict = {}
 
@@ -41,5 +43,4 @@ class DocxResponse(BaseModel):
     """схема для ответа на создание отчета"""
 
     filename: pathlib.Path
-    # filename: str
     url: str

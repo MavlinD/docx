@@ -13,8 +13,8 @@ from src.docx.schemas import DocxCreate, DocxResponse
 router = APIRouter()
 
 
-async def check_payload(payload):
-    yield DocxCreate(**payload)
+# async def check_payload(payload):
+#     yield DocxCreate(**payload)
 
 
 @router.post(
@@ -26,14 +26,12 @@ async def create_docx(
     payload: DocxCreate,
 ) -> DocxResponse:
     """создать файл *.docx по шаблону"""
-    tpl = f"templates/{payload.template}"
-    doc = DocxTemplate(tpl)
-    context = payload.context
-    doc.render(context)
-    BASE_DIR = pathlib.Path().resolve().parent
-    doc.save(BASE_DIR.joinpath(f"{config.DOWNLOADS_DIR}/{payload.filename}.docx"))
+    doc = DocxTemplate(payload.template)
+    doc.render(payload.context)
+    path_to_save = pathlib.Path().cwd().joinpath(config.DOWNLOADS_DIR, f"{payload.filename}.docx")
+    doc.save(path_to_save)
     resp = DocxResponse(
-        filename=pathlib.Path(f"{config.DOWNLOADS_DIR}/{payload.filename}.docx"),
+        filename=path_to_save,
         url=f"{config.DOWNLOADS_URL}/{payload.template}",
     )
     return resp

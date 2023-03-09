@@ -15,8 +15,6 @@ reason = "Temporary off!"
 async def test_create_docx(
     client: AsyncClient,
     routes: Routs,
-    # superuser_auth_headers: Headers,
-    # create_group_fixture: Callable,
 ) -> None:
     """тест создания docx"""
     payload = {
@@ -26,7 +24,7 @@ async def test_create_docx(
     }
     resp = await client.post(
         routes.request_to_create_docx,
-        json={"payload": payload},
+        json=payload,
     )
     # log.debug(resp)
     data = resp.json()
