@@ -1,11 +1,16 @@
 import pathlib
+from datetime import timedelta
 
 import pytest
 from docxtpl import DocxTemplate
 from httpx import AsyncClient
 
 from logrich.logger_ import log  # noqa
+from pydantic import EmailStr
 
+from src.docx.config import config
+from src.docx.helpers.security import generate_jwt
+from src.docx.schemas import TokenCustomModel
 from tests.conftest import Routs
 
 skip = False
@@ -23,10 +28,18 @@ async def test_create_docx(
     https://python-docx.readthedocs.io/en/latest/user/documents.html#opening-a-document
     """
     username = "Васян Хмурый"
+    token_data = {
+        "sub": "test",
+        "email": EmailStr("test@loc.loc"),
+    }
+    token = generate_jwt(data=token_data)
+    # log.debug(token)
     payload = {
         "filename": "test-filename",
         "template": "my_word_template.docx",
         "context": {"username": username, "place": "Кемерово"},
+        "token": token,
+        "issuer": "auth_v2",
     }
     resp = await client.post(
         routes.request_to_create_docx,
@@ -34,7 +47,7 @@ async def test_create_docx(
     )
     # log.debug(resp)
     data = resp.json()
-    log.debug("-", o=data)
+    log.debug("", o=data)
     assert resp.status_code == 201, "некорректный ответ сервера"
     out_file = pathlib.Path(data.get("filename"))
 

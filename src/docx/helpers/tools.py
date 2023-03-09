@@ -1,6 +1,8 @@
 import functools
 import hashlib
 import locale
+import os
+import pathlib
 import time
 from datetime import datetime, date
 from typing import Dict, List, Callable
@@ -114,3 +116,17 @@ def set_to_obj(arg: str | List) -> Dict:
         return resp
     resp[arg[0]] = {}
     return resp
+
+
+def get_key3(key: str) -> str:
+    """получим ключ из файла на диске"""
+    path_to_key = pathlib.Path(key)
+    with open(path_to_key, mode="r", encoding="utf-8") as f:
+        return f.read().strip()
+
+
+async def get_key(key: str) -> str:
+    """получим ключ из файла на диске"""
+    path_to_key = pathlib.Path(key)
+    with open(path_to_key, mode="r", encoding="utf-8") as f:
+        return f.read().strip()

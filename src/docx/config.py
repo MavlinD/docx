@@ -1,8 +1,10 @@
+import asyncio
 import pathlib
 from functools import lru_cache
 from pydantic import BaseSettings, validator
 from logrich.logger_ import log  # noqa
 
+from src.docx.helpers.tools import get_key
 
 DOTENV_FILE = "./.env"
 
@@ -21,7 +23,7 @@ class Settings(BaseSettings):
     DOWNLOADS_DIR: str = "downloads"
     DOWNLOADS_URL: str = "downloads"
 
-    @validator("DOWNLOADS_DIR", allow_reuse=True)
+    @validator("DOWNLOADS_DIR")
     def create_downloads_dir(cls, v: str) -> str:
         """make place if not exist"""
         place = pathlib.Path(v)
@@ -43,6 +45,14 @@ class Settings(BaseSettings):
 
     TEMPLATE_MIN_LENGTH: int = 3
     TEMPLATE_MAX_LENGTH: int = 100
+
+    # ---------- только для тестов ----------
+    JWT_ALGORITHM: str = "ES256"
+    TOKEN_AUDIENCE: str | list[str] | None = "test-audience"
+    PRIVATE_KEY: str = asyncio.run(get_key(key="tests/priv-key.pem"))
+    PUBLIC_KEY: str = asyncio.run(get_key(key="tests/pub-key.pem"))
+    JWT_ACCESS_KEY_EXPIRES_TIME_DAYS: int = 3650
+    # ---------- только для тестов ----------
 
     LOG_LEVEL: int = 0
 

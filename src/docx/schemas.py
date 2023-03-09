@@ -1,8 +1,9 @@
-from typing import Annotated
+from datetime import timedelta, datetime
+from typing import Annotated, Optional, Sequence
 import pathlib
 
 from logrich.logger_ import log  # noqa
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, EmailStr
 
 from src.docx.config import config
 
@@ -36,6 +37,9 @@ class DocxCreate(BaseModel):
             raise ValueError(f"Template {tpl_place} not exist!")
         return tpl_place
 
+    token: str = ""
+    issuer: str = ""
+
     context: dict = {}
 
 
@@ -44,3 +48,15 @@ class DocxResponse(BaseModel):
 
     filename: pathlib.Path
     url: str
+
+
+class TokenCustomModel(BaseModel):
+    """
+    модель пользовательского токена, для валидации параметров запроса пользовательского токена
+    """
+
+    sub: str
+    type: str = "access"
+    exp: datetime
+    email: EmailStr | None = None
+    aud: str | Sequence[str] = "test-aud"
