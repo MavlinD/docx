@@ -4,11 +4,9 @@
 [tests-status-badge]: https://img.shields.io/badge/test-passed-green?style=for-the-badge&logo=pytest&logoColor=orange
 [main-branch-link]: https://github.com/MavlinD/docx
 
-### Шаблонизатор для docx (MS Word)
+### Шаблонизатор для файлов __*.docx__ (MS Word)
 
-[основной пакет](https://docxtpl.readthedocs.io/en/latest/#indices-and-tables)
-
-#### Manual deploy
+#### Развертывание (deploy)
 ```shell
 cp template.env .env
 # установить нужные значения
@@ -16,11 +14,27 @@ cp template.env .env
 # добавить нужные шаблоны в папку templates
 docker compose up 
 ```
+#### Локальный запуск  
+```shell
+# создать виртуальное окружение
+poetry shell
+# установить все пакеты
+poetry i
+# запустить
+python3 src/docx/main.py
+```
+
 #### Tests
 ```shell
+# создать виртуальное окружение
+poetry shell
+# установить все пакеты
+poetry i
 # запустить все тесты
 pytest -x  
 # мониторинг изменений
 ptw -- 5 mon
 # где 5 - уровень логирования 
 ```
+
+[основной пакет](https://docxtpl.readthedocs.io/en/latest/#indices-and-tables)  
