@@ -17,7 +17,7 @@ def main() -> None:
     args = parser.parse_args()
     print(args.payload)
     BASE_DIR = pathlib.Path().resolve().parent
-    doc = DocxTemplate("../../templates/my_word_template.docx")
+    doc = DocxTemplate("../../templates/test_docx_template.docx")
     context = {"username": "Васян Хмурый", "place": "Кемерово"}
     doc.render(context)
 

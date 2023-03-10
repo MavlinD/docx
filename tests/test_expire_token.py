@@ -31,7 +31,7 @@ async def test_expire_token(
     # log.debug(token)
     payload = {
         "filename": "test-filename",
-        "template": "my_word_template.docx",
+        "template": "test_docx_template.docx",
         "context": {"username": username, "place": "Кемерово"},
         "token": token,
         "token_issuer": "auth_v2",
