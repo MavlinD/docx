@@ -59,4 +59,4 @@ class TokenCustomModel(BaseModel):
     type: str = "access"
     exp: datetime
     email: EmailStr
-    aud: str | Sequence[str] = "test-aud"
+    aud: Sequence[str] = "test-aud"

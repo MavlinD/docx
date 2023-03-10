@@ -1,12 +1,9 @@
-import pathlib
-
 import pytest
-from docxtpl import DocxTemplate
 from httpx import AsyncClient
 
+from datetime import timedelta
 from logrich.logger_ import log  # noqa
 from pydantic import EmailStr
-
 from src.docx.helpers.security import generate_jwt
 from tests.conftest import Routs
 
@@ -17,7 +14,7 @@ reason = "Temporary off!"
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-async def test_create_docx(
+async def test_expire_token(
     client: AsyncClient,
     routes: Routs,
 ) -> None:
@@ -30,7 +27,7 @@ async def test_create_docx(
         "email": EmailStr("test@loc.loc"),
         "aud": ["test-aud", "other-aud"],
     }
-    token = generate_jwt(data=token_data)
+    token = generate_jwt(data=token_data, lifetime=timedelta(days=-1))
     # log.debug(token)
     payload = {
         "filename": "test-filename",
@@ -46,14 +43,4 @@ async def test_create_docx(
     # log.debug(resp)
     data = resp.json()
     log.debug("-", o=data)
-    assert resp.status_code == 201, "некорректный ответ сервера"
-    out_file = pathlib.Path(data.get("filename"))
-
-    assert out_file.is_file(), "итоговый файл не сохранился"
-
-    doc = DocxTemplate(str(out_file))
-    doc.render({})
-    content = set()
-    for para in doc.paragraphs:
-        content.add(para.text)
-    assert username in " ".join(content), "данных в итоговом файле не наблюдается"
+    assert resp.status_code == 422, "некорректный ответ сервера"
