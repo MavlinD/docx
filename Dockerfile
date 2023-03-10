@@ -1,4 +1,6 @@
-FROM python:3.11
+ARG PYTHON_VER=3.11
+
+FROM python:${PYTHON_VER}
 
 ARG USERNAME=appuser
 ENV APP_HOME=/home/$USERNAME
@@ -43,15 +45,15 @@ RUN curl -sSL https://install.python-poetry.org | python3 - && \
 
 WORKDIR $APP_HOME/src
 
-COPY . .
-COPY .bashrc $APP_HOME
+COPY --chown=$USERNAME:$USERNAME . .
+COPY --chown=$USERNAME:$USERNAME .bashrc $APP_HOME
 
 ARG SRC_NAMESPACE
+ARG PYTHON_VER
 
 RUN poetry install $SRC_NAMESPACE && \
     chmod a+rwx -R . && \
-    chmod a+rwx -R /usr/local/lib/python3.11
-#    chmod a+rwx -R "/usr/local/lib/python${PYTHON_VER}"
+    chmod a+rwx -R "/usr/local/lib/python${PYTHON_VER}"
 
 USER $USERNAME
 # modify path variable

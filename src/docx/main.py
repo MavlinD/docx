@@ -1,7 +1,7 @@
 import uvicorn
 
 from fastapi import FastAPI
-from logrich.logger_ import errlog
+from logrich.logger_ import errlog, log
 from logrich.logger_assets import console
 from rich.style import Style
 
@@ -13,6 +13,7 @@ from src.docx.config import config
 
 
 project = get_project()
+
 sw_params = {
     "title": project["name"],
     "version": project["version"],
@@ -64,4 +65,12 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    log.info(f"DEBUG: {config.DEBUG}")
+    log.info(f"TESTING: {config.TESTING}")
+    if any({config.TESTING, config.DEBUG}):
+        log.warning(
+            "отключите режим тестирования и отладки - установите переменную TESTING=0 и DEBUG=0"
+        )
+        exit(128)
+
     main()

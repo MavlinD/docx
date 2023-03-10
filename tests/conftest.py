@@ -25,7 +25,7 @@ def pytest_sessionfinish(session: Session, exitstatus: int | ExitCode) -> None:
     """получит бейдж для статуса тестов"""
     print()
     if config.LOCAL:
-        log.debug(config.LOCAL)
+        # log.debug(config.LOCAL)
         asyncio.run(get_test_status_badge(status=exitstatus))
 
 
@@ -42,8 +42,10 @@ async def app() -> AsyncGenerator[FastAPI, None]:
 
 
 def pytest_sessionstart(session: Session) -> None:  # noqa
-    """пусть будет"""
-    pass
+    """"""
+    if not config.TESTING:
+        log.warning("включите режим тестирования - установите переменную TESTING=1")
+        pytest.exit("-")
 
 
 def pytest_runtest_call(item: Item) -> None:
