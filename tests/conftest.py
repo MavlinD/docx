@@ -70,27 +70,11 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, object]:
                 pass
 
 
-# @pytest.fixture
-# async def create_group_fixture(app: FastAPI) -> GroupOut | GroupAlreadyExists:
-#     """добавляет группу"""
-#     group = await create_group(
-#         groupname=config.TEST_GROUP,
-#     )
-#     return group
-
-
 class Routs:
     def __init__(self, app: FastAPI) -> None:
         # Request for create docx
         self.app = app
         self.request_to_create_docx = app.url_path_for("create_docx")
-
-    # def request_to_create_docx2(
-    #     self,
-    #     # filename: str, template:str,
-    #     payload: dict,
-    # ) -> URL | str:
-    #     return self.app.url_path_for("create_docx", payload=payload)
 
     def print(self) -> None:
         print_endpoints(self.app)

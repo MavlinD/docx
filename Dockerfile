@@ -44,9 +44,8 @@ RUN curl -sSL https://install.python-poetry.org | python3 - && \
 WORKDIR $APP_HOME/src
 
 COPY . .
-#COPY pyproject.toml .
-#COPY poetry.lock .
 COPY .bashrc $APP_HOME
+
 RUN poetry install && \
     chmod a+rwx -R . && \
     chmod a+rwx -R /usr/local/lib/python3.11
@@ -56,7 +55,4 @@ USER $USERNAME
 # modify path variable
 ENV PATH="$APP_HOME/.local/bin:$PATH"
 
-#COPY docx /home/appuser/src
-#COPY . /home/appuser/src
-#COPY
 CMD sh entrypoint.sh

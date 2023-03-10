@@ -3,6 +3,7 @@ name = "docx"
 version = "0.1.0"
 description = "Docx (MS Word) template engine."
 authors = ["Mavlin Dm. <mavlind@list.ru>"]
+license = "GPLv3"
 readme = "README.md"
 packages = [{include = "src/docx"}]
 
@@ -36,7 +37,6 @@ watchdog = "^2.3.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
 
 [tool.black]
 line-length = 100
