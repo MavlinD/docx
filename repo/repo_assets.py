@@ -1,4 +1,4 @@
-import os
+import pathlib
 import re
 import urllib.request
 from pprint import pprint  # noqa
@@ -8,7 +8,7 @@ import toml
 
 async def update_version_badge() -> None:
     """обновляет бейдж версии"""
-    pyproject = toml.load(open(os.path.join("pyproject.toml")))
+    pyproject = toml.load(open(pathlib.Path("pyproject.toml")))
     VERSION = pyproject["tool"]["poetry"]["version"]
     content = f"https://img.shields.io/badge/version-{VERSION}-%230071C5?style=for-the-badge&logo=semver&logoColor=orange"
     await update_badge(search="\[version-badge\]: .*", content=f"[version-badge]: {content}")
@@ -48,20 +48,18 @@ async def fetch_badges(
 
 async def write_file(content: str, file_name: str = "temp.txt") -> None:
     """записывает в файл переданный контент"""
-    base_dir = os.path.dirname(__file__)
-    with open(os.path.join(base_dir, file_name), "w", encoding="utf-8") as fp:
+    with open(pathlib.Path(file_name), "w", encoding="utf-8") as fp:
         fp.write(content)
 
 
-async def update_badge(search: str, content: str, file_name: str = "../README.md") -> str:
+async def update_badge(search: str, content: str, file_name: str = "README.md") -> str:
     """обновляет ссылки на бейджи"""
-    base_dir = os.path.dirname(__file__)
 
-    with open(os.path.join(base_dir, file_name), "r", encoding="utf-8") as fp:
+    with open(pathlib.Path(file_name), "r", encoding="utf-8") as fp:
         file_content = fp.read()
         new_content = re.sub(search, content, file_content)
 
-    with open(os.path.join(base_dir, file_name), "w", encoding="utf-8") as fw:
+    with open(pathlib.Path(file_name), "w", encoding="utf-8") as fw:
         fw.write(new_content)
 
     return new_content
