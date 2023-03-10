@@ -1,5 +1,5 @@
-from datetime import timedelta, datetime
-from typing import Annotated, Optional, Sequence
+from datetime import datetime
+from typing import Annotated, Sequence, Dict
 import pathlib
 
 from logrich.logger_ import log  # noqa
@@ -25,7 +25,7 @@ class DocxCreate(BaseModel):
         Field(
             min_length=config.TEMPLATE_MIN_LENGTH,
             max_length=config.TEMPLATE_MAX_LENGTH,
-            description="Имя шаблона",
+            description="Имя заранее загруженного шаблона",
         ),
     ]
 
@@ -37,10 +37,12 @@ class DocxCreate(BaseModel):
             raise ValueError(f"Template {tpl_place} not exist!")
         return tpl_place
 
-    token: str
-    token_issuer: str
+    token_issuer: str = Field(description="Издатель токена")
+    token: str = Field(
+        description="JWT подписанный асинхронным алгоритмом, при этом аудиенция токена должна соотвествовать аудиенции издателя указанной в переменных окружения данного сервиса. Издатель должен её определить и включить в токен перед запросом"
+    )
 
-    context: dict
+    context: Dict[str, str] = Field(default={}, description="Переменные шаблона")
 
 
 class DocxResponse(BaseModel):
@@ -53,10 +55,13 @@ class DocxResponse(BaseModel):
 class TokenCustomModel(BaseModel):
     """
     модель пользовательского токена, для валидации параметров запроса пользовательского токена
+    только для тестов
     """
 
-    sub: str
-    type: str = "access"
+    sub: str = Field(description="издатель токена")
+    type: str = Field(default="access", description="тип токена")
     exp: datetime
     email: EmailStr
-    aud: Sequence[str] = "test-aud"
+    aud: Sequence[str] = Field(
+        description="аудиенция, издатель должен её определить и включить в токен перед запросом"
+    )
