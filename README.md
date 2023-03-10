@@ -12,6 +12,7 @@ Manual deploy
 ```shell
 cp template.env .env
 # установить нужные значения
-# загрузить в папку public_keys публичный ключ/и
+# загрузить в папку public_keys публичный ключ/и сервисов клиентов
+# добавить нужные шаблоны в папку templates
 docker compose up 
 ```

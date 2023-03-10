@@ -65,9 +65,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    log.info(f"DEBUG: {config.DEBUG}")
-    log.info(f"TESTING: {config.TESTING}")
-    if any({config.TESTING, config.DEBUG}):
+    if config.TESTING or config.DEBUG:
         log.warning(
             "отключите режим тестирования и отладки - установите переменную TESTING=0 и DEBUG=0"
         )
