@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+
+  docx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SRC_NAMESPACE: $SRC_NAMESPACE

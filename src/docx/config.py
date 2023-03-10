@@ -33,10 +33,10 @@ class Settings(BaseSettings):
             place.mkdir()
         return v
 
-    DEBUG: bool = True
-    RELOAD: bool = True
-    LOCAL: bool = True
-    TESTING: bool = True
+    DEBUG: bool = False
+    RELOAD: bool = False
+    LOCAL: bool = False
+    TESTING: bool = False
 
     API_PORT_INTERNAL: int = 8000
     API_HOSTNAME: str = "0.0.0.0"
@@ -69,9 +69,26 @@ class Settings(BaseSettings):
     # ---------- только для тестов ----------
     JWT_ALGORITHM: str = "ES256"
     TOKEN_AUDIENCE: str | list[str] | None = "test-audience"
-    PRIVATE_KEY: str = asyncio.run(get_key(key="tests/priv-key.pem"))
-    PUBLIC_KEY: str = asyncio.run(get_key(key="tests/pub-key.pem"))
+    PRIVATE_KEY: str = ""
+    PUBLIC_KEY: str = ""
     JWT_ACCESS_KEY_EXPIRES_TIME_DAYS: int = 3650
+
+    @validator("PRIVATE_KEY")
+    def set_private_key(
+        cls, value: str, values: dict, config: BaseSettings, field: ModelField
+    ) -> str:
+        if values.get("TESTING"):
+            privkey = asyncio.run(get_key(key="tests/priv-key.pem"))
+            return privkey
+
+    @validator("PUBLIC_KEY")
+    def set_public_key(
+        cls, value: str, values: dict, config: BaseSettings, field: ModelField
+    ) -> str:
+        if values.get("TESTING"):
+            pubkey = asyncio.run(get_key(key="tests/pub-key.pem"))
+            return pubkey
+
     # ---------- только для тестов ----------
 
     LOG_LEVEL: int = 0

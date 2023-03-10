@@ -51,7 +51,9 @@ def app() -> FastAPI:
 
 @errlog.catch
 def main() -> None:
-    console.rule(f"[green]{sw_params['title']}[/]", style=Style(color="magenta"))
+    console.rule(
+        f"[green]{sw_params['title']}:{sw_params['version']}[/]", style=Style(color="magenta")
+    )
     uvicorn.run(
         "main:app",
         reload=config.RELOAD,

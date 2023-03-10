@@ -3,19 +3,17 @@ version: "3.9"
 services:
 
   docx:
-    build:
-      context: .
-      dockerfile: Dockerfile
-#    command:
-#      - bash 'ls -al'
-#    entrypoint: bash
-    hostname: doct
-    container_name: doct
+    hostname: docx
+    container_name: docx
+    ports:
+      - $API_PORT_INTERNAL:$API_PORT_INTERNAL
+    env_file:
+      - .env
     tty: true
     init: true
     volumes:
+      - ./src/docx/.history:/home/appuser/commandhistory
       - ./downloads:/home/appuser/src/downloads
-      - ./docx/.history:/home/appuser/commandhistory
 
     networks:
       - netname

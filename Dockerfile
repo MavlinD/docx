@@ -46,7 +46,9 @@ WORKDIR $APP_HOME/src
 COPY . .
 COPY .bashrc $APP_HOME
 
-RUN poetry install && \
+ARG SRC_NAMESPACE
+
+RUN poetry install $SRC_NAMESPACE && \
     chmod a+rwx -R . && \
     chmod a+rwx -R /usr/local/lib/python3.11
 #    chmod a+rwx -R "/usr/local/lib/python${PYTHON_VER}"
