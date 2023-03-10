@@ -43,4 +43,4 @@ async def test_expire_token(
     # log.debug(resp)
     data = resp.json()
     log.debug("-", o=data)
-    assert resp.status_code == 422, "некорректный ответ сервера"
+    assert resp.status_code == 403, "некорректный ответ сервера"

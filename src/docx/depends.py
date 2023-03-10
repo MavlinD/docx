@@ -4,7 +4,7 @@ import jwt
 from jwt import InvalidAudienceError, ExpiredSignatureError
 from logrich.logger_ import log  # noqa
 
-from src.docx.exceptions import InvalidVerifyToken
+from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
 from src.docx.helpers.tools import get_key
 from src.docx.schemas import DocxCreate
 from dotenv import load_dotenv
@@ -31,7 +31,7 @@ async def check_access(payload: DocxCreate) -> bool:
         )
         log.debug("", o=decoded_payload)
     except InvalidAudienceError:
-        raise InvalidVerifyToken(msg="Некорректная аудиенция")
+        raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_FAIL.value)
     except ExpiredSignatureError:
-        raise InvalidVerifyToken(msg="Срок действия истёк")
+        raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_EXPIRE.value)
     return True
