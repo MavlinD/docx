@@ -31,6 +31,7 @@ async def test_create_docx(
     token_data = {
         "sub": "test",
         "email": EmailStr("test@loc.loc"),
+        "aud": ["test-aud", "other-aud-1"],
     }
     token = generate_jwt(data=token_data)
     # log.debug(token)
@@ -39,7 +40,7 @@ async def test_create_docx(
         "template": "my_word_template.docx",
         "context": {"username": username, "place": "Кемерово"},
         "token": token,
-        "issuer": "auth_v2",
+        "token_issuer": "auth_v2",
     }
     resp = await client.post(
         routes.request_to_create_docx,
@@ -47,7 +48,7 @@ async def test_create_docx(
     )
     # log.debug(resp)
     data = resp.json()
-    log.debug("", o=data)
+    log.debug("-", o=data)
     assert resp.status_code == 201, "некорректный ответ сервера"
     out_file = pathlib.Path(data.get("filename"))
 

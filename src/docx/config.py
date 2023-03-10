@@ -19,7 +19,7 @@ class Settings(BaseSettings):
         env_file = DOTENV_FILE
         env_file_encoding = "utf-8"
 
-    TEMPLATES_DIR: str = "src/docx/templates"
+    TEMPLATES_DIR: str = "templates"
     DOWNLOADS_DIR: str = "downloads"
     DOWNLOADS_URL: str = "downloads"
 

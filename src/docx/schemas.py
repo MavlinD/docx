@@ -37,10 +37,10 @@ class DocxCreate(BaseModel):
             raise ValueError(f"Template {tpl_place} not exist!")
         return tpl_place
 
-    token: str = ""
-    issuer: str = ""
+    token: str
+    token_issuer: str
 
-    context: dict = {}
+    context: dict
 
 
 class DocxResponse(BaseModel):
@@ -58,5 +58,5 @@ class TokenCustomModel(BaseModel):
     sub: str
     type: str = "access"
     exp: datetime
-    email: EmailStr | None = None
+    email: EmailStr
     aud: str | Sequence[str] = "test-aud"
