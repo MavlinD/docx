@@ -5,28 +5,44 @@ from logrich.logger_ import errlog
 from logrich.logger_assets import console
 from rich.style import Style
 
-# from config import config
+from src.docx.helpers.tools import get_project
+from src.docx.err_handlers import init_err_handlers  # noqa
+from src.docx.middleware import init_middleware  # noqa
 from src.docx.router import init_router
 from src.docx.config import config
 
 
+project = get_project()
+sw_params = {
+    "title": project["name"],
+    "version": project["version"],
+    "description": f'<h4>{project["description"]}<br>Micro-service unit.</h4>',
+    "debug": config.DEBUG,
+}
+
+sw_ui = {"defaultModelsExpandDepth": -1}
+
+tags_metadata = [
+    {
+        "name": "Docx",
+        "description": "Основные действия с шаблонизатором",
+    },
+]
+
+
 def app() -> FastAPI:
     app_ = FastAPI(
-        # **sw_params,
-        # swagger_ui_parameters=sw_ui,
-        # contact={
-        #     "name": project["name"],
-        #     "url": config.ROOT_URL,
-        # },
-        # openapi_tags=tags_metadata,
+        **sw_params,
+        swagger_ui_parameters=sw_ui,
+        contact={
+            "name": project["name"],
+            "url": config.ROOT_URL,
+        },
+        openapi_tags=tags_metadata,
     )
-    # try:
-    #     app_.mount("/assets", StaticFiles(directory="wiki/site/assets"), name="static")
-    # except Exception as err:
-    #     log.warning(err)
-
-    # init_err_handlers(app_)
     init_router(app_)
+    # uncomment below if you need custom err handlers
+    # init_err_handlers(app_)
     # uncomment below if you need middleware
     # init_middleware(app_)
 
@@ -35,8 +51,7 @@ def app() -> FastAPI:
 
 @errlog.catch
 def main() -> None:
-    # console.rule(f"[green]{sw_params['title']}[/]", style=Style(color="magenta"))
-    # asyncio.run(init_startup_events())
+    console.rule(f"[green]{sw_params['title']}[/]", style=Style(color="magenta"))
     uvicorn.run(
         "main:app",
         reload=config.RELOAD,

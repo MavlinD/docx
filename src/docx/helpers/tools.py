@@ -1,12 +1,12 @@
 import functools
 import hashlib
 import locale
-import os
 import pathlib
 import time
 from datetime import datetime, date
 from typing import Dict, List, Callable
 
+import toml
 from fastapi import FastAPI
 from httpx import Request
 from requests import Response
@@ -118,15 +118,14 @@ def set_to_obj(arg: str | List) -> Dict:
     return resp
 
 
-def get_key3(key: str) -> str:
-    """получим ключ из файла на диске"""
-    path_to_key = pathlib.Path(key)
-    with open(path_to_key, mode="r", encoding="utf-8") as f:
-        return f.read().strip()
-
-
 async def get_key(key: str) -> str:
     """получим ключ из файла на диске"""
     path_to_key = pathlib.Path(key)
     with open(path_to_key, mode="r", encoding="utf-8") as f:
         return f.read().strip()
+
+
+def get_project() -> Dict:
+    """return project file"""
+    pyproject = toml.load(open(pathlib.Path("pyproject.toml")))
+    return pyproject["tool"]["poetry"]

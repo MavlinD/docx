@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "docx"
 version = "0.1.0"
-description = ""
+description = "Docx (MS Word) template engine."
 authors = ["Mavlin Dm. <mavlind@list.ru>"]
 readme = "README.md"
 packages = [{include = "src/docx"}]

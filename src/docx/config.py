@@ -1,8 +1,10 @@
 import asyncio
 import pathlib
 from functools import lru_cache
-from pydantic import BaseSettings, validator
+
+from pydantic import BaseSettings, validator, HttpUrl
 from logrich.logger_ import log  # noqa
+from pydantic.fields import ModelField
 
 from src.docx.helpers.tools import get_key
 
@@ -35,10 +37,28 @@ class Settings(BaseSettings):
     RELOAD: bool = True
     LOCAL: bool = True
     TESTING: bool = True
+
     API_PORT_INTERNAL: int = 8000
     API_HOSTNAME: str = "0.0.0.0"
     API_PATH_PREFIX: str = "/api/"
     API_VERSION: str = "v2"
+    PROTOCOL_SCHEME: str = "http://"
+    # ссылка на сайт, на странице /docs
+    ROOT_URL: str = "/docs"
+
+    @validator("ROOT_URL")
+    def set_root_url(cls, value: str, values: dict, config: BaseSettings, field: ModelField) -> str:
+        # log.debug(value)
+        # log.debug('',o=values)
+        # log.debug(config)
+        # log.debug(field)
+        # log.debug(cls)
+        root_url: HttpUrl = HttpUrl(
+            f'{values.get("API_HOSTNAME")}:{values.get("API_PORT_INTERNAL")}{value}',
+            scheme=str(values.get("PROTOCOL_SCHEME")),
+        )
+        # return 'http://0.0.0.0:5000/docs'
+        return f"{root_url.scheme}{root_url}"
 
     FILENAME_MIN_LENGTH: int = 3
     FILENAME_MAX_LENGTH: int = 100
