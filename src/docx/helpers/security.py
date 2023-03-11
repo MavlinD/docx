@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 from typing import Union
 
 import jwt
-from jwt import InvalidAudienceError, ExpiredSignatureError
+from jwt import InvalidAudienceError, ExpiredSignatureError, DecodeError
 from logrich.logger_ import log  # noqa
 from pydantic import SecretStr
 from src.docx.config import config
@@ -32,13 +32,15 @@ async def decode_jwt(
         claimset_without_validation = jwt.decode(
             jwt=payload.token, options={"verify_signature": False}
         )
-
+        # log.debug("", o=claimset_without_validation)
         token_issuer = (
             claimset_without_validation.get("iss", "").strip().replace(".", "_").replace("-", "_")
         )
+        # не рекомендованный вариант:
+        # https://pyjwt.readthedocs.io/en/stable/algorithms.html#specifying-an-algorithm
+        # header = jwt.get_unverified_header(payload.token)
+        # log.debug("-", o=header)
         # определяем наличие разрешения
-        if not os.getenv(f"TOKEN_AUDIENCE_{token_issuer.upper()}_{audience.upper()}"):
-            raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_ALLOW.value)
         algorithm = os.getenv(f"TOKEN_ALGORITHM_{token_issuer.upper()}", "ES256")
         pub_key = await get_key(f"public_keys/{token_issuer.lower()}.pub")
         # log.info(config.PUBLIC_KEY)
@@ -53,9 +55,13 @@ async def decode_jwt(
         )
         # log.debug("", o=decoded_payload)
     except InvalidAudienceError:
-        raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_FAIL.value)
+        raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_FOUND.value)
     except ExpiredSignatureError:
         raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_EXPIRE.value)
+    except ValueError:
+        raise InvalidVerifyToken(msg=ErrorCodeLocal.INVALID_TOKEN.value)
+    except DecodeError:
+        raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT.value)
 
 
 def generate_jwt(

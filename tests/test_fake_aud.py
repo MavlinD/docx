@@ -24,7 +24,7 @@ async def test_cant_create_docx(
     token_issuer = "test-auth.site.com"
     token_data = {
         "iss": token_issuer,
-        "aud": ["fake-create", "other-aud"],
+        "aud": ["create", "other-aud"],
     }
     token = generate_jwt(data=token_data)
     # log.debug(token)
@@ -40,5 +40,5 @@ async def test_cant_create_docx(
     )
     # log.debug(resp)
     data = resp.json()
-    log.debug("-", o=data)
+    log.debug("+", o=data)
     assert resp.status_code == 403, "некорректный ответ сервера"

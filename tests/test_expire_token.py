@@ -25,7 +25,7 @@ async def test_expire_token(
     token_issuer = "test-auth.site.com"
     token_data = {
         "iss": token_issuer,
-        "aud": ["create", "other-aud"],
+        "aud": ["docx-create", "other-aud"],
     }
     token = generate_jwt(data=token_data, lifetime=timedelta(days=-1))
     # log.debug(token)

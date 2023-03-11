@@ -28,7 +28,7 @@ async def test_create_docx(
     token_issuer = "test-auth.site.com"
     token_data = {
         "iss": token_issuer,
-        "aud": ["other-aud", "create"],
+        "aud": ["other-aud", "docx-create"],
     }
     token = generate_jwt(data=token_data)
     # log.debug(token)
@@ -44,7 +44,7 @@ async def test_create_docx(
     )
     # log.debug(resp)
     data = resp.json()
-    log.debug("--+=-", o=data)
+    log.debug("-", o=data)
     assert resp.status_code == 201, "некорректный ответ сервера"
     out_file = pathlib.Path(data.get("filename"))
 

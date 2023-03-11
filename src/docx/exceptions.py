@@ -25,9 +25,9 @@ none_message_response: OpenAPIResponseType = {
 
 class ErrorCodeLocal(str, Enum):
     TOKEN_EXPIRE = "Срок действия токена истёк."
-    TOKEN_AUD_FAIL = "Некорректная аудиенция токена."
+    INVALID_TOKEN = "Подпись не валидна."
     TOKEN_AUD_NOT_FOUND = "Требуемая аудиенция токена не найдена."
-    TOKEN_AUD_NOT_ALLOW = "Запрошенная аудиенция токена не разрешена."
+    TOKEN_NOT_ENOUGH_SEGMENT = "Содержит не достаточно сегментов или его структура неверна."
 
 
 class FastAPIDocxException(HTTPException):
