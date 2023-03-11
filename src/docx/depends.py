@@ -1,37 +1,22 @@
-import os
-
-import jwt
-from jwt import InvalidAudienceError, ExpiredSignatureError
 from logrich.logger_ import log  # noqa
 
-from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
-from src.docx.helpers.tools import get_key
+from src.docx.helpers.security import decode_jwt
 from src.docx.schemas import DocxCreate
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
-async def check_access(payload: DocxCreate) -> bool:
-    """Зависимость, авторизует запрос"""
-    try:
-        token_issuer = payload.token_issuer.upper().strip()
-        audience = os.getenv(f"TOKEN_AUDIENCE_{token_issuer}", "")
-        algorithm = os.getenv(f"TOKEN_ALGORITHM_{token_issuer}", "")
-        pub_key = await get_key(f"public_keys/{payload.token_issuer}.pub")
-        # log.info(config.PUBLIC_KEY)
-        # log.info(config.PRIVATE_KEY)
-        # log.debug(audience)
-        # декодируем нагрузку пользовательского токена
-        decoded_payload = jwt.decode(
-            jwt=payload.token,
-            audience=audience,
-            key=pub_key,
-            algorithms=[algorithm],
-        )
-        log.debug("", o=decoded_payload)
-    except InvalidAudienceError:
-        raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_FAIL.value)
-    except ExpiredSignatureError:
-        raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_EXPIRE.value)
+async def check_create_access(payload: DocxCreate) -> bool:
+    """Зависимость, авторизует запрос на создание файла"""
+    await decode_jwt(
+        payload=payload,
+        audience="create",
+    )
+    return True
+
+
+async def check_update_access(payload: DocxCreate) -> bool:
+    """Зависимость, авторизует запрос на обновление шаблона"""
+    await decode_jwt(
+        payload=payload,
+        audience="update",
+    )
     return True

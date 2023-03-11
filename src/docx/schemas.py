@@ -9,7 +9,7 @@ from src.docx.config import config
 
 
 class DocxCreate(BaseModel):
-    """схема для создания отчета"""
+    """Схема для создания отчета"""
 
     filename: Annotated[
         str,
@@ -37,7 +37,6 @@ class DocxCreate(BaseModel):
             raise ValueError(f"Template {tpl_place} not exist!")
         return tpl_place
 
-    token_issuer: str = Field(description="Издатель токена")
     token: str = Field(
         description="JWT подписанный асинхронным алгоритмом, при этом аудиенция токена должна соотвествовать аудиенции издателя указанной в переменных окружения данного сервиса. Издатель должен её определить и включить в токен перед запросом"
     )
@@ -54,14 +53,15 @@ class DocxResponse(BaseModel):
 
 class TokenCustomModel(BaseModel):
     """
-    модель пользовательского токена, для валидации параметров запроса пользовательского токена
-    только для тестов
+    Модель пользовательского токена, для валидации параметров запроса пользовательского токена
+    только для тестов.
     """
 
-    sub: str = Field(description="издатель токена")
+    iss: str = Field(description="издатель токена")
+    sub: str | None = Field(default=None, description="тема токена")
     type: str = Field(default="access", description="тип токена")
     exp: datetime
-    email: EmailStr
+    email: EmailStr | None = None
     aud: Sequence[str] = Field(
-        description="аудиенция, издатель должен её определить и включить в токен перед запросом"
+        description="аудиенция, издатель должен её определить и включить в токен перед запросом."
     )

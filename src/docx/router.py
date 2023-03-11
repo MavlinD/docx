@@ -7,7 +7,7 @@ from docxtpl import DocxTemplate
 
 from src.docx.assets import APIRouter
 from src.docx.config import config
-from src.docx.depends import check_access
+from src.docx.depends import check_create_access
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
 from src.docx.schemas import DocxCreate, DocxResponse
 
@@ -18,7 +18,7 @@ router = APIRouter()
 @router.post(
     "/create",
     response_model=DocxResponse,
-    dependencies=[Depends(check_access)],
+    dependencies=[Depends(check_create_access)],
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_403_FORBIDDEN: {
@@ -27,12 +27,20 @@ router = APIRouter()
                 "application/json": {
                     "examples": {
                         ErrorCodeLocal.TOKEN_EXPIRE: {
-                            "summary": "Срок действия токена вышел",
+                            "summary": "Срок действия токена вышел.",
                             "value": {"detail": ErrorCodeLocal.TOKEN_EXPIRE},
                         },
                         ErrorCodeLocal.TOKEN_AUD_FAIL: {
-                            "summary": "Поле aud не содержит корректного значения",
+                            "summary": "Поле aud не содержит корректного значения.",
                             "value": {"detail": ErrorCodeLocal.TOKEN_AUD_FAIL},
+                        },
+                        ErrorCodeLocal.TOKEN_AUD_NOT_FOUND: {
+                            "summary": "Действие требует определённой аудиенции.",
+                            "value": {"detail": ErrorCodeLocal.TOKEN_AUD_NOT_FOUND},
+                        },
+                        ErrorCodeLocal.TOKEN_AUD_NOT_ALLOW: {
+                            "summary": "Запрошенная в токене аудиенция не разрешена, установите соотвествующую переменную окружения.",
+                            "value": {"detail": ErrorCodeLocal.TOKEN_AUD_NOT_ALLOW},
                         },
                     }
                 }
@@ -43,8 +51,7 @@ router = APIRouter()
 async def create_docx(
     payload: DocxCreate,
 ) -> DocxResponse:
-    """создать файл *.docx по шаблону"""
-    # log.debug(access)
+    """Создать файл *.docx по шаблону"""
 
     doc = DocxTemplate(payload.template)
     doc.render(payload.context)

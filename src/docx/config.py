@@ -76,18 +76,20 @@ class Settings(BaseSettings):
     @validator("PRIVATE_KEY")
     def set_private_key(
         cls, value: str, values: dict, config: BaseSettings, field: ModelField
-    ) -> str:
+    ) -> str | None:
         if values.get("TESTING"):
             privkey = asyncio.run(get_key(key="tests/priv-key.pem"))
             return privkey
+        return None
 
     @validator("PUBLIC_KEY")
     def set_public_key(
         cls, value: str, values: dict, config: BaseSettings, field: ModelField
-    ) -> str:
+    ) -> str | None:
         if values.get("TESTING"):
             pubkey = asyncio.run(get_key(key="tests/pub-key.pem"))
             return pubkey
+        return None
 
     # ---------- только для тестов ----------
 

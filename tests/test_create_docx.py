@@ -25,10 +25,10 @@ async def test_create_docx(
     https://python-docx.readthedocs.io/en/latest/user/documents.html#opening-a-document
     """
     username = "Васян Хмурый"
+    token_issuer = "test-auth.site.com"
     token_data = {
-        "sub": "test",
-        "email": EmailStr("test@loc.loc"),
-        "aud": ["test-aud", "other-aud"],
+        "iss": token_issuer,
+        "aud": ["test-aud", "other-aud", "create"],
     }
     token = generate_jwt(data=token_data)
     # log.debug(token)
@@ -37,7 +37,6 @@ async def test_create_docx(
         "template": "test_docx_template.docx",
         "context": {"username": username, "place": "Кемерово"},
         "token": token,
-        "token_issuer": "auth_v2",
     }
     resp = await client.post(
         routes.request_to_create_docx,
@@ -45,7 +44,7 @@ async def test_create_docx(
     )
     # log.debug(resp)
     data = resp.json()
-    log.debug("-", o=data)
+    log.debug("--+=-", o=data)
     assert resp.status_code == 201, "некорректный ответ сервера"
     out_file = pathlib.Path(data.get("filename"))
 
