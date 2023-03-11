@@ -16,12 +16,14 @@ docker compose up
 ```
 
 #### Авторизация запросов
-Основана на использовании [JWT](https://datatracker.ietf.org/doc/html/rfc7519?roistat_visit=181883) завереных на ассиметричных алгоритмах подписей (ES256, PS256, EdDSA и тп.).
+Основана на использовании [JWT][1] завереных на ассиметричных алгоритмах подписей (ES256, PS256, EdDSA и тп.).
+
 
 ##### Для добавления сервиса клиента нужно:
 1. [Загрузить публичный ключ сервиса клиента](public_keys/README.md).
 2. [Установить требуемые разрешения](template.env).
-3. Добавить JWT в нагрузку запроса, в поле token. 
+3. Добавить [JWT][1] в нагрузку запроса, в поле `token`. 
+
 
 #### Локальный запуск  
 ```shell
@@ -46,4 +48,5 @@ ptw -- 5 mon
 # где 5 - уровень логирования 
 ```
 
-[основной пакет](https://docxtpl.readthedocs.io/en/latest/#indices-and-tables)  
+[1]: https://datatracker.ietf.org/doc/html/rfc7519?roistat_visit=181883 "JWT"
+[основной пакет](https://docxtpl.readthedocs.io/en/latest/#indices-and-tables)    
