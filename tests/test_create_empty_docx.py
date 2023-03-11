@@ -24,7 +24,6 @@ async def test_create_empty_docx(
     """тест создания пустого, незаполненного шаблона docx
     https://python-docx.readthedocs.io/en/latest/user/documents.html#opening-a-document
     """
-    username = "Васян Хмурый"
     token_issuer = "test-auth.site.com"
     token_data = {
         "iss": token_issuer,

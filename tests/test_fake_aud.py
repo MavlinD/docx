@@ -2,7 +2,6 @@ import pytest
 from httpx import AsyncClient
 
 from logrich.logger_ import log  # noqa
-from pydantic import EmailStr
 
 from src.docx.helpers.security import generate_jwt
 from tests.conftest import Routs
