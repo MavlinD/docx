@@ -28,7 +28,7 @@ async def test_create_docx(
     token_issuer = "test-auth.site.com"
     token_data = {
         "iss": token_issuer,
-        "aud": ["test-aud", "other-aud", "create"],
+        "aud": ["other-aud", "create"],
     }
     token = generate_jwt(data=token_data)
     # log.debug(token)

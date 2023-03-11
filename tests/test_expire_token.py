@@ -22,10 +22,10 @@ async def test_expire_token(
     https://python-docx.readthedocs.io/en/latest/user/documents.html#opening-a-document
     """
     username = "Васян Хмурый"
+    token_issuer = "test-auth.site.com"
     token_data = {
-        "sub": "test",
-        "email": EmailStr("test@loc.loc"),
-        "aud": ["test-aud", "other-aud"],
+        "iss": token_issuer,
+        "aud": ["create", "other-aud"],
     }
     token = generate_jwt(data=token_data, lifetime=timedelta(days=-1))
     # log.debug(token)
@@ -34,7 +34,6 @@ async def test_expire_token(
         "template": "test_docx_template.docx",
         "context": {"username": username, "place": "Кемерово"},
         "token": token,
-        "token_issuer": "auth_v2",
     }
     resp = await client.post(
         routes.request_to_create_docx,

@@ -25,10 +25,10 @@ async def test_create_empty_docx(
     https://python-docx.readthedocs.io/en/latest/user/documents.html#opening-a-document
     """
     username = "Васян Хмурый"
+    token_issuer = "test-auth.site.com"
     token_data = {
-        "sub": "test",
-        "email": EmailStr("test@loc.loc"),
-        "aud": ["test-aud", "other-aud"],
+        "iss": token_issuer,
+        "aud": ["create", "other-aud"],
     }
     token = generate_jwt(data=token_data)
     # log.debug(token)
@@ -37,7 +37,6 @@ async def test_create_empty_docx(
         "template": "test_docx_template.docx",
         "context": {},
         "token": token,
-        "token_issuer": "auth_v2",
     }
     resp = await client.post(
         routes.request_to_create_docx,
