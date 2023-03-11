@@ -41,6 +41,10 @@ router = APIRouter()
                             "summary": "Структура токена не валидна.",
                             "value": {"detail": ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT},
                         },
+                        ErrorCodeLocal.TOKEN_ALGORITHM_NOT_FOUND: {
+                            "summary": "Алгоритм токена неизвестен.",
+                            "value": {"detail": ErrorCodeLocal.TOKEN_ALGORITHM_NOT_FOUND},
+                        },
                     }
                 }
             },

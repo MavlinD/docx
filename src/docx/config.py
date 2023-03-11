@@ -1,6 +1,7 @@
 import asyncio
 import pathlib
 from functools import lru_cache
+from typing import Sequence
 
 from pydantic import BaseSettings, validator, HttpUrl
 from logrich.logger_ import log  # noqa
@@ -24,6 +25,8 @@ class Settings(BaseSettings):
     TEMPLATES_DIR: str = "templates"
     DOWNLOADS_DIR: str = "downloads"
     DOWNLOADS_URL: str = "downloads"
+
+    ALGORITHMS_WHITE_LIST: Sequence[str] = ("ES256", "ES512", "PS256", "PS512", "EdDSA")
 
     @validator("DOWNLOADS_DIR")
     def create_downloads_dir(cls, v: str) -> str:

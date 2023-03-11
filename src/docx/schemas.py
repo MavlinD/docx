@@ -38,7 +38,9 @@ class DocxCreate(BaseModel):
         return tpl_place
 
     token: str = Field(
-        description="JWT подписанный асинхронным алгоритмом, при этом аудиенция токена должна соотвествовать аудиенции издателя указанной в переменных окружения данного сервиса. Издатель должен её определить и включить в токен перед запросом"
+        description=f"JWT подписанный асинхронным алгоритмом из списка {config.ALGORITHMS_WHITE_LIST},"
+        "<br>при этом аудиенция токена должна соотвествовать аудиенции конечной точки."
+        "<br>Издатель должен её включить в токен перед запросом."
     )
 
     context: Dict[str, str] = Field(default={}, description="Переменные шаблона")
@@ -63,5 +65,5 @@ class TokenCustomModel(BaseModel):
     exp: datetime
     email: EmailStr | None = None
     aud: Sequence[str] = Field(
-        description="аудиенция, издатель должен её определить и включить в токен перед запросом."
+        description="Аудиенция, издатель должен её определить и включить в токен перед запросом."
     )

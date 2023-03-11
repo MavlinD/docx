@@ -1,4 +1,3 @@
-import os
 from datetime import timedelta, datetime
 from typing import Union
 
@@ -10,9 +9,7 @@ from src.docx.config import config
 from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
 from src.docx.helpers.tools import get_key
 from src.docx.schemas import TokenCustomModel, DocxCreate
-from dotenv import load_dotenv
 
-load_dotenv()
 
 SecretType = Union[str, SecretStr]
 
@@ -32,16 +29,15 @@ async def decode_jwt(
         claimset_without_validation = jwt.decode(
             jwt=payload.token, options={"verify_signature": False}
         )
-        # log.debug("", o=claimset_without_validation)
         token_issuer = (
             claimset_without_validation.get("iss", "").strip().replace(".", "_").replace("-", "_")
         )
-        # не рекомендованный вариант:
-        # https://pyjwt.readthedocs.io/en/stable/algorithms.html#specifying-an-algorithm
-        # header = jwt.get_unverified_header(payload.token)
-        # log.debug("-", o=header)
+        header = jwt.get_unverified_header(payload.token)
+        algorithm = header.get("alg", "")
+        if algorithm not in config.ALGORITHMS_WHITE_LIST:
+            log.err("алгоритм подписи токена странен(", o=header)
+            raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_ALGORITHM_NOT_FOUND.value)
         # определяем наличие разрешения
-        algorithm = os.getenv(f"TOKEN_ALGORITHM_{token_issuer.upper()}", "ES256")
         pub_key = await get_key(f"public_keys/{token_issuer.lower()}.pub")
         # log.info(config.PUBLIC_KEY)
         # log.info(config.PRIVATE_KEY)
