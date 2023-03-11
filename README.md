@@ -6,6 +6,8 @@
 
 ### Шаблонизатор для файлов __*.docx__ (MS Word)
 
+----
+
 Запросы на создание файла авторизованы, полученные файлы доступны по ссылке.
 
 #### Развертывание (deploy)
@@ -52,4 +54,7 @@ ptw -- 5 mon
 ```
 
 [1]: https://datatracker.ietf.org/doc/html/rfc7519?roistat_visit=181883 "JWT"
+
+----
+
 [основной пакет](https://docxtpl.readthedocs.io/en/latest/#indices-and-tables)    
