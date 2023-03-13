@@ -8,8 +8,7 @@ from pydantic import SecretStr
 from src.docx.config import config
 from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
 from src.docx.helpers.tools import get_key
-from src.docx.schemas import TokenCustomModel, DocxCreate
-
+from src.docx.schemas import TokenCustomModel, DocxCreate, Jwt
 
 SecretType = Union[str, SecretStr]
 
@@ -25,20 +24,8 @@ async def decode_jwt(
     audience: str,
 ) -> None:
     try:
-        # сначала установим издателя токена, для этого прочитаем нагрузку без валидации.
-        claimset_without_validation = jwt.decode(
-            jwt=payload.token, options={"verify_signature": False}
-        )
-        token_issuer = (
-            claimset_without_validation.get("iss", "").strip().replace(".", "_").replace("-", "_")
-        )
-        header = jwt.get_unverified_header(payload.token)
-        algorithm = header.get("alg", "")
-        if algorithm not in config.ALGORITHMS_WHITE_LIST:
-            log.err("алгоритм подписи токена странен(", o=header)
-            raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_ALGORITHM_NOT_FOUND.value)
         # определяем наличие разрешения
-        pub_key = await get_key(f"public_keys/{token_issuer.lower()}.pub")
+        token = Jwt(token=payload.token)
         # log.info(config.PUBLIC_KEY)
         # log.info(config.PRIVATE_KEY)
         # log.debug(audience)
@@ -46,8 +33,8 @@ async def decode_jwt(
         jwt.decode(
             jwt=payload.token,
             audience=audience,
-            key=pub_key,
-            algorithms=[algorithm],
+            key=await token.pub_key,
+            algorithms=[token.algorithm],
         )
         # log.debug("", o=decoded_payload)
     except InvalidAudienceError:

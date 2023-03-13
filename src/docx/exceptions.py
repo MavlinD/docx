@@ -29,6 +29,7 @@ class ErrorCodeLocal(str, Enum):
     TOKEN_AUD_NOT_FOUND = "Требуемая аудиенция токена не найдена."
     TOKEN_ALGORITHM_NOT_FOUND = "Алгоритм подписи токена неизвестен."
     TOKEN_NOT_ENOUGH_SEGMENT = "Содержит не достаточно сегментов или его структура неверна."
+    TEMPLATE_NOT_EXIST = "Шаблон не найден."
 
 
 class FastAPIDocxException(HTTPException):
@@ -41,3 +42,9 @@ class InvalidVerifyToken(FastAPIDocxException):
     def __init__(self, msg: Exception | str | None = None) -> None:
         self.detail = f"Токен не валиден: {msg}"
         self.status_code = status.HTTP_403_FORBIDDEN
+
+
+class PathToTemplateNotExist(FastAPIDocxException):
+    def __init__(self, msg: Exception | str | None = None) -> None:
+        self.detail = f"Шаблон не существует: {msg}"
+        self.status_code = status.HTTP_404_NOT_FOUND

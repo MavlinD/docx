@@ -9,6 +9,7 @@ from src.docx.assets import APIRouter
 from src.docx.config import config
 from src.docx.depends import check_create_access, Audience
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
+from src.docx.helpers.security import Jwt
 from src.docx.helpers.tools import dict_hash
 from src.docx.schemas import DocxCreate, DocxResponse
 
@@ -49,6 +50,19 @@ router = APIRouter()
                 }
             },
         },
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorModel,
+            "content": {
+                "application/json": {
+                    "examples": {
+                        ErrorCodeLocal.TEMPLATE_NOT_EXIST: {
+                            "summary": "Указанный шаблон не найден.",
+                            "value": {"detail": ErrorCodeLocal.TEMPLATE_NOT_EXIST},
+                        },
+                    }
+                }
+            },
+        },
     },
 )
 async def create_docx(
@@ -56,21 +70,21 @@ async def create_docx(
 ) -> DocxResponse:
     """Создать файл *.docx по шаблону"""
 
+    token = Jwt(token=payload.token)
     doc = DocxTemplate(payload.template)
     doc.render(payload.context)
-
+    # log.debug(dir(dependencies))
+    # log.debug(dependencies)
     # формируем уникальную ссылку на файл
     hash_payload = dict_hash(payload.context)[-8:]
-    path_to_save = (
-        pathlib.Path()
-        .cwd()
-        .joinpath(config.DOWNLOADS_DIR, f"{payload.filename}-{hash_payload}.docx")
-    )
-    doc.save(path_to_save)
+    path_to_save = f"{config.DOWNLOADS_DIR}/{token.issuer}"
+    pathlib.Path(path_to_save).mkdir(parents=True, exist_ok=True)
+    filename = f"{path_to_save}/{payload.filename}-{hash_payload}.docx"
+    doc.save(filename=filename)
 
     resp = DocxResponse(
-        filename=path_to_save,
-        url=f"{config.DOWNLOADS_URL}/{payload.filename}-{hash_payload}.docx",
+        filename=filename,
+        url=f"{config.DOWNLOADS_URL}/{token.issuer}/{payload.filename}-{hash_payload}.docx",
     )
     return resp
 
