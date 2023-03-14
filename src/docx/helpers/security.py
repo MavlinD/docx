@@ -8,7 +8,7 @@ from pydantic import SecretStr
 from src.docx.config import config
 from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
 from src.docx.helpers.tools import get_key
-from src.docx.schemas import TokenCustomModel, DocxCreate, Jwt
+from src.docx.schemas import TokenCustomModel, DocxCreate, Jwt, DocxUpdate
 
 SecretType = Union[str, SecretStr]
 
@@ -20,7 +20,7 @@ def get_secret_value(secret: SecretType) -> str:
 
 
 async def decode_jwt(
-    payload: DocxCreate,
+    payload: DocxCreate | DocxUpdate,
     audience: str,
 ) -> None:
     try:

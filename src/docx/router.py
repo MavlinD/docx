@@ -1,9 +1,11 @@
 import pathlib
 import shutil
-from typing import List
+from typing import List, Optional
 
-from fastapi import FastAPI, Depends, File, UploadFile, Form
+from fastapi import FastAPI, Depends, File, UploadFile, Form, HTTPException
+from fastapi.encoders import jsonable_encoder
 from logrich.logger_ import log  # noqa
+from pydantic import BaseModel, ValidationError
 from starlette import status
 from docxtpl import DocxTemplate
 
@@ -13,23 +15,72 @@ from src.docx.depends import check_create_access, Audience
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
 from src.docx.helpers.security import Jwt
 from src.docx.helpers.tools import dict_hash
-from src.docx.schemas import DocxCreate, DocxResponse
-
+from src.docx.schemas import DocxCreate, DocxResponse, DocxUpdate
 
 router = APIRouter()
 
 
-@router.put("/template-upload.png", response_model=set[str], status_code=status.HTTP_200_OK)
+class Base(BaseModel):
+    name: str
+    point: Optional[float] = None
+    is_accepted: Optional[bool] = False
+
+
+models = {
+    "base": Base,
+}
+
+
+class DataChecker:
+    # https://stackoverflow.com/questions/65504438/how-to-add-both-file-and-json-body-in-a-fastapi-post-request
+    def __init__(self, name: str):
+        self.name = name
+
+    def __call__(self, data: str = Form(...)):
+        try:
+            log.debug(self.name)
+            # model = models[self.name].json(data)
+            # model = models[self.name].dict(data)
+            # model = models[self.name].parse_obj(data)
+            model = models[self.name].parse_raw(data)
+            log.trace(model)
+        except ValidationError as e:
+            raise HTTPException(
+                detail=jsonable_encoder(e.errors()),
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
+        return model
+
+
+base_checker = DataChecker("base")
+# other_checker = DataChecker("other")
+
+
+@router.post(
+    "/template-upload",
+    summary=" ",
+    description=f"Требуется аудиенция: **{Audience.UPDATE.value}**",
+    # dependencies=[Depends(check_create_access)],
+    response_model=set[str],
+    status_code=status.HTTP_200_OK,
+)
 async def upload_template(
-    files: list[UploadFile] = File([], description="A file read as UploadFile")
+    # name: str,
+    model: Base = Depends(base_checker),
+    # payload: DocxUpdate = Depends(),
+    # name: str = Form(...),
+    files: list[UploadFile] = File([], description="A file read as UploadFile"),
 ) -> set:
-    # log.trace(file.file)
+    # log.trace(payload.name)
+    log.trace(model.name)
+    # log.trace(name)
     # contents = await file.read()
     # log.trace(contents)
     # await file.write(contents)
     resp = set()
+    return resp
     for file in files:
-        # log.debug(file.filename)
+        log.debug(file.filename)
         # log.trace(dir(file))
         saved_name = f"{config.DOWNLOADS_DIR}/{file.filename}"
         with open(saved_name, "wb") as buffer:
@@ -42,8 +93,8 @@ async def upload_template(
     "/create",
     summary=" ",
     description=f"Требуется аудиенция: **{Audience.CREATE.value}**",
-    response_model=DocxResponse,
     dependencies=[Depends(check_create_access)],
+    response_model=DocxResponse,
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_403_FORBIDDEN: {

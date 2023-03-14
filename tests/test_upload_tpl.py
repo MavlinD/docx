@@ -1,3 +1,4 @@
+import json
 import pathlib
 
 import pytest
@@ -24,32 +25,48 @@ async def test_upload_tpl(
 ) -> None:
     """тест загрузки шаблонов"""
     # username = "Васян Хмурый"
-    # token_issuer = "test-auth.site.com"
-    # token_data = {
-    #     "iss": token_issuer,
-    #     "aud": ["other-aud", "docx-create"],
-    # }
-    # token = generate_jwt(data=token_data)
+    token_issuer = "test-auth.site.com"
+    token_data = {
+        "iss": token_issuer,
+        "aud": ["other-aud", "docx-update"],
+    }
+    token = generate_jwt(data=token_data)
     # log.debug(token)
-    # payload = {
-    #     "filename": "test-filename",
-    #     "template": "test_docx_template.docx",
-    #     "context": {"username": username, "place": "Кемерово"},
-    #     "token": token,
-    # }
+    payload = {
+        #     "filename": "test-filename",
+        #     "template": "test_docx_template.docx",
+        #     "context": {"username": username, "place": "Кемерово"},
+        "token": token,
+    }
     file = "tests/files/nginx.png"
     file2 = "tests/files/lipsum1.jpg"
     files = [
+        # "token": token,
         ("files", open(file, "rb")),
         ("files", open(file2, "rb")),
+        # ("name", "test"),
+        # ("file", open(file, "rb")),
+        # ("file2", open(file2, "rb")),
     ]
-    resp = await client.put(
+    # payload["files"] = files
+    resp = await client.post(
         routes.request_to_upload_template,
+        # json={"name": "xxxx"},
+        # json=payload,
         files=files,
+        # data=payload,
+        # params={"name": "xxxx"},
+        # content={"name": "xxxx"},
+        # json={"name": "xxxx="},
+        # data={"name": "foo111", "point": 0.13, "is_accepted": False}
+        data={"data": json.dumps({"name": "foo111", "point": 0.13, "is_accepted": False})}
+        # data={"data": {"name": "foo111", "point": 0.13, "is_accepted": False}}
+        # data={"data": '{"name": "foo111", "point": 0.13, "is_accepted": false}'}
+        # data={"name": "x1313xxx-"},
     )
     # log.debug(resp)
     data = resp.json()
-    log.debug("--", o=data)
+    log.debug("", o=data)
     return
     assert resp.status_code == 201, "некорректный ответ сервера"
     out_file = pathlib.Path(data.get("filename"))
