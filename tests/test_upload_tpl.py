@@ -28,12 +28,12 @@ async def test_upload_tpl(
     token_issuer = "test-auth.site.com"
     token_data = {
         "iss": token_issuer,
-        "aud": ["other-aud", "docx-update"],
+        "aud": ["other-aud12", "docx-update"],
     }
     token = generate_jwt(data=token_data)
     # log.debug(token)
     payload = {
-        #     "filename": "test-filename",
+        "filename": "test-filename",
         #     "template": "test_docx_template.docx",
         #     "context": {"username": username, "place": "Кемерово"},
         "token": token,
@@ -49,12 +49,16 @@ async def test_upload_tpl(
         # ("file2", open(file2, "rb")),
     ]
     # payload["files"] = files
+    file = ("file", open(file, "rb"))
     resp = await client.post(
         routes.request_to_upload_template,
         # json={"name": "xxxx"},
         # json=payload,
-        files=files,
+        files=[file],
+        # data={"filename": "file1"},
+        data={"filename": "file18", "token": token},
         # data=payload,
+        # data={"payload": payload},
         # params={"name": "xxxx"},
         # content={"name": "xxxx"},
         # json={"name": "xxxx="},
@@ -67,14 +71,14 @@ async def test_upload_tpl(
         #         "token": token,
         #     }
         # )
-        params={
-            #     "data": json.dumps(
-            #         {
-            "filename": json.dumps(["file1", "file22"]),
-            "token": token,
-            #         }
-            #     )
-        },
+        # params={
+        # filename="file1"
+        #     #     "data": json.dumps(
+        #     #         {
+        #     "token": token,
+        #     #         }
+        #     #     )
+        # },
         # token=token,
         # data={"data": '{"filename": "foo111", "token": 0.13, "is_accepted": false}'}
         # data={"data": json.dumps({"name": "foo", "point": 0.13, "is_accepted": False})} # !!!

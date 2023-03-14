@@ -5,8 +5,9 @@ import shutil
 from json import JSONDecodeError
 from typing import List, Optional, Annotated, Generator, Callable, Any, Dict, Type
 
-from fastapi import FastAPI, Depends, File, UploadFile, Form, HTTPException, Body, Header
+from fastapi import FastAPI, Depends, UploadFile, Form, HTTPException, Body, Header
 from fastapi.encoders import jsonable_encoder
+from fastapi.params import File
 from logrich.logger_ import log  # noqa
 from pydantic import BaseModel, ValidationError, Field, validator, PositiveInt
 from pydantic.fields import ModelField
@@ -15,9 +16,9 @@ from docxtpl import DocxTemplate
 
 from src.docx.assets import APIRouter
 from src.docx.config import config
-from src.docx.depends import check_create_access, Audience
+from src.docx.depends import check_create_access, Audience, check_update_access
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
-from src.docx.helpers.security import Jwt
+from src.docx.helpers.security import Jwt, decode_jwt
 from src.docx.helpers.tools import dict_hash
 from src.docx.schemas import DocxCreate, DocxResponse, DocxUpdate
 
@@ -341,100 +342,73 @@ def valf(content_length):
 
 
 # async def wrap(q, arg):
-async def common_parameters(q: UploadFile | None = File(..., description=f"jhgjhg")):
+# from fastapi.params import Form
+
+
+async def get_file(
+    file: UploadFile | None = File(..., description=f"jhgjhg-{config.TEMPLATE_MAX_LENGTH}"),
+    limit=100,
+) -> UploadFile:
+    log.debug(limit)
     # return {"q": File(..., description='description') }
-    return {
-        "q": q,
-    }
-    # r = await common_parameters(q=q)
+    return file
+
+
+async def get_file2(
+    file: UploadFile | None = File(..., description=f"jhgjhg-{config.TEMPLATE_MAX_LENGTH}", gt=10_0)
+) -> bool:
+    # return {"q": File(..., description='description') }
+    return True
+    # return {
+    #     "q": q,
+    # }
+    # r = await file(q=q)
     # return r
 
 
-class FixedContentQueryChecker:
-    def __init__(self, limit: int = 4):
-        self.limit = limit
-        self.f = File(..., description=f"jhgjhglimit")
-        # log.trace(self.f)
+class FLimit(BaseModel):
+    # def __init__(self, limit: int = 4):
+    #     self.limit = limit
+    #     self.f = File(..., description=f"jhgjhglimit")
+    # log.trace(self.f)
+    files: UploadFile | None = File(..., description=f"jhgjhglimit{config.LOG_LEVEL}")
+    # def __call__(
+    #     self, q: UploadFile | None = File(..., description=f"jhgjhglimit{config.LOG_LEVEL}")
+    # ):
+    # log.debug(self.f)
+    # if q<10:
+    #     return self.limit
+    # return {
+    #     "q": q,
+    # }
 
-    def __call__(
-        self, q: UploadFile | None = File(..., description=f"jhgjhglimit{config.LOG_LEVEL}")
-    ):
-        # log.debug(self.f)
-        # if q<10:
-        #     return self.limit
-        return {
-            "q": q,
-        }
 
-
-checker = FixedContentQueryChecker(limit=10)
+# checker = FixedContentQueryChecker(limit=10)
 
 
 @router.post(
     "/template-upload",
     summary=" ",
     description=f"Требуется аудиенция: **{Audience.UPDATE.value}**",
-    # dependencies=[Depends(check_create_access)],
+    dependencies=[Depends(check_update_access)],
     response_model=set[str],
-    openapi_extra={"limit": 10},
     status_code=status.HTTP_200_OK,
 )
 async def upload_template(
-    # file: BaseModel
-    # file: MyModel=Depends()
-    # file: Model=Depends()
-    fixed_content_included: dict = Depends(checker),
-    # commons: dict = Depends(common_parameters)
-    # commons: UploadFile = Depends(File)
-    # file: Model
-    #     form: Outer = Depends(Outer.as_form)
-    #     form_data: SimpleModel = Depends()
-    # file: bytes = File(description='jhgjgg', examples='jhgjg')
-    # foo: UploadFile = File(...,description='description'),
-    # file: Depends(MyModel)
-    # value: MyModel
-    # name: str,
-    # model: Base = Depends(base_checker),
-    # data: Base = Body(...),
-    # data: Base = Depends(Base),
-    #     payload: GroupRename,
-    # data: Base2 ,
-    # data: Base2 = Depends(),
-    #     filename: str = Form(...),
-    #     token: str = Form(...),
-    # data: Base = Depends(base_checker),
-    # foo:RestrictedAlphabetStr,
-    # foo:MyModel,
-    # foo: UploadFile =MyModel,
-    # baz: str = Body(...),
-    # file: Model,
-    # filename: str = Form(
-    #     None,
-    #     description="Сериализованный список имён файлов, файлы будут сохранены под указанными именами. Если имена не указаны файлы сохранятся как есть.",
-    # ),
-    #     file: Annotated[
-    #         str, Field(min_length=10, max_length=100)
-    #     ]
-    # token: str = Form(...),
-    # file: UploadFile = Depends(MyModel),
-    # file: UploadFile = File(...),
-    #     file = File(..., gt=10_0),
-    #     foo: PositiveInt = Field(..., exclusiveMaximum=10)
-    #     file_size: int = Depends(valid_content_length)
-    # file: UploadFile = File(description="A file read as UploadFile", title='some title',
-    # gt=10
+    file: get_file = Depends(),
+    filename: str = Form(
+        None,
+        description="Файл будет сохранен под указанным именем. Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
+    ),
+    # token: DocxUpdate = Form(...)
+    #     ...,
+    # description="Файл будет сохранен под указанным именем. Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
     # ),
 ) -> set:
-    # log.trace(payload.name)
-    # log.trace(file)
-    # log.trace(foo)
-    # log.trace(data)
-    # log.trace(name)
-    # log.debug(token)
-    # log.trace(filename)
-    # contents = await file.read()
-    # log.trace(contents)
-    # await file.write(contents)
+    # log.info(token)
+    log.debug(filename)
+    log.trace(file.filename)
+
     resp = set()
     return resp
     for file in data.files:
