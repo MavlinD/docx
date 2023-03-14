@@ -22,7 +22,7 @@ router = APIRouter()
 
 
 class Base(BaseModel):
-    iss: str
+    token: str
     filename: str
     point: Optional[float] = None
     is_accepted: Optional[bool] = False
@@ -35,7 +35,7 @@ class Base(BaseModel):
     def validate_to_json(cls, value):
         if isinstance(value, str):
             log.trace(value)
-            return value
+            # return value
             return cls(**json.loads(value))
         return value
 
@@ -56,7 +56,8 @@ class DataChecker:
             # model = models[self.name].json(data)
             # model = models[self.name].dict(data)
             # model = models[self.name].parse_obj(data)
-            model = models[self.name].parse_raw(data)
+            model = Base.parse_raw(data)
+            # model = models[self.name].parse_raw(data)
             log.trace(model)
         except ValidationError as e:
             raise HTTPException(
@@ -66,8 +67,50 @@ class DataChecker:
         return model
 
 
-base_checker = DataChecker("base")
+base_checker: Base = DataChecker("base")
 # other_checker = DataChecker("other")
+
+
+class Base2(BaseModel):
+    token: str
+    filename: str
+    # filename: list[str]=[]
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        filename = kwargs.get("filename", "")
+        if filename:
+            self.filename = json.loads(filename)
+        log.debug(kwargs)
+        # self.name = name
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate_to_json
+
+    @classmethod
+    def validate_to_json(cls, value):
+        if isinstance(value, str):
+            log.trace(value)
+            return value
+            # return cls(**json.loads(value))
+        return value
+
+    def __call__(self, data: str = Form(...)):
+        try:
+            log.debug(self.name)
+            # model = models[self.name].json(data)
+            # model = models[self.name].dict(data)
+            # model = models[self.name].parse_obj(data)
+            model = Base.parse_raw(data)
+            # model = models[self.name].parse_raw(data)
+            log.trace(model)
+        except ValidationError as e:
+            raise HTTPException(
+                detail=jsonable_encoder(e.errors()),
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
+        return model
 
 
 @router.post(
@@ -81,23 +124,26 @@ base_checker = DataChecker("base")
 async def upload_template(
     # name: str,
     # model: Base = Depends(base_checker),
-    # data: Base = Depends(),
+    # data: Base = Body(...),
+    # data: Base = Depends(Base),
+    data: Base2 = Depends(),
+    # data: Base = Depends(base_checker),
     # foo: str = Body(...),
     # baz: str = Body(...),
-    filename: str = Form(
-        None,
-        description="Сериализованный список имён файлов, файлы будут сохранены под указанными именами. Если имена не указаны файлы сохранятся как есть.",
-    ),
-    token: str = Form(...),
+    # filename: str = Form(
+    #     None,
+    #     description="Сериализованный список имён файлов, файлы будут сохранены под указанными именами. Если имена не указаны файлы сохранятся как есть.",
+    # ),
+    # token: str = Form(...),
     files: list[UploadFile] = File([], description="A file read as UploadFile"),
 ) -> set:
     # log.trace(payload.name)
-    # log.trace(model.foo)
+    # log.trace(model)
     # log.trace(foo)
-    # log.trace(data)
+    log.trace(data)
     # log.trace(name)
-    log.debug(token)
-    log.trace(filename)
+    # log.debug(token)
+    # log.trace(filename)
     # contents = await file.read()
     # log.trace(contents)
     # await file.write(contents)

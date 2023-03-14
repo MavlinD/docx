@@ -61,17 +61,18 @@ async def test_upload_tpl(
         # data={"name": "foo111", "point": 0.13, "is_accepted": False}
         # data={"name": "foo", "point": 0.13, "is_accepted": False}
         data={
-            "filename": ["file1", "file2"],
-            # "filename": json.dumps(["file1", "file2"]),
+            #     "filename": ["file1", "file22"],
+            "filename": json.dumps(["file1", "file2"]),
             "token": token,
         }
+        # data={"data": '{"filename": "foo111", "token": 0.13, "is_accepted": false}'}
         # data={"data": json.dumps({"name": "foo", "point": 0.13, "is_accepted": False})} # !!!
         # data={"data": {"name": "foo111", "point": 0.13, "is_accepted": False}}
+        # data={"data": {"filename": "foo111", "point": 0.13, "is_accepted": False}}
         # data={"model": json.dumps({"foo": "111", "baz": 222})}
         # data={"model": json.dumps({"foo": "111", "baz": 222})}
         # data={"model": {"foo": "111", "baz": 222}}
         # data={"foo": "111", "baz": 222}
-        # data={"data": '{"name": "foo111", "point": 0.13, "is_accepted": false}'}
         # data={"name": "x1313xxx-"},
     )
     # log.debug(resp)
