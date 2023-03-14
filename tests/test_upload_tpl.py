@@ -61,8 +61,9 @@ async def test_upload_tpl(
         # data={"name": "foo111", "point": 0.13, "is_accepted": False}
         # data={"name": "foo", "point": 0.13, "is_accepted": False}
         data={
-            "filename": "data-val",
-            "iss": "iss-val",
+            "filename": ["file1", "file2"],
+            # "filename": json.dumps(["file1", "file2"]),
+            "token": token,
         }
         # data={"data": json.dumps({"name": "foo", "point": 0.13, "is_accepted": False})} # !!!
         # data={"data": {"name": "foo111", "point": 0.13, "is_accepted": False}}

@@ -84,12 +84,11 @@ async def upload_template(
     # data: Base = Depends(),
     # foo: str = Body(...),
     # baz: str = Body(...),
-    filename: Base = Body(...),
-    iss: Base = Body(...),
-    # data: Base = Body(...),
-    # model: Base = Body(...),
-    # payload: DocxUpdate = Depends(),
-    # name: str = Form(...),
+    filename: str = Form(
+        None,
+        description="Сериализованный список имён файлов, файлы будут сохранены под указанными именами. Если имена не указаны файлы сохранятся как есть.",
+    ),
+    token: str = Form(...),
     files: list[UploadFile] = File([], description="A file read as UploadFile"),
 ) -> set:
     # log.trace(payload.name)
@@ -97,6 +96,7 @@ async def upload_template(
     # log.trace(foo)
     # log.trace(data)
     # log.trace(name)
+    log.debug(token)
     log.trace(filename)
     # contents = await file.read()
     # log.trace(contents)
