@@ -3,7 +3,7 @@ import locale
 import pathlib
 import time
 from datetime import datetime, date
-from typing import Dict, List, Callable, Any
+from typing import Dict, List, Callable, Any, BinaryIO
 import hashlib
 import json
 
@@ -86,6 +86,13 @@ async def get_key(key: str) -> str:
     path_to_key = pathlib.Path(key)
     with open(path_to_key, mode="r", encoding="utf-8") as f:
         return f.read().strip()
+
+
+async def get_file(path: str, mode: str = "r") -> bytes | str:
+    """вернет файл на диске"""
+    path_to_key = pathlib.Path(path)
+    with open(path_to_key, mode=mode, buffering=0) as f:
+        return f.read()
 
 
 def get_project() -> Dict:

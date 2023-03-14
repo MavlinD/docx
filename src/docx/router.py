@@ -19,39 +19,23 @@ from src.docx.schemas import DocxCreate, DocxResponse
 router = APIRouter()
 
 
-@router.post("/files/")
-async def create_file(file: bytes = File()):
-    log.debug(file)
-    return {"file_size": len(file)}
-
-
-@router.put("/fileup/")
-async def create_upload_file(
+@router.put("/template-upload.png", response_model=set[str], status_code=status.HTTP_200_OK)
+async def upload_template(
     files: list[UploadFile] = File([], description="A file read as UploadFile")
-):
+) -> set:
     # log.trace(file.file)
     # contents = await file.read()
     # log.trace(contents)
     # await file.write(contents)
     resp = set()
     for file in files:
-        with open(f"{config.DOWNLOADS_DIR}/{file.filename}", "wb") as buffer:
+        # log.debug(file.filename)
+        # log.trace(dir(file))
+        saved_name = f"{config.DOWNLOADS_DIR}/{file.filename}"
+        with open(saved_name, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-            resp.add(file.filename)
+            resp.add(saved_name)
     return resp
-
-
-@router.post("/files2/")
-async def create_file(
-    file: bytes = File(),
-    fileb: UploadFile = File(),
-    # token: str = Form()
-):
-    return {
-        "file_size": len(file),
-        # "token": token,
-        "fileb_content_type": fileb.content_type,
-    }
 
 
 @router.post(

@@ -77,6 +77,7 @@ class Routs:
         # Request for create docx
         self.app = app
         self.request_to_create_docx = app.url_path_for("create_docx")
+        self.request_to_upload_template = app.url_path_for("upload_template")
 
     def print(self) -> None:
         print_endpoints(self.app)
