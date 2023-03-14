@@ -1,12 +1,13 @@
 import json
 import pathlib
 import shutil
-from typing import List, Optional
+from json import JSONDecodeError
+from typing import List, Optional, Annotated
 
-from fastapi import FastAPI, Depends, File, UploadFile, Form, HTTPException, Body
+from fastapi import FastAPI, Depends, File, UploadFile, Form, HTTPException, Body, Header
 from fastapi.encoders import jsonable_encoder
 from logrich.logger_ import log  # noqa
-from pydantic import BaseModel, ValidationError, Field
+from pydantic import BaseModel, ValidationError, Field, validator, PositiveInt
 from starlette import status
 from docxtpl import DocxTemplate
 
@@ -72,45 +73,111 @@ base_checker: Base = DataChecker("base")
 
 
 class Base2(BaseModel):
-    token: str
-    filename: str
-    # filename: list[str]=[]
+    # token: str
+    # filename: str | None = None
+    # filename: str = Form(
+    #     None,
+    #     description="Сериализованный список имён файлов, файлы будут сохранены под указанными именами. Если имена не указаны файлы сохранятся как есть.",
+    # ),
+    # token: str = Form(...),
+    # files:Annotated[list[UploadFile], File(None, description="A file read as UploadFile")]
+    # file: UploadFile
+    file: Annotated[str, Field(min_length=10, max_length=100)]
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        filename = kwargs.get("filename", "")
-        if filename:
-            self.filename = json.loads(filename)
-        log.debug(kwargs)
-        # self.name = name
+    # file:UploadFile = File(description="A file read as UploadFile",
+    #                        title='some title'
+    #                        # min_length=10
+    #                        )
+    # file: Annotated[UploadFile, File(description="A file read as UploadFile", gt=0)]
+    # @validator("filename")
+    # def decode_filenames(cls, val: str, values: dict) -> str:
+    #     try:
+    #         if val:
+    #             log.debug(values)
+    #             return json.loads(val)
+    #     except JSONDecodeError as e:
+    #     #     log.trace(e)
+    #         raise HTTPException(
+    #             detail=f'Поле filename невозможно сериализовать: {val}',
+    #             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+    #         )
 
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate_to_json
+    # def __init__(self, **kwargs):
+    #     super().__init__(**kwargs)
+    #     # self(**json.loads())
+    #     filename = kwargs.get("filename", "")
+    #     if filename:
+    #         self.filename = json.loads(filename)
+    #     log.debug(kwargs)
+    # self.name = name
 
-    @classmethod
-    def validate_to_json(cls, value):
-        if isinstance(value, str):
-            log.trace(value)
-            return value
-            # return cls(**json.loads(value))
-        return value
+    # @classmethod
+    # def __get_validators__(cls):
+    #     yield cls.validate_to_json
+    #
+    # @classmethod
+    # def validate_to_json(cls, value):
+    #     if isinstance(value, str):
+    #         log.trace(value)
+    #         return value
+    #         # return cls(**json.loads(value))
+    #     return value
 
-    def __call__(self, data: str = Form(...)):
-        try:
-            log.debug(self.name)
-            # model = models[self.name].json(data)
-            # model = models[self.name].dict(data)
-            # model = models[self.name].parse_obj(data)
-            model = Base.parse_raw(data)
-            # model = models[self.name].parse_raw(data)
-            log.trace(model)
-        except ValidationError as e:
-            raise HTTPException(
-                detail=jsonable_encoder(e.errors()),
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            )
-        return model
+    # def __call__(self, data: str = Form(...)):
+    #     try:
+    #         log.debug(self.name)
+    #         # model = models[self.name].json(data)
+    #         # model = models[self.name].dict(data)
+    #         # model = models[self.name].parse_obj(data)
+    #         model = Base.parse_raw(data)
+    #         # model = models[self.name].parse_raw(data)
+    #         log.trace(model)
+    #     except ValidationError as e:
+    #         raise HTTPException(
+    #             detail=jsonable_encoder(e.errors()),
+    #             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+    #         )
+    #     return model
+
+
+async def valid_content_length(content_length: int = Header(..., lt=80_000)):
+    return content_length
+
+
+class GroupRename(BaseModel):
+    """схема параметров запроса на переименование группы"""
+
+    group: str = Field(
+        min_length=10,
+        max_length=100,
+        description="имя/ID/slag группы для изменения",
+    )
+    # file = Body(description="A file read as UploadFile", title='some title')
+    # file = Body(description="A file read as UploadFile", title='some title', gt=10)
+    # file = File(description="A file read as UploadFile", title='some title', max_length=10_00)
+    # file: UploadFile = File(description="A file read as UploadFile", title='some title', max_length=10_00)
+    # file: Annotated[UploadFile, File(description="A file read as UploadFile")]
+    # file: Annotated[UploadFile, File(description="A file read as UploadFile", gt=0)]
+
+
+# try:
+#     # this won't work since PositiveInt takes precedence over the
+#     # constraints defined in Field meaning they're ignored
+#     class Model(BaseModel):
+#         foo: PositiveInt = Field(..., lt=10)
+# except ValueError as e:
+#     print(e)
+#     """
+#     On field "foo" the following field constraints are set but not enforced:
+#     lt.
+#     For more details see https://docs.pydantic.dev/usage/schema/#unenforced-
+#     field-constraints
+#     """
+
+
+class Model(BaseModel):
+    foo: UploadFile = File(..., exclusiveMaximum=10)
+    # foo: PositiveInt = Field(..., exclusiveMaximum2=10)
 
 
 @router.post(
@@ -126,21 +193,34 @@ async def upload_template(
     # model: Base = Depends(base_checker),
     # data: Base = Body(...),
     # data: Base = Depends(Base),
-    data: Base2 = Depends(),
+    #     payload: GroupRename,
+    # data: Base2 = Depends(),
+    #     filename: str = Form(...),
+    #     token: str = Form(...),
     # data: Base = Depends(base_checker),
     # foo: str = Body(...),
     # baz: str = Body(...),
+    file: Model,
     # filename: str = Form(
     #     None,
     #     description="Сериализованный список имён файлов, файлы будут сохранены под указанными именами. Если имена не указаны файлы сохранятся как есть.",
     # ),
+    #     file: Annotated[
+    #         str, Field(min_length=10, max_length=100)
+    #     ]
     # token: str = Form(...),
-    files: list[UploadFile] = File([], description="A file read as UploadFile"),
+    #     file: UploadFile = File(...),
+    #     file = File(..., gt=10_0),
+    #     foo: PositiveInt = Field(..., exclusiveMaximum=10)
+    #     file_size: int = Depends(valid_content_length)
+    # file: UploadFile = File(description="A file read as UploadFile", title='some title',
+    # gt=10
+    # ),
 ) -> set:
     # log.trace(payload.name)
-    # log.trace(model)
+    # log.trace(file)
     # log.trace(foo)
-    log.trace(data)
+    # log.trace(data)
     # log.trace(name)
     # log.debug(token)
     # log.trace(filename)
@@ -149,7 +229,7 @@ async def upload_template(
     # await file.write(contents)
     resp = set()
     return resp
-    for file in files:
+    for file in data.files:
         log.debug(file.filename)
         # log.trace(dir(file))
         saved_name = f"{config.DOWNLOADS_DIR}/{file.filename}"

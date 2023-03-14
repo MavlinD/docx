@@ -2424,6 +2424,21 @@ typing-extensions = {version = ">=3.10.0", markers = "python_version < \"3.10\""
 full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart", "pyyaml"]
 
 [[package]]
+name = "starlette-validation-uploadfile"
+version = "0.1.1"
+description = "Middleware for validation upload-file in FastAPI and Starlette."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "starlette-validation-uploadfile-0.1.1.tar.gz", hash = "sha256:cf7a4ba7ea40d413a7a0f07fc9f9dbf86a24c5fb1efb837bdae1c1b94b46635a"},
+    {file = "starlette_validation_uploadfile-0.1.1-py3-none-any.whl", hash = "sha256:16af74559773713d5d94b5fd00653868da7f99c8f98bdf4800ac6c20e3696eda"},
+]
+
+[package.dependencies]
+starlette = ">=0.12.11"
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -3019,4 +3034,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "84d393bd2affd2752d352133fad24e2cd2a5570576ed44be65b42751188224f9"
+content-hash = "5c865713a0002640076628aa663fe2e02644c43ffad8b2d3c7c830e749f20f3c"
