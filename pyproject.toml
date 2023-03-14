@@ -14,6 +14,7 @@ fastapi = "^0.92.0"
 logrich = "^0.7.0"
 pydantic = {extras = ["email"], version = "^1.10.6"}
 pyjwt = "^2.6.0"
+python-multipart = "^0.0.6"
 uvicorn = {extras = ["standard"], version = "^0.20.0"}
 
 [tool.poetry.group.dev.dependencies]

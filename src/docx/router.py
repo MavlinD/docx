@@ -1,6 +1,8 @@
 import pathlib
+import shutil
+from typing import List
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, File, UploadFile, Form
 from logrich.logger_ import log  # noqa
 from starlette import status
 from docxtpl import DocxTemplate
@@ -15,6 +17,41 @@ from src.docx.schemas import DocxCreate, DocxResponse
 
 
 router = APIRouter()
+
+
+@router.post("/files/")
+async def create_file(file: bytes = File()):
+    log.debug(file)
+    return {"file_size": len(file)}
+
+
+@router.put("/fileup/")
+async def create_upload_file(
+    files: list[UploadFile] = File([], description="A file read as UploadFile")
+):
+    # log.trace(file.file)
+    # contents = await file.read()
+    # log.trace(contents)
+    # await file.write(contents)
+    resp = set()
+    for file in files:
+        with open(f"{config.DOWNLOADS_DIR}/{file.filename}", "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            resp.add(file.filename)
+    return resp
+
+
+@router.post("/files2/")
+async def create_file(
+    file: bytes = File(),
+    fileb: UploadFile = File(),
+    # token: str = Form()
+):
+    return {
+        "file_size": len(file),
+        # "token": token,
+        "fileb_content_type": fileb.content_type,
+    }
 
 
 @router.post(

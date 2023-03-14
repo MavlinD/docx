@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     API_PORT_INTERNAL: int = 8000
     API_HOSTNAME: str = "0.0.0.0"
     API_PATH_PREFIX: str = "/api/"
-    API_VERSION: str = "v2"
+    API_VERSION: str = "v1"
     PROTOCOL_SCHEME: str = "http://"
     # ссылка на сайт, на странице /docs
     ROOT_URL: str = "/docs"

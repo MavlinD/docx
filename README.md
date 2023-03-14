@@ -56,4 +56,4 @@ ptw -- 5 mon
 
 ----
 
-[основной пакет](https://docxtpl.readthedocs.io/en/latest/#indices-and-tables)    
+[Основной пакет](https://docxtpl.readthedocs.io/en/latest/#indices-and-tables), руководство по работе с шаблонами.    
