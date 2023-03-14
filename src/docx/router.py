@@ -1,11 +1,12 @@
+import json
 import pathlib
 import shutil
 from typing import List, Optional
 
-from fastapi import FastAPI, Depends, File, UploadFile, Form, HTTPException
+from fastapi import FastAPI, Depends, File, UploadFile, Form, HTTPException, Body
 from fastapi.encoders import jsonable_encoder
 from logrich.logger_ import log  # noqa
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, Field
 from starlette import status
 from docxtpl import DocxTemplate
 
@@ -21,9 +22,22 @@ router = APIRouter()
 
 
 class Base(BaseModel):
-    name: str
+    iss: str
+    filename: str
     point: Optional[float] = None
     is_accepted: Optional[bool] = False
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate_to_json
+
+    @classmethod
+    def validate_to_json(cls, value):
+        if isinstance(value, str):
+            log.trace(value)
+            return value
+            return cls(**json.loads(value))
+        return value
 
 
 models = {
@@ -66,14 +80,24 @@ base_checker = DataChecker("base")
 )
 async def upload_template(
     # name: str,
-    model: Base = Depends(base_checker),
+    # model: Base = Depends(base_checker),
+    # data: Base = Depends(),
+    # foo: str = Body(...),
+    # baz: str = Body(...),
+    filename: Base = Body(...),
+    iss: Base = Body(...),
+    # data: Base = Body(...),
+    # model: Base = Body(...),
     # payload: DocxUpdate = Depends(),
     # name: str = Form(...),
     files: list[UploadFile] = File([], description="A file read as UploadFile"),
 ) -> set:
     # log.trace(payload.name)
-    log.trace(model.name)
+    # log.trace(model.foo)
+    # log.trace(foo)
+    # log.trace(data)
     # log.trace(name)
+    log.trace(filename)
     # contents = await file.read()
     # log.trace(contents)
     # await file.write(contents)
