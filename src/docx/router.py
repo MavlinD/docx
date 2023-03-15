@@ -20,7 +20,7 @@ from src.docx.depends import check_create_access, Audience, check_update_access
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
 from src.docx.helpers.security import Jwt, decode_jwt
 from src.docx.helpers.tools import dict_hash
-from src.docx.schemas import DocxCreate, DocxResponse, DocxUpdate, DocxUpdateResponse
+from src.docx.schemas import DocxCreate, DocxResponse, DocxUpdate, DocxUpdateResponse, JWToken
 
 router = APIRouter()
 
@@ -186,12 +186,11 @@ async def upload_template(
         None,
         description="Файл будет сохранен под указанным именем. Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
     ),
-    token: str = Form(...)
-    #     ...,
-    # description="Файл будет сохранен под указанным именем. Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
-    # ),
+    token: str = Form(...),
 ) -> DocxUpdateResponse:
+    # return
     token = Jwt(token=token)
+    # token = Jwt(token=token.token)
     # log.debug(token.issuer)
     file_name = file.filename
     if filename:
@@ -199,16 +198,14 @@ async def upload_template(
     saved_name = f"{config.TEMPLATES_DIR}/{token.issuer}/{file_name}"
     resp = DocxUpdateResponse()
     # log.debug(Path(saved_name).parent)
+    # создадим вложенную папку
     if not Path(saved_name).parent.is_dir():
         Path(saved_name).parent.mkdir()
     with open(saved_name, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-        # log.debug(resp)
-        # resp.add(saved_name)
     if Path(saved_name).is_file():
         #     log.debug(saved_name)
-        resp = DocxUpdateResponse(template=saved_name)
-    # resp = DocxUpdateResponse(tpl="saved_name")
+        resp.template = saved_name
     return resp
 
 

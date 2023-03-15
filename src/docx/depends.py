@@ -1,12 +1,12 @@
 from enum import Enum
 
-from fastapi import Body, Form
+from fastapi import Body, Form, Depends
 from logrich.logger_ import log  # noqa
 from pydantic import Field
 
 from src.docx.config import config
 from src.docx.helpers.security import decode_jwt
-from src.docx.schemas import DocxCreate, DocxUpdate
+from src.docx.schemas import DocxCreate, DocxUpdate, JWToken, token_description
 
 
 class Audience(str, Enum):
@@ -26,21 +26,14 @@ async def check_create_access(payload: DocxCreate) -> bool:
 async def check_update_access(
     token: str = Form(
         ...,
-        description=f"JWT подписанный асинхронным алгоритмом из списка {config.ALGORITHMS_WHITE_LIST},"
-        "<br>при этом аудиенция токена должна соотвествовать аудиенции конечной точки."
-        "<br>Издатель должен её включить в токен перед запросом.",
-        # max_length=55,
+        description=token_description,
+        # max_length=100
     ),
-    # token: str
-    # | None = Body(..., description=f"jhgjhg-{config.TEMPLATE_MAX_LENGTH}")
 ) -> bool:
     """Зависимость, авторизует запрос на обновление шаблона"""
-    log.debug(token)
+    # log.trace(token)
     jwt = DocxUpdate(token=token)
-    log.trace(jwt)
-    # return True
     await decode_jwt(
-        # payload=token,
         payload=jwt,
         audience=Audience.UPDATE.value,
     )

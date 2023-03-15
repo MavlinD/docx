@@ -41,7 +41,7 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs) -> None:
     data = resp.json()
     log.debug("-", o=data)
     # return
-    assert resp.status_code == 201, "некорректный ответ сервера"
+    assert resp.status_code == 201, "некорректный ответ сервера.."
     out_file = pathlib.Path(data.get("template"))
 
     assert out_file.is_file(), "Шаблон не сохранился"
@@ -51,4 +51,6 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs) -> None:
     content = set()
     for para in doc.paragraphs:
         content.add(para.text)
-    assert "Здравствуй мир!" in " ".join(content), "данных в итоговом файле не наблюдается"
+    assert "Здравствуй мир!" in " ".join(
+        content
+    ), "Содержимое исходного шаблона и загруженного не соответствует."

@@ -16,28 +16,23 @@ from src.docx.helpers.tools import get_key
 class DocxUpdate(BaseModel):
     """Схема для обновления/загрузки отчета"""
 
-    token: str = Field(
-        ...,
-        # description=f"JWT подписанный асинхронным алгоритмом из списка {config.ALGORITHMS_WHITE_LIST},"
-        # "<br>при этом аудиенция токена должна соотвествовать аудиенции конечной точки."
-        # "<br>Издатель должен её включить в токен перед запросом.",
+    token: str
+
+
+token_description = (
+    f"**JWT** подписанный асинхронным алгоритмом из списка {config.ALGORITHMS_WHITE_LIST},"
+    f"<br>при этом аудиенция токена должна соотвествовать аудиенции конечной точки."
+    f"<br>Издатель должен её включить в токен перед запросом."
+)
+
+
+class JWToken(BaseModel):
+    token: str = Body(
+        description=token_description,
     )
 
-    # name: str = Field(...)
-    # name: str = Body(...)
-    # name: Annotated[
-    #     str,
-    #     Form(
-    #         min_length=config.FILENAME_MIN_LENGTH,
-    #         max_length=config.FILENAME_MAX_LENGTH,
-    #         description="Имя создаваемого файла",
-    #     ),
-    # ]
-    # name: str = Form(...)
-    # files: list[UploadFile] = File([], description="A file read as UploadFile")
 
-
-class DocxCreate(BaseModel):
+class DocxCreate(JWToken):
     """Схема для создания отчета"""
 
     filename: Annotated[
@@ -48,12 +43,6 @@ class DocxCreate(BaseModel):
             description="Имя создаваемого файла",
         ),
     ]
-
-    token: str = Field(
-        description=f"JWT подписанный асинхронным алгоритмом из списка {config.ALGORITHMS_WHITE_LIST},"
-        "<br>при этом аудиенция токена должна соотвествовать аудиенции конечной точки."
-        "<br>Издатель должен её включить в токен перед запросом."
-    )
 
     context: Dict[str, str] = Field(default={}, description="Переменные шаблона")
 
