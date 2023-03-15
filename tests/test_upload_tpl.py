@@ -1,13 +1,16 @@
 import json
+import os
 import pathlib
 
 import pytest
+from _pytest import monkeypatch
 from docxtpl import DocxTemplate
 from httpx import AsyncClient
 
 from logrich.logger_ import log  # noqa
 from pydantic import EmailStr
 
+from src.docx.config import config
 from src.docx.helpers.security import generate_jwt
 from src.docx.helpers.tools import get_file
 from tests.conftest import Routs
@@ -19,45 +22,31 @@ reason = "Temporary off!"
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-async def test_upload_tpl(
-    client: AsyncClient,
-    routes: Routs,
-) -> None:
+async def test_upload_tpl(client: AsyncClient, routes: Routs) -> None:
     """тест загрузки шаблонов"""
+    # envs = {"FILE_MAX_SIZE": "0.001"}
+    # monkeypatch.setattr(os, "environ", envs)
+    # monkeypatch.setenv("FILE_MAX_SIZE", "0.001")
+    # log.debug(os.getenv("FILE_MAX_SIZE"))
+    # config.FILE_MAX_SIZE = 0.001
     # username = "Васян Хмурый"
     token_issuer = "test-auth.site.com"
     token_data = {
         "iss": token_issuer,
-        "aud": ["other-aud12", "docx-update"],
+        "aud": ["other-aud51=11311", "docx-update"],
     }
     token = generate_jwt(data=token_data)
     # log.debug(token)
     payload = {
         "filename": "test-filename",
-        #     "template": "test_docx_template.docx",
-        #     "context": {"username": username, "place": "Кемерово"},
         "token": token,
     }
-    file = "tests/files/nginx.png"
-    file2 = "tests/files/lipsum1.jpg"
-    files = [
-        # "token": token,
-        ("files", open(file, "rb")),
-        ("files", open(file2, "rb")),
-        # ("name", "test"),
-        # ("file", open(file, "rb")),
-        # ("file2", open(file2, "rb")),
-    ]
-    # payload["files"] = files
+    file = "tests/files/lipsum2_article.jpg"
     file = ("file", open(file, "rb"))
     resp = await client.post(
         routes.request_to_upload_template,
-        # json={"name": "xxxx"},
-        # json=payload,
         files=[file],
-        # data={"filename": "file1"},
-        data={"filename": "file18", "token": token},
-        # data=payload,
+        data=payload,
         # data={"payload": payload},
         # params={"name": "xxxx"},
         # content={"name": "xxxx"},

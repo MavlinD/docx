@@ -146,244 +146,30 @@ class Base2(BaseModel):
 async def valid_content_length(content_length: int = Header(..., lt=80_000)):
     return content_length
 
-
-class GroupRename(BaseModel):
-    """схема параметров запроса на переименование группы"""
-
-    group: str = Field(
-        min_length=10,
-        max_length=100,
-        description="имя/ID/slag группы для изменения",
-    )
-    # file = Body(description="A file read as UploadFile", title='some title')
-    # file = Body(description="A file read as UploadFile", title='some title', gt=10)
-    # file = File(description="A file read as UploadFile", title='some title', max_length=10_00)
-    # file: UploadFile = File(description="A file read as UploadFile", title='some title', max_length=10_00)
-    # file: Annotated[UploadFile, File(description="A file read as UploadFile")]
-    # file: Annotated[UploadFile, File(description="A file read as UploadFile", gt=0)]
-
-
-# try:
-#     # this won't work since PositiveInt takes precedence over the
-#     # constraints defined in Field meaning they're ignored
-#     class Model(BaseModel):
-#         foo: PositiveInt = Field(..., lt=10)
-# except ValueError as e:
-#     print(e)
-#     """
-#     On field "foo" the following field constraints are set but not enforced:
-#     lt.
-#     For more details see https://docs.pydantic.dev/usage/schema/#unenforced-
-#     field-constraints
-#     """
-
-
-class Model(BaseModel):
-    # file: UploadFile = Body(..., exclusiveMaximum2=10)
-    file: UploadFile
-    # = File(..., description='description222')
-    # @validator("file")
-    # def decode_filenames(cls, val: UploadFile, values: dict) -> UploadFile:
-    #     try:
-    #         if val.size>1:
-    #             log.debug(val)
-    #             return val
-    # #             # return json.loads(val)
-    #     except Exception as e:
-    #         log.trace(e)
-    #         # raise HTTPException(
-    #         #     detail=f'Поле filename невозможно сериализовать: {val}',
-    #         #     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-    #         # )
     # @classmethod
-    # def __modify_schema__(
-    #     cls, field_schema: Dict[str, Any], field: Optional[ModelField]
-    # ):
-    #     field_schema['description'] = 'kjhkhkjh'
-    # if field:
-    #     size = field.field_info.extra['size']
-    #     field_schema['examples'] = [c * 3 for c in size]
+    # def __modify_schema__(cls, field_schema: Dict[UploadFile, Any], field: Optional[ModelField]):
+    #     if field:
+    # size = field.field_info.extra['size']
+    # field_schema["examples"] = "lijjuojh"
 
-
-class RestrictedAlphabetStr(UploadFile):
-    # class RestrictedAlphabetStr(str):
-
-    value: UploadFile = File(...)
-
-    # @classmethod
-    # def __get_validators__(cls) -> Generator[Callable, None, None]:
-    #     yield cls.validate
-    #
-    # @classmethod
-    # def validate(cls, value: UploadFile, field: UploadFile):
-    #     size = field.field_info.extra['size']
-    #     log.debug(field)
-    #     log.debug(value)
-    #     log.debug(size)
-    #     if any(c not in size for c in value):
-    #         raise ValueError(f'{value!r} is not restricted to {size!r}')
-    #     return cls(value)
-
-    @classmethod
-    def __modify_schema__(cls, field_schema: Dict[UploadFile, Any], field: Optional[ModelField]):
-        if field:
-            # size = field.field_info.extra['size']
-            field_schema["examples"] = "lijjuojh"
-
-
-class SimpleModel(BaseModel):
-    no: int = Body(...)
-    # nm: str = Form(...)
-    f: UploadFile = Body(..., example="kjhkjh")
-
-    @classmethod
-    def __modify_schema__(cls, field_schema: Dict[UploadFile, Any], field: Optional[ModelField]):
-        if field:
-            # size = field.field_info.extra['size']
-            field_schema["examples"] = "lijjuojh"
-
-
-def as_form(cls: Type[BaseModel]) -> Type[BaseModel]:
-    """
-    Adds an `as_form` class method to decorated models. The `as_form` class
-    method can be used with `FastAPI` endpoints.
-
-    Args:
-        cls: The model class to decorate.
-
-    Returns:
-        The decorated class.
-
-    """
-
-    def make_form_parameter(field: ModelField) -> Any:
-        """
-        Converts a field from a `Pydantic` model to the appropriate `FastAPI`
-        parameter type.
-
-        Args:
-            field: The field to convert.
-
-        Returns:
-            Either the result of `Form`, if the field is not a sub-model, or
-            the result of `Depends` if it is.
-
-        """
-        if issubclass(field.type_, BaseModel):
-            # This is a sub-model.
-            assert hasattr(field.type_, "as_form"), (
-                f"Sub-model class for {field.name} field must be decorated with" f" `as_form` too."
-            )
-            return Depends(field.type_.as_form)
-        else:
-            return Form(field.default) if not field.required else Form(...)
-
-    new_params = [
-        inspect.Parameter(
-            field.alias,
-            inspect.Parameter.POSITIONAL_ONLY,
-            default=make_form_parameter(field),
-        )
-        for field in cls.__fields__.values()
-    ]
-
-    async def _as_form(**data):
-        return cls(**data)
-
-    sig = inspect.signature(_as_form)
-    sig = sig.replace(parameters=new_params)
-    _as_form.__signature__ = sig
-    setattr(cls, "as_form", _as_form)
-    return cls
-
-
-@as_form
-class Nested(BaseModel):
-    foo: int
-    bar: str
-
-
-@as_form
-class Outer(BaseModel):
-    inner: UploadFile = File(...)
-    baz: float
-
-
-# class MyModel:
-class MyModel(BaseModel):
-    # value: RestrictedAlphabetStr = File(size='100', media_type= "multipart/form-data")
-    # f: Annotated[
-    #         UploadFile,
-    #         File
-    # ]
-    #         File(...,description='description')
-    def __init__(self, **data: Any):
-        super().__init__(**data)
-        self.field_schema["description"] = "lijjuojh"
-
-    f: UploadFile = File(..., description="description", media_type="multipart/form-data")
-
-    @classmethod
-    def __modify_schema__(cls, field_schema: Dict[str, Any], field: Optional[ModelField]):
-        # if field:
-        # size = field.field_info.extra['size']
-        cls.field_schema["description"] = "lijjuojh"
-
-    # class Config:
-    #     title = 'Main'
-    # file: Any = File(...)
-    # file: int = Body(..., gt=10000)
-
-
-def valf(content_length):
-    # async def valf(content_length: int = Header(..., lt=80_000)):
-    #     return  File(None,description='description')
-    return Annotated[UploadFile, File(None, description="description")]
-
-
-# async def wrap(q, arg):
-# from fastapi.params import Form
+    # f: UploadFile = File(..., description="description", media_type="multipart/form-data")
 
 
 async def get_file(
-    file: UploadFile | None = File(..., description=f"jhgjhg-{config.TEMPLATE_MAX_LENGTH}"),
-    limit=100,
+    file: UploadFile
+    | None = File(
+        ...,
+        description=f"Максимальный размер загружаемого файла: **{config.FILE_MAX_SIZE}** Mb",
+    )
 ) -> UploadFile:
-    log.debug(limit)
-    # return {"q": File(..., description='description') }
+    # log.debug(file.size)
+    if file.size > config.FILE_MAX_SIZE * 1024 * 1024:
+        raise HTTPException(
+            detail="Файл слишком большой, {:.2f} Mb".format(file.size / 1024 / 1024),
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        )
+
     return file
-
-
-async def get_file2(
-    file: UploadFile | None = File(..., description=f"jhgjhg-{config.TEMPLATE_MAX_LENGTH}", gt=10_0)
-) -> bool:
-    # return {"q": File(..., description='description') }
-    return True
-    # return {
-    #     "q": q,
-    # }
-    # r = await file(q=q)
-    # return r
-
-
-class FLimit(BaseModel):
-    # def __init__(self, limit: int = 4):
-    #     self.limit = limit
-    #     self.f = File(..., description=f"jhgjhglimit")
-    # log.trace(self.f)
-    files: UploadFile | None = File(..., description=f"jhgjhglimit{config.LOG_LEVEL}")
-    # def __call__(
-    #     self, q: UploadFile | None = File(..., description=f"jhgjhglimit{config.LOG_LEVEL}")
-    # ):
-    # log.debug(self.f)
-    # if q<10:
-    #     return self.limit
-    # return {
-    #     "q": q,
-    # }
-
-
-# checker = FixedContentQueryChecker(limit=10)
 
 
 @router.post(

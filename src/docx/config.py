@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     ALGORITHMS_WHITE_LIST: Sequence[str] = ("ES256", "ES512", "PS256", "PS512", "EdDSA")
 
-    @validator("DOWNLOADS_DIR")
+    @validator("DOWNLOADS_DIR", allow_reuse=True)
     def create_downloads_dir(cls, v: str) -> str:
         """make place if not exist"""
         place = pathlib.Path(v)
@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     # ссылка на сайт, на странице /docs
     ROOT_URL: str = "/docs"
 
-    @validator("ROOT_URL")
+    @validator("ROOT_URL", allow_reuse=True)
     def set_root_url(cls, value: str, values: dict, config: BaseSettings, field: ModelField) -> str:
         # log.debug(value)
         # log.debug('',o=values)
@@ -69,13 +69,16 @@ class Settings(BaseSettings):
     TEMPLATE_MIN_LENGTH: int = 3
     TEMPLATE_MAX_LENGTH: int = 100
 
+    # максимальный размер загружаемого файла, Mb
+    FILE_MAX_SIZE: float = 1
+
     # ---------- только для тестов ----------
     JWT_ALGORITHM: str = "ES256"
     TOKEN_AUDIENCE: str | list[str] | None = "test-audience"
     PRIVATE_KEY: str = ""
     JWT_ACCESS_KEY_EXPIRES_TIME_DAYS: int = 3650
 
-    @validator("PRIVATE_KEY")
+    @validator("PRIVATE_KEY", allow_reuse=True)
     def set_private_key(
         cls, value: str, values: dict, config: BaseSettings, field: ModelField
     ) -> str | None:
