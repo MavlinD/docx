@@ -1,175 +1,20 @@
-import inspect
-import json
 from pathlib import Path
 import shutil
-from json import JSONDecodeError
-from typing import List, Optional, Annotated, Generator, Callable, Any, Dict, Type
 
-from fastapi import FastAPI, Depends, UploadFile, Form, HTTPException, Body, Header
-from fastapi.encoders import jsonable_encoder
-from fastapi.params import File
+from fastapi import FastAPI, Depends, Form, UploadFile
 from logrich.logger_ import log  # noqa
-from pydantic import BaseModel, ValidationError, Field, validator, PositiveInt
-from pydantic.fields import ModelField
 from starlette import status
 from docxtpl import DocxTemplate
 
 from src.docx.assets import APIRouter
 from src.docx.config import config
-from src.docx.depends import check_create_access, Audience, check_update_access
+from src.docx.depends import check_create_access, Audience, check_update_access, get_file
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
-from src.docx.helpers.security import Jwt, decode_jwt
+from src.docx.helpers.security import Jwt
 from src.docx.helpers.tools import dict_hash
-from src.docx.schemas import DocxCreate, DocxResponse, DocxUpdate, DocxUpdateResponse, JWToken
+from src.docx.schemas import DocxCreate, DocxResponse, DocxUpdateResponse
 
 router = APIRouter()
-
-
-class Base(BaseModel):
-    token: str
-    filename: str
-    point: Optional[float] = None
-    is_accepted: Optional[bool] = False
-
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate_to_json
-
-    @classmethod
-    def validate_to_json(cls, value):
-        if isinstance(value, str):
-            log.trace(value)
-            # return value
-            return cls(**json.loads(value))
-        return value
-
-
-models = {
-    "base": Base,
-}
-
-
-class DataChecker:
-    # https://stackoverflow.com/questions/65504438/how-to-add-both-file-and-json-body-in-a-fastapi-post-request
-    def __init__(self, name: str):
-        self.name = name
-
-    def __call__(self, data: str = Form(...)):
-        try:
-            log.debug(self.name)
-            # model = models[self.name].json(data)
-            # model = models[self.name].dict(data)
-            # model = models[self.name].parse_obj(data)
-            model = Base.parse_raw(data)
-            # model = models[self.name].parse_raw(data)
-            log.trace(model)
-        except ValidationError as e:
-            raise HTTPException(
-                detail=jsonable_encoder(e.errors()),
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            )
-        return model
-
-
-base_checker: Base = DataChecker("base")
-# other_checker = DataChecker("other")
-
-
-class Base2(BaseModel):
-    # token: str
-    # filename: str | None = None
-    # filename: str = Form(
-    #     None,
-    #     description="Сериализованный список имён файлов, файлы будут сохранены под указанными именами. Если имена не указаны файлы сохранятся как есть.",
-    # ),
-    # token: str = Form(...),
-    # files:Annotated[list[UploadFile], File(None, description="A file read as UploadFile")]
-    # file: UploadFile
-    file: Annotated[str, Field(min_length=10, max_length=100)]
-
-    # file:UploadFile = File(description="A file read as UploadFile",
-    #                        title='some title'
-    #                        # min_length=10
-    #                        )
-    # file: Annotated[UploadFile, File(description="A file read as UploadFile", gt=0)]
-    # @validator("filename")
-    # def decode_filenames(cls, val: str, values: dict) -> str:
-    #     try:
-    #         if val:
-    #             log.debug(values)
-    #             return json.loads(val)
-    #     except JSONDecodeError as e:
-    #     #     log.trace(e)
-    #         raise HTTPException(
-    #             detail=f'Поле filename невозможно сериализовать: {val}',
-    #             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-    #         )
-
-    # def __init__(self, **kwargs):
-    #     super().__init__(**kwargs)
-    #     # self(**json.loads())
-    #     filename = kwargs.get("filename", "")
-    #     if filename:
-    #         self.filename = json.loads(filename)
-    #     log.debug(kwargs)
-    # self.name = name
-
-    # @classmethod
-    # def __get_validators__(cls):
-    #     yield cls.validate_to_json
-    #
-    # @classmethod
-    # def validate_to_json(cls, value):
-    #     if isinstance(value, str):
-    #         log.trace(value)
-    #         return value
-    #         # return cls(**json.loads(value))
-    #     return value
-
-    # def __call__(self, data: str = Form(...)):
-    #     try:
-    #         log.debug(self.name)
-    #         # model = models[self.name].json(data)
-    #         # model = models[self.name].dict(data)
-    #         # model = models[self.name].parse_obj(data)
-    #         model = Base.parse_raw(data)
-    #         # model = models[self.name].parse_raw(data)
-    #         log.trace(model)
-    #     except ValidationError as e:
-    #         raise HTTPException(
-    #             detail=jsonable_encoder(e.errors()),
-    #             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-    #         )
-    #     return model
-
-
-async def valid_content_length(content_length: int = Header(..., lt=80_000)):
-    return content_length
-
-    # @classmethod
-    # def __modify_schema__(cls, field_schema: Dict[UploadFile, Any], field: Optional[ModelField]):
-    #     if field:
-    # size = field.field_info.extra['size']
-    # field_schema["examples"] = "lijjuojh"
-
-    # f: UploadFile = File(..., description="description", media_type="multipart/form-data")
-
-
-async def get_file(
-    file: UploadFile
-    | None = File(
-        ...,
-        description=f"Максимальный размер загружаемого файла: **{config.FILE_MAX_SIZE}** Mb",
-    )
-) -> UploadFile:
-    # log.debug(file.size)
-    if file.size > config.FILE_MAX_SIZE * 1024 * 1024:
-        raise HTTPException(
-            detail="Файл слишком большой, {:.2f} Mb".format(file.size / 1024 / 1024),
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        )
-
-    return file
 
 
 @router.post(
@@ -181,21 +26,19 @@ async def get_file(
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_template(
-    file: get_file = Depends(),
+    file: UploadFile = Depends(get_file),
     filename: str = Form(
         None,
-        description="Файл будет сохранен под указанным именем. Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
+        description="Шаблон будет сохранен под указанным именем. Папки будут созданы при необходимости.<br>"
+        "Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
     ),
     token: str = Form(...),
 ) -> DocxUpdateResponse:
-    # return
-    token = Jwt(token=token)
-    # token = Jwt(token=token.token)
-    # log.debug(token.issuer)
+    token_ = Jwt(token=token)
     file_name = file.filename
     if filename:
         file_name = filename
-    saved_name = f"{config.TEMPLATES_DIR}/{token.issuer}/{file_name}"
+    saved_name = f"{config.TEMPLATES_DIR}/{token_.issuer}/{file_name}"
     resp = DocxUpdateResponse()
     # log.debug(Path(saved_name).parent)
     # создадим вложенную папку

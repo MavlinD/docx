@@ -22,7 +22,7 @@ sw_params = {
     "debug": config.DEBUG,
 }
 
-# sw_ui = {"defaultModelsExpandDepth": -1}
+sw_ui = {"defaultModelsExpandDepth": -1}
 
 tags_metadata = [
     {
@@ -35,7 +35,7 @@ tags_metadata = [
 def app() -> FastAPI:
     app_ = FastAPI(
         **sw_params,
-        # swagger_ui_parameters=sw_ui,
+        swagger_ui_parameters=sw_ui,
         contact={
             "name": project["name"],
             "url": config.ROOT_URL,
