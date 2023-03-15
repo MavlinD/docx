@@ -1,6 +1,6 @@
 import inspect
 import json
-import pathlib
+from pathlib import Path
 import shutil
 from json import JSONDecodeError
 from typing import List, Optional, Annotated, Generator, Callable, Any, Dict, Type
@@ -20,7 +20,7 @@ from src.docx.depends import check_create_access, Audience, check_update_access
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
 from src.docx.helpers.security import Jwt, decode_jwt
 from src.docx.helpers.tools import dict_hash
-from src.docx.schemas import DocxCreate, DocxResponse, DocxUpdate
+from src.docx.schemas import DocxCreate, DocxResponse, DocxUpdate, DocxUpdateResponse
 
 router = APIRouter()
 
@@ -177,8 +177,8 @@ async def get_file(
     summary=" ",
     description=f"Требуется аудиенция: **{Audience.UPDATE.value}**",
     dependencies=[Depends(check_update_access)],
-    response_model=set[str],
-    status_code=status.HTTP_200_OK,
+    response_model=DocxUpdateResponse,
+    status_code=status.HTTP_201_CREATED,
 )
 async def upload_template(
     file: get_file = Depends(),
@@ -186,24 +186,29 @@ async def upload_template(
         None,
         description="Файл будет сохранен под указанным именем. Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
     ),
-    # token: DocxUpdate = Form(...)
+    token: str = Form(...)
     #     ...,
     # description="Файл будет сохранен под указанным именем. Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
     # ),
-) -> set:
-    # log.info(token)
-    log.debug(filename)
-    log.trace(file.filename)
-
-    resp = set()
-    return resp
-    for file in data.files:
-        log.debug(file.filename)
-        # log.trace(dir(file))
-        saved_name = f"{config.DOWNLOADS_DIR}/{file.filename}"
-        with open(saved_name, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-            resp.add(saved_name)
+) -> DocxUpdateResponse:
+    token = Jwt(token=token)
+    # log.debug(token.issuer)
+    file_name = file.filename
+    if filename:
+        file_name = filename
+    saved_name = f"{config.TEMPLATES_DIR}/{token.issuer}/{file_name}"
+    resp = DocxUpdateResponse()
+    # log.debug(Path(saved_name).parent)
+    if not Path(saved_name).parent.is_dir():
+        Path(saved_name).parent.mkdir()
+    with open(saved_name, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        # log.debug(resp)
+        # resp.add(saved_name)
+    if Path(saved_name).is_file():
+        #     log.debug(saved_name)
+        resp = DocxUpdateResponse(template=saved_name)
+    # resp = DocxUpdateResponse(tpl="saved_name")
     return resp
 
 
@@ -268,7 +273,7 @@ async def create_docx(
     # формируем уникальную ссылку на файл
     hash_payload = dict_hash(payload.context)[-8:]
     path_to_save = f"{config.DOWNLOADS_DIR}/{token.issuer}"
-    pathlib.Path(path_to_save).mkdir(parents=True, exist_ok=True)
+    Path(path_to_save).mkdir(parents=True, exist_ok=True)
     filename = f"{path_to_save}/{payload.filename}-{hash_payload}.docx"
     doc.save(filename=filename)
 

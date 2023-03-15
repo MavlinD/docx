@@ -83,6 +83,12 @@ class DocxResponse(BaseModel):
     url: str
 
 
+class DocxUpdateResponse(BaseModel):
+    """схема для ответа на изменение отчета"""
+
+    template: str | None = None
+
+
 class TokenCustomModel(BaseModel):
     """
     Модель пользовательского токена, для валидации параметров запроса пользовательского токена
