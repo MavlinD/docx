@@ -4,7 +4,8 @@ import docx
 from fastapi import FastAPI, Request, Response
 from logrich.logger_ import log  # noqa
 from starlette.middleware.cors import CORSMiddleware
-from starlette_validation_uploadfile import ValidateUploadFileMiddleware
+
+# from starlette_validation_uploadfile import ValidateUploadFileMiddleware
 
 
 def init_middleware(app: FastAPI) -> None:

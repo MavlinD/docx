@@ -1575,6 +1575,21 @@ files = [
 ]
 
 [[package]]
+name = "pathvalidate"
+version = "2.5.2"
+description = "pathvalidate is a Python library to sanitize/validate a string such as filenames/file-paths/etc."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "pathvalidate-2.5.2-py3-none-any.whl", hash = "sha256:e39a4dfacdba70e3a96d3e4c6ff617a39e991cf242e6e1f2017f1f67c3408d33"},
+    {file = "pathvalidate-2.5.2.tar.gz", hash = "sha256:5ff57d0fabe5ecb7a4f1e4957bfeb5ad8ab5ab4c0fa71f79c6bbc24bd9b7d14d"},
+]
+
+[package.extras]
+test = ["allpairspy", "click", "faker", "pytest (>=6.0.1)", "pytest-discord (>=0.0.6)", "pytest-md-report (>=0.0.12)"]
+
+[[package]]
 name = "pexpect"
 version = "4.8.0"
 description = "Pexpect allows easy control of interactive console applications."
@@ -2436,21 +2451,6 @@ typing-extensions = {version = ">=3.10.0", markers = "python_version < \"3.10\""
 full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart", "pyyaml"]
 
 [[package]]
-name = "starlette-validation-uploadfile"
-version = "0.1.1"
-description = "Middleware for validation upload-file in FastAPI and Starlette."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "starlette-validation-uploadfile-0.1.1.tar.gz", hash = "sha256:cf7a4ba7ea40d413a7a0f07fc9f9dbf86a24c5fb1efb837bdae1c1b94b46635a"},
-    {file = "starlette_validation_uploadfile-0.1.1-py3-none-any.whl", hash = "sha256:16af74559773713d5d94b5fd00653868da7f99c8f98bdf4800ac6c20e3696eda"},
-]
-
-[package.dependencies]
-starlette = ">=0.12.11"
-
-[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -3046,4 +3046,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "d955b8b1d5040eed106d7ef956fcb9e5d555fb959287ef6e10ed219b9f81115e"
+content-hash = "d4eca1a94402293cedef7ceed974c6e259a402477ac8f31791bb713b030cd32c"

@@ -1,10 +1,12 @@
 from datetime import datetime
+from functools import lru_cache
 from typing import Annotated, Sequence, Dict
 from pathlib import Path
 
 import jwt
 from fastapi import UploadFile, File, Form, Body, Depends
 from logrich.logger_ import log  # noqa
+from pathvalidate import sanitize_filepath
 from pydantic import BaseModel, Field, validator, EmailStr
 
 from src.docx.config import config
@@ -18,26 +20,17 @@ token_description = (
     f"<br>Издатель должен её включить в токен перед запросом."
 )
 
-bool_description = f"<br>Соглашение о преобразовании типов: **True, true, 1, yes, on** будут преобразованиы к Истине."
+bool_description = f"<br>Соглашение о преобразовании типов: **True, true, 1, yes, on** будут преобразованы к Истине."
 
 
-def file_description(content_type: dict | None = None, file_max_size: int | None = None) -> str:
+def file_description(content_type: dict | None = None, file_max_size: float | None = None) -> str:
+    """Описание ограничения для поля file. Используется в OpenAPI."""
     resp: list = []
     if content_type:
-        # description=f"Разрешены следующие типы файлов: __{', '.join(config.content_type_white_list.keys())}__<br>"
         resp.append(f"Разрешены следующие типы файлов: __{', '.join(content_type.keys())}__")
     if file_max_size:
         resp.append(f"Максимальный размер загружаемого файла: **{file_max_size}** Mb")
-        # file_max_size = config.FILE_MAX_SIZE
-    # log.debug(resp)
     return "<br>".join(resp)
-    # return f"Разрешены следующие типы файлов: __{content_type}__<br>Максимальный размер загружаемого файла: **{file_max_size}** Mb"
-
-
-class Token(BaseModel):
-    """Схема для обновления/загрузки отчета"""
-
-    token: str
 
 
 class DocxUpdate(BaseModel):
@@ -47,22 +40,6 @@ class DocxUpdate(BaseModel):
     file: UploadFile
     filename: str
     replace_if_exist: bool
-
-
-# def file_upload_payload():
-#     return {
-#         "file": UploadFile,
-#         # file: UploadFile = Depends(check_file_size),
-#         "filename": Form(
-#             None,
-#             description="Шаблон будет сохранен под указанным именем. Папки будут созданы при необходимости.<br>"
-#             "Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
-#         ),
-#         "token": Form(...),
-#         "replace_if_exist": Form(
-#             False, description=f"Заменить шаблон, если он существует. {bool_description}"
-#         ),
-#     }
 
 
 class JWToken(BaseModel):
@@ -144,6 +121,7 @@ class Jwt:
 
     @property
     def algorithm(self) -> str:
+        """Получить алгоритм подписи токена, без валидации."""
         header = jwt.get_unverified_header(self.token)
         algorithm = header.get("alg", "")
         if algorithm not in config.ALGORITHMS_WHITE_LIST:
@@ -159,11 +137,10 @@ class Jwt:
 
     @property
     def issuer(self) -> str:
-        """извлекает издателя токена"""
+        """Извлекает издателя токена"""
         # установим издателя токена, для этого прочитаем нагрузку без валидации.
         claimset_without_validation = jwt.decode(
             jwt=self.token, options={"verify_signature": False}
         )
-        return (
-            claimset_without_validation.get("iss", "").strip().replace(".", "_").replace("-", "_")
-        )
+        sanitize_issuer = str(sanitize_filepath(claimset_without_validation.get("iss", "")))
+        return sanitize_issuer.strip().replace(".", "_").replace("-", "_")

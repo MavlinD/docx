@@ -39,14 +39,14 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs) -> None:
     path_to_file = "tests/files/test_docx_template_to_upload.docx"
     # path_to_file = "tests/files/nginx.png"
     file = ("file", open(path_to_file, "rb"))
-    resp = await client.post(
+    resp = await client.put(
         routes.request_to_upload_template,
         files=[file],
         data=payload,
     )
-    log.debug(resp)
+    # log.debug(resp)
     data = resp.json()
-    log.debug("--", o=data)
+    log.debug("-", o=data)
     # return
     assert resp.status_code == 201, "некорректный ответ сервера.."
     out_file = pathlib.Path(data.get("template"))
