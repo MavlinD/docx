@@ -1,11 +1,17 @@
 import pathlib
 
+# from collections import Mapping
+from collections import namedtuple
+from types import MappingProxyType
+from typing import Mapping, Sequence
+
 import pytest
 from docxtpl import DocxTemplate
 from httpx import AsyncClient
 
 from logrich.logger_ import log  # noqa
 
+from src.docx.config import config
 from src.docx.helpers.security import generate_jwt
 from tests.conftest import Routs
 
@@ -19,6 +25,16 @@ reason = "Temporary off!"
 async def test_upload_tpl(client: AsyncClient, routes: Routs) -> None:
     """тест загрузки шаблона"""
     # config.FILE_MAX_SIZE = 0.001
+
+    # nt = namedtuple("CType", "ctype")
+    mp: MappingProxyType[str, str] = MappingProxyType(
+        {"docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
+    )
+
+    # log.debug(mp.keys())
+
+    log.debug(list(config.content_type_white_list.keys()))
+    # return
     token_issuer = "test-auth.site.com"
     token_data = {
         "iss": token_issuer,
@@ -28,6 +44,7 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs) -> None:
     # log.debug(token)
     payload = {"filename": "temp_dir/test-filename.docx", "token": token, "replace_if_exist": True}
     path_to_file = "tests/files/test_docx_template_to_upload.docx"
+    # path_to_file = "tests/files/nginx.png"
     file = ("file", open(path_to_file, "rb"))
     resp = await client.post(
         routes.request_to_upload_template,
@@ -36,7 +53,7 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs) -> None:
     )
     # log.debug(resp)
     data = resp.json()
-    log.debug("", o=data)
+    log.debug("--", o=data)
     # return
     assert resp.status_code == 201, "некорректный ответ сервера.."
     out_file = pathlib.Path(data.get("template"))

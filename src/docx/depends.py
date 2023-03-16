@@ -1,6 +1,6 @@
 from enum import Enum
 
-from fastapi import Form, UploadFile, File, HTTPException
+from fastapi import Form, UploadFile, File, HTTPException, Depends
 from logrich.logger_ import log  # noqa
 from starlette import status
 
@@ -40,12 +40,26 @@ async def check_update_access(
     return True
 
 
-async def get_file(
+async def check_content_type(
     file: UploadFile = File(
         ...,
-        description=f"Максимальный размер загружаемого файла: **{config.FILE_MAX_SIZE}** Mb",
+        description=f"Разрешены следующие типы файлов: __{', '.join(config.content_type_white_list.keys())}__<br>"
+        f"Максимальный размер загружаемого файла: **{config.FILE_MAX_SIZE}** Mb",
     )
-    # ) -> bool:
+) -> UploadFile:
+    """Зависимость"""
+    # log.debug(file.size)
+    if file.content_type not in config.content_type_white_list.values():
+        raise HTTPException(
+            detail=f"Тип файла не разрешен: {file.content_type}",
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        )
+
+    return file
+
+
+async def get_file(
+    file: UploadFile = Depends(check_content_type),
 ) -> UploadFile:
     """Зависимость"""
     # log.debug(file.size)

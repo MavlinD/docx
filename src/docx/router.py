@@ -1,6 +1,7 @@
 from pathlib import Path
 import shutil
 
+import magic
 from fastapi import FastAPI, Depends, Form, UploadFile
 from logrich.logger_ import log  # noqa
 from starlette import status
@@ -8,7 +9,13 @@ from docxtpl import DocxTemplate
 
 from src.docx.assets import APIRouter, check_file_exist
 from src.docx.config import config
-from src.docx.depends import check_create_access, Audience, check_update_access, get_file
+from src.docx.depends import (
+    check_create_access,
+    Audience,
+    check_update_access,
+    get_file,
+    check_content_type,
+)
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
 from src.docx.helpers.security import Jwt
 from src.docx.helpers.tools import dict_hash
@@ -21,7 +28,10 @@ router = APIRouter()
     "/template-upload",
     summary=" ",
     description=f"Требуется аудиенция: **{Audience.UPDATE.value}**",
-    dependencies=[Depends(check_update_access)],
+    dependencies=[
+        Depends(check_update_access),
+        # Depends(check_content_type)
+    ],
     response_model=DocxUpdateResponse,
     status_code=status.HTTP_201_CREATED,
 )
@@ -37,8 +47,13 @@ async def upload_template(
         False, description=f"Заменить шаблон, если он существует. {bool_description}"
     ),
 ) -> DocxUpdateResponse:
+    log.debug(
+        file.content_type
+    )  # application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    # log.debug(magic.from_file(file.))
     token_ = Jwt(token=token)
     file_name = file.filename
+    log.trace(file_name)
     if filename:
         file_name = filename
     saved_name = f"{config.TEMPLATES_DIR}/{token_.issuer}/{file_name}"

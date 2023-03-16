@@ -13,19 +13,19 @@ from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
 from src.docx.helpers.tools import get_key
 
 
-class DocxUpdate(BaseModel):
-    """Схема для обновления/загрузки отчета"""
-
-    token: str
-
-
 token_description = (
     f"**JWT** подписанный асинхронным алгоритмом из списка {config.ALGORITHMS_WHITE_LIST},"
     f"<br>**Аудиенция токена** должна соотвествовать аудиенции конечной точки."
     f"<br>Издатель должен её включить в токен перед запросом."
 )
 
-bool_description = f"<br>Соглашение о преобразовании типов: **True, true, 1, yes, on** будут преобразованиы к истине."
+bool_description = f"<br>Соглашение о преобразовании типов: **True, true, 1, yes, on** будут преобразованиы к Истине."
+
+
+class DocxUpdate(BaseModel):
+    """Схема для обновления/загрузки отчета"""
+
+    token: str
 
 
 class JWToken(BaseModel):

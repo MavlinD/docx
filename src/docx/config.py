@@ -1,15 +1,24 @@
 import asyncio
 import pathlib
 from functools import lru_cache
-from typing import Sequence
+from types import MappingProxyType
+from typing import Sequence, Any
 
 from pydantic import BaseSettings, validator, HttpUrl
 from logrich.logger_ import log  # noqa
-from pydantic.fields import ModelField
+from pydantic.fields import ModelField, Field
 
 from src.docx.helpers.tools import get_key
 
 DOTENV_FILE = "./.env"
+
+
+CONTENT_TYPE_WHITE_LIST = MappingProxyType(
+    {
+        "*.docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        # "*.png": "image/png",
+    },
+)
 
 
 @lru_cache()
@@ -27,6 +36,11 @@ class Settings(BaseSettings):
     DOWNLOADS_URL: str = "downloads"
 
     ALGORITHMS_WHITE_LIST: Sequence[str] = ("ES256", "ES512", "PS256", "PS512", "EdDSA")
+
+    @property
+    def content_type_white_list(self) -> dict[str, str]:
+        """Список разрешенных форматов сохраняемых файлов."""
+        return dict(CONTENT_TYPE_WHITE_LIST)
 
     @validator("DOWNLOADS_DIR", allow_reuse=True)
     def create_downloads_dir(cls, v: str) -> str:
