@@ -48,3 +48,9 @@ class PathToTemplateNotExist(FastAPIDocxException):
     def __init__(self, msg: Exception | str | None = None) -> None:
         self.detail = f"Шаблон не существует: {msg}"
         self.status_code = status.HTTP_404_NOT_FOUND
+
+
+class FileIsExist(FastAPIDocxException):
+    def __init__(self, msg: Exception | str | None = None) -> None:
+        self.detail = f"Файл существует: {msg}"
+        self.status_code = status.HTTP_409_CONFLICT

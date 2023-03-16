@@ -26,10 +26,7 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs) -> None:
     }
     token = generate_jwt(data=token_data)
     # log.debug(token)
-    payload = {
-        "filename": "temp_dir/test-filename.docx",
-        "token": token,
-    }
+    payload = {"filename": "temp_dir/test-filename.docx", "token": token, "replace_if_exist": True}
     path_to_file = "tests/files/test_docx_template_to_upload.docx"
     file = ("file", open(path_to_file, "rb"))
     resp = await client.post(
@@ -39,7 +36,7 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs) -> None:
     )
     # log.debug(resp)
     data = resp.json()
-    log.debug("--", o=data)
+    log.debug("", o=data)
     # return
     assert resp.status_code == 201, "некорректный ответ сервера.."
     out_file = pathlib.Path(data.get("template"))

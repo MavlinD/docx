@@ -1,4 +1,4 @@
-import pathlib
+from pathlib import Path
 from typing import Any, Callable
 
 from fastapi import APIRouter as FastAPIRouter
@@ -6,7 +6,7 @@ from fastapi.types import DecoratedCallable
 from logrich.logger_ import log  # noqa
 
 from src.docx.config import config
-from src.docx.exceptions import PathToTemplateNotExist
+from src.docx.exceptions import PathToTemplateNotExist, FileIsExist
 
 
 class APIRouter(FastAPIRouter):
@@ -29,11 +29,18 @@ class APIRouter(FastAPIRouter):
         return decorator
 
 
-def get_template(issuer: str, template: str) -> pathlib.Path:
+def get_template(issuer: str, template: str) -> Path:
     log.trace(config.TEMPLATES_DIR)
     log.trace(issuer)
     log.trace(template)
-    path_to_template = pathlib.Path(f"{config.TEMPLATES_DIR}/{issuer}/{template}")
+    path_to_template = Path(f"{config.TEMPLATES_DIR}/{issuer}/{template}")
     if not path_to_template.is_file():
         raise PathToTemplateNotExist(msg=str(path_to_template))
     return path_to_template
+
+
+async def check_file_exist(name: str, replace_if_exist: bool) -> None:
+    """Проверяет существование файла для записи, вызывает исключение"""
+    if Path(name).is_file():
+        if not replace_if_exist:
+            raise FileIsExist(msg=str(name))

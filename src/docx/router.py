@@ -6,13 +6,13 @@ from logrich.logger_ import log  # noqa
 from starlette import status
 from docxtpl import DocxTemplate
 
-from src.docx.assets import APIRouter
+from src.docx.assets import APIRouter, check_file_exist
 from src.docx.config import config
 from src.docx.depends import check_create_access, Audience, check_update_access, get_file
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
 from src.docx.helpers.security import Jwt
 from src.docx.helpers.tools import dict_hash
-from src.docx.schemas import DocxCreate, DocxResponse, DocxUpdateResponse
+from src.docx.schemas import DocxCreate, DocxResponse, DocxUpdateResponse, bool_description
 
 router = APIRouter()
 
@@ -33,6 +33,9 @@ async def upload_template(
         "Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
     ),
     token: str = Form(...),
+    replace_if_exist: bool = Form(
+        False, description=f"Заменить шаблон, если он существует. {bool_description}"
+    ),
 ) -> DocxUpdateResponse:
     token_ = Jwt(token=token)
     file_name = file.filename
@@ -41,6 +44,8 @@ async def upload_template(
     saved_name = f"{config.TEMPLATES_DIR}/{token_.issuer}/{file_name}"
     resp = DocxUpdateResponse()
     # log.debug(Path(saved_name).parent)
+    # проверим существование
+    await check_file_exist(name=saved_name, replace_if_exist=replace_if_exist)
     # создадим вложенную папку
     if not Path(saved_name).parent.is_dir():
         Path(saved_name).parent.mkdir()

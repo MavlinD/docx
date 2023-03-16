@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from logrich.logger_ import errlog, log
 from logrich.logger_assets import console
 from rich.style import Style
-from starlette_validation_uploadfile import ValidateUploadFileMiddleware
+
+# from starlette_validation_uploadfile import ValidateUploadFileMiddleware
 
 from src.docx.helpers.tools import get_project
 from src.docx.err_handlers import init_err_handlers  # noqa
