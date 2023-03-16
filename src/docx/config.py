@@ -1,18 +1,18 @@
 import asyncio
-import pathlib
+from pathlib import Path
 from functools import lru_cache
 from types import MappingProxyType
-from typing import Sequence, Any
+from typing import Sequence
 
 from pydantic import BaseSettings, validator, HttpUrl
 from logrich.logger_ import log  # noqa
-from pydantic.fields import ModelField, Field
+from pydantic.fields import ModelField
 
 from src.docx.helpers.tools import get_key
 
 DOTENV_FILE = "./.env"
 
-
+# immutable dict
 CONTENT_TYPE_WHITE_LIST = MappingProxyType(
     {
         "*.docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     @validator("DOWNLOADS_DIR", allow_reuse=True)
     def create_downloads_dir(cls, v: str) -> str:
         """make place if not exist"""
-        place = pathlib.Path(v)
+        place = Path(v)
         if not place.is_dir():
             place.mkdir()
         return v

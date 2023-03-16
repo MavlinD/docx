@@ -26,14 +26,7 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs) -> None:
     """тест загрузки шаблона"""
     # config.FILE_MAX_SIZE = 0.001
 
-    # nt = namedtuple("CType", "ctype")
-    mp: MappingProxyType[str, str] = MappingProxyType(
-        {"docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
-    )
-
-    # log.debug(mp.keys())
-
-    log.debug(list(config.content_type_white_list.keys()))
+    # log.debug(list(config.content_type_white_list.keys()))
     # return
     token_issuer = "test-auth.site.com"
     token_data = {
@@ -51,7 +44,7 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs) -> None:
         files=[file],
         data=payload,
     )
-    # log.debug(resp)
+    log.debug(resp)
     data = resp.json()
     log.debug("--", o=data)
     # return

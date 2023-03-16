@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import Annotated, Sequence, Dict
-import pathlib
+from pathlib import Path
 
 import jwt
-from fastapi import UploadFile, File, Form, Body
+from fastapi import UploadFile, File, Form, Body, Depends
 from logrich.logger_ import log  # noqa
 from pydantic import BaseModel, Field, validator, EmailStr
 
@@ -11,7 +11,6 @@ from src.docx.config import config
 
 from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
 from src.docx.helpers.tools import get_key
-
 
 token_description = (
     f"**JWT** подписанный асинхронным алгоритмом из списка {config.ALGORITHMS_WHITE_LIST},"
@@ -22,10 +21,48 @@ token_description = (
 bool_description = f"<br>Соглашение о преобразовании типов: **True, true, 1, yes, on** будут преобразованиы к Истине."
 
 
+def file_description(content_type: dict | None = None, file_max_size: int | None = None) -> str:
+    resp: list = []
+    if content_type:
+        # description=f"Разрешены следующие типы файлов: __{', '.join(config.content_type_white_list.keys())}__<br>"
+        resp.append(f"Разрешены следующие типы файлов: __{', '.join(content_type.keys())}__")
+    if file_max_size:
+        resp.append(f"Максимальный размер загружаемого файла: **{file_max_size}** Mb")
+        # file_max_size = config.FILE_MAX_SIZE
+    # log.debug(resp)
+    return "<br>".join(resp)
+    # return f"Разрешены следующие типы файлов: __{content_type}__<br>Максимальный размер загружаемого файла: **{file_max_size}** Mb"
+
+
+class Token(BaseModel):
+    """Схема для обновления/загрузки отчета"""
+
+    token: str
+
+
 class DocxUpdate(BaseModel):
     """Схема для обновления/загрузки отчета"""
 
     token: str
+    file: UploadFile
+    filename: str
+    replace_if_exist: bool
+
+
+# def file_upload_payload():
+#     return {
+#         "file": UploadFile,
+#         # file: UploadFile = Depends(check_file_size),
+#         "filename": Form(
+#             None,
+#             description="Шаблон будет сохранен под указанным именем. Папки будут созданы при необходимости.<br>"
+#             "Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
+#         ),
+#         "token": Form(...),
+#         "replace_if_exist": Form(
+#             False, description=f"Заменить шаблон, если он существует. {bool_description}"
+#         ),
+#     }
 
 
 class JWToken(BaseModel):
@@ -58,10 +95,10 @@ class DocxCreate(JWToken):
     ]
 
     @validator("template")
-    def template_must_be_exist(cls, v: str, values: dict) -> pathlib.Path:
+    def template_must_be_exist(cls, v: str, values: dict) -> Path:
         """make Path from string"""
         token = Jwt(token=values.get("token", ""))
-        tpl_place = pathlib.Path(f"{config.TEMPLATES_DIR}/{token.issuer}/{v}")
+        tpl_place = Path(f"{config.TEMPLATES_DIR}/{token.issuer}/{v}")
         if not tpl_place.is_file():
             raise ValueError(f"Template {tpl_place} not exist!")
         return tpl_place

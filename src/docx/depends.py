@@ -2,11 +2,12 @@ from enum import Enum
 
 from fastapi import Form, UploadFile, File, HTTPException, Depends
 from logrich.logger_ import log  # noqa
+from pydantic import BaseModel
 from starlette import status
 
 from src.docx.config import config
 from src.docx.helpers.security import decode_jwt
-from src.docx.schemas import DocxCreate, DocxUpdate, token_description
+from src.docx.schemas import DocxCreate, DocxUpdate, token_description, Token
 
 
 class Audience(str, Enum):
@@ -31,8 +32,8 @@ async def check_update_access(
     ),
 ) -> bool:
     """Зависимость, авторизует запрос на обновление шаблона"""
-    # log.trace(token)
-    jwt = DocxUpdate(token=token)
+    log.trace(token)
+    jwt = Token(token=token)
     await decode_jwt(
         payload=jwt,
         audience=Audience.UPDATE.value,
@@ -41,11 +42,7 @@ async def check_update_access(
 
 
 async def check_content_type(
-    file: UploadFile = File(
-        ...,
-        description=f"Разрешены следующие типы файлов: __{', '.join(config.content_type_white_list.keys())}__<br>"
-        f"Максимальный размер загружаемого файла: **{config.FILE_MAX_SIZE}** Mb",
-    )
+    file: UploadFile,
 ) -> UploadFile:
     """Зависимость"""
     # log.debug(file.size)
@@ -58,8 +55,8 @@ async def check_content_type(
     return file
 
 
-async def get_file(
-    file: UploadFile = Depends(check_content_type),
+async def check_file_size(
+    file: UploadFile,
 ) -> UploadFile:
     """Зависимость"""
     # log.debug(file.size)
@@ -70,3 +67,17 @@ async def get_file(
         )
 
     return file
+
+
+async def check_file_condition(
+    file: UploadFile = File(  # noqa
+        ...,
+        description=f"Разрешены следующие типы файлов: __{', '.join(config.content_type_white_list.keys())}__<br>"
+        f"Максимальный размер загружаемого файла: **{config.FILE_MAX_SIZE}** Mb",
+    )
+) -> bool:
+    """Зависимость"""
+    Depends(check_content_type)
+    Depends(check_file_size)
+
+    return True
