@@ -39,6 +39,15 @@ def file_description(content_type: dict | None = None, file_max_size: float | No
 SecretType = Union[str, SecretStr]
 
 
+class DataModel(BaseModel):
+    """Common model, for params, responses & other case."""
+
+    class Config:
+        extra = "allow"
+
+    issuer: str | None = None
+
+
 def get_secret_value(secret: SecretType) -> str:
     if isinstance(secret, SecretStr):
         return secret.get_secret_value()
@@ -139,11 +148,11 @@ class JWT:
         self.audience = ""
 
     @property
-    def audience(self):
+    def audience(self) -> str:
         return self._audience
 
     @audience.setter
-    def audience(self, value):
+    def audience(self, value: str) -> None:
         self._audience = value.strip()
 
     @property
@@ -173,17 +182,9 @@ class JWT:
         return sanitize_issuer.strip().replace(".", "_").replace("-", "_")
 
     @property
-    async def decode_jwt(
-        self,
-        # payload: DocxCreate | DocxUpdate | JWToken,
-        # audience: str,
-    ) -> dict[str, str]:
+    async def decode_jwt(self) -> DataModel:
         try:
             # определяем наличие разрешения
-            # token = JWT(token=payload.token)
-            # log.info(config.PUBLIC_KEY)
-            # log.info(config.PRIVATE_KEY)
-            # log.debug(audience)
             # валидируем токен
             decoded_payload = jwt.decode(
                 jwt=self.token,
@@ -191,10 +192,11 @@ class JWT:
                 key=await self.pub_key,
                 algorithms=[self.algorithm],
             )
-            # log.debug("", o=decoded_payload)
+            resp = DataModel(**decoded_payload)
             # добавим в вывод имя папки данного издателя токена
-            decoded_payload["issuer"] = self.issuer
-            return decoded_payload
+            resp.issuer = self.issuer
+            # log.debug("", o=decoded_payload)
+            return resp
         except InvalidAudienceError:
             raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_FOUND.value)
         except ExpiredSignatureError:

@@ -17,6 +17,7 @@ from src.docx.schemas import (
     bool_description,
     JWToken,
     JWT,
+    DataModel,
 )
 
 
@@ -39,10 +40,12 @@ class JWTBearer(HTTPBearer):
         super(JWTBearer, self).__init__(auto_error=auto_error)
         self.audience = audience
 
-    async def __call__(self, request: Request):
+    async def __call__(self, request: Request) -> Any:
         # log.debug(request)
         # log.debug(self.audience)
-        credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
+        credentials: HTTPAuthorizationCredentials | None = await super(JWTBearer, self).__call__(
+            request
+        )
         if credentials:
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
@@ -52,47 +55,6 @@ class JWTBearer(HTTPBearer):
             return payload
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization code.")
-
-
-# async def check_create_access(AUTHORIZATION: str = Header()) -> bool:
-#     """Зависимость, авторизует запрос на создание файла"""
-#     token = AUTHORIZATION.split(" ")[1]
-#     # log.trace(token)
-#     payload = JWToken(token=token)
-#     await decode_jwt(
-#         payload=payload,
-#         audience=Audience.CREATE.value,
-#     )
-#     return True
-
-
-# async def check_create_access(AUTHORIZATION: str = Header()) -> bool:
-#     """Зависимость, авторизует запрос на создание файла"""
-#     token = AUTHORIZATION.split(" ")[1]
-#     # log.trace(token)
-#     payload = JWToken(token=token)
-#     await decode_jwt(
-#         payload=payload,
-#         audience=Audience.CREATE.value,
-#     )
-#     return True
-
-
-# async def check_update_access(
-#     token: str = Form(
-#         ...,
-#         description=token_description,
-#         # max_length=100
-#     ),
-# ) -> bool:
-#     """Зависимость, авторизует запрос на обновление шаблона"""
-#     # log.trace(token)
-#     jwt = JWToken(token=token)
-#     await decode_jwt(
-#         payload=jwt,
-#         audience=Audience.UPDATE.value,
-#     )
-#     return True
 
 
 async def check_content_type(

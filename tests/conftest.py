@@ -76,7 +76,6 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, object]:
                 pass
 
 
-# @pytest.fixture
 async def auth_headers(audience: str, token_issuer: str = "test-auth.site.com") -> dict[str, str]:
     """Returns the authorization headers"""
 

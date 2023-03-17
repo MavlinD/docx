@@ -28,11 +28,8 @@ from src.docx.schemas import (
     DocxCreate,
     DocxResponse,
     DocxUpdateResponse,
-    bool_description,
-    token_description,
-    file_description,
     DocxUpdate,
-    DocxTemplatesListResponse,
+    DataModel,
 )
 
 router = APIRouter()
@@ -42,12 +39,14 @@ router = APIRouter()
     "/templates",
     summary=" ",
     description=f"Требуется аудиенция: **{Audience.READ.value}**",
-    # response_model=DocxTemplatesListResponse,
+    response_model=list,
     status_code=status.HTTP_200_OK,
 )
-def list_templates(payload=Depends(JWTBearer(audience=Audience.READ.value))):
-    log.debug(payload)
-    return ["dascsa"]
+def list_templates(payload: DataModel = Depends(JWTBearer(audience=Audience.READ.value))) -> list:
+    # log.debug(payload)
+    p = Path(f"templates/{payload.issuer}").glob("**/*.docx")
+    files = [x for x in p if x.is_file()]
+    return files
 
 
 checker = file_checker_wrapper(
