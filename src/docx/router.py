@@ -55,20 +55,12 @@ def list_templates(payload: DataModel = Depends(JWTBearer(audience=Audience.READ
     "/template-upload",
     summary=" ",
     description=f"Требуется аудиенция: **{Audience.UPDATE.value}**",
-    dependencies=[
-        # Depends(check_update_access, use_cache=True),
-    ],
     response_model=DocxUpdateResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_template(
     payload: DataModel = Depends(JWTBearer(audience=Audience.UPDATE.value)),
-    # file=Depends(FixedContentQueryChecker().content_type={"qqqq": "bar"}),
-    file=Depends(
-        file_checker_wrapper(content_type=config.content_type_white_list, file_max_size=222)
-    ),
-    # file=Depends(FixedContentQueryChecker().content_type={"qqqq": "bar"}),
-    # file=Depends(FixedContentQueryChecker(content_type={"qqqq": "bar"}, file_max_size=234)),
+    file=Depends(file_checker_wrapper()),
 ) -> DocxUpdateResponse:
     log.debug(payload)
     log.debug(file)

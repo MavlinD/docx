@@ -100,7 +100,9 @@ async def check_file_condition(
     return True
 
 
-def file_checker_wrapper(content_type: dict, file_max_size: float) -> Callable:
+def file_checker_wrapper(
+    content_type: dict = config.content_type_white_list, file_max_size: float = config.FILE_MAX_SIZE
+) -> Callable:
     """Обёртка над зависисмостью."""
     # https://stackoverflow.com/questions/65504438/how-to-add-both-file-and-json-body-in-a-fastapi-post-request
 
@@ -118,13 +120,13 @@ def file_checker_wrapper(content_type: dict, file_max_size: float) -> Callable:
             False, description=f"Заменить шаблон, если он существует. {bool_description}"
         ),
     ) -> DocxUpdate:
-        if file.size and file.size > config.FILE_MAX_SIZE * 1024 * 1024:
+        if file.size and file.size > file_max_size * 1024 * 1024:
             raise HTTPException(
                 detail="Файл слишком большой, {:.2f} Mb".format(file.size / 1024 / 1024),
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             )
 
-        if file.content_type not in config.content_type_white_list.values():
+        if file.content_type not in content_type.values():
             raise HTTPException(
                 detail=f"Тип файла не разрешен: {file.content_type}",
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
