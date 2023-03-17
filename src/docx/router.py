@@ -22,7 +22,7 @@ from src.docx.depends import (
     JWTBearer,
 )
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
-from src.docx.helpers.security import Jwt
+from src.docx.helpers.security import JWT
 from src.docx.helpers.tools import dict_hash
 from src.docx.schemas import (
     DocxCreate,
@@ -41,15 +41,11 @@ router = APIRouter()
 @router.get(
     "/templates",
     summary=" ",
-    description=f"Требуется аудиенция: **{Audience.CREATE.value}**",
-    dependencies=[
-        # Depends(check_create_access)
-        # Depends(JWTBearer(audience=Audience.CREATE.value))
-    ],
+    description=f"Требуется аудиенция: **{Audience.READ.value}**",
     # response_model=DocxTemplatesListResponse,
     status_code=status.HTTP_200_OK,
 )
-def list_templates(payload=Depends(JWTBearer(audience=Audience.CREATE.value))):
+def list_templates(payload=Depends(JWTBearer(audience=Audience.READ.value))):
     log.debug(payload)
     return ["dascsa"]
 
@@ -74,7 +70,7 @@ async def upload_template(
 ) -> DocxUpdateResponse:
     # log.debug(payload)
     # return
-    token_ = Jwt(token=payload.token)
+    token_ = JWT(token=payload.token)
     file_name = payload.file.filename
     if payload.filename:
         file_name = payload.filename
@@ -147,7 +143,7 @@ async def create_docx(
 ) -> DocxResponse:
     """Создать файл *.docx по шаблону"""
 
-    token = Jwt(token=payload.token)
+    token = JWT(token=payload.token)
     doc = DocxTemplate(payload.template)
     doc.render(payload.context)
     # log.debug(dir(dependencies))

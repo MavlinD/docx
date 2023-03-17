@@ -8,7 +8,7 @@ from pydantic import SecretStr
 from src.docx.config import config
 from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
 from src.docx.helpers.tools import get_key
-from src.docx.schemas import TokenCustomModel, DocxCreate, Jwt, DocxUpdate, JWToken
+from src.docx.schemas import TokenCustomModel, DocxCreate, JWT, DocxUpdate, JWToken
 
 SecretType = Union[str, SecretStr]
 
@@ -25,7 +25,7 @@ async def decode_jwt(
 ) -> dict[str, str]:
     try:
         # определяем наличие разрешения
-        token = Jwt(token=payload.token)
+        token = JWT(token=payload.token)
         # log.info(config.PUBLIC_KEY)
         # log.info(config.PRIVATE_KEY)
         # log.debug(audience)

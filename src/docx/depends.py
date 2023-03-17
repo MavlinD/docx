@@ -15,12 +15,15 @@ from src.docx.schemas import (
     file_description,
     bool_description,
     JWToken,
+    JWT,
 )
 
 
 class Audience(str, Enum):
+    READ = "docx-create"
     CREATE = "docx-create"
     UPDATE = "docx-update"
+    SUPER = "docx-super"
 
 
 from fastapi import Request, HTTPException
@@ -42,9 +45,9 @@ class JWTBearer(HTTPBearer):
         if credentials:
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
-            token = JWToken(token=credentials.credentials)
-            payload = await decode_jwt(
-                payload=token,
+            token = JWT(token=credentials.credentials)
+            payload = await token.decode_jwt(
+                # payload=token,
                 audience=self.audience,
                 # audience=Audience.CREATE.value,
             )
