@@ -44,7 +44,7 @@ class DataModel(BaseModel):
         extra = "allow"
 
     issuer: Any = None
-    token: Any = None
+    # token: Any = None
 
 
 def get_secret_value(secret: SecretType) -> str:
@@ -53,13 +53,13 @@ def get_secret_value(secret: SecretType) -> str:
     return secret
 
 
-class JWToken(BaseModel):
-    token: str = Body(
-        description=token_description,
-    )
+# class JWToken(BaseModel):
+#     token: str = Body(
+#         description=token_description,
+#     )
 
 
-class DocxCreate(JWToken):
+class DocxCreate(BaseModel):
     """Схема для создания отчета"""
 
     filename: Annotated[
@@ -73,23 +73,9 @@ class DocxCreate(JWToken):
 
     context: Dict[str, str] = Field(default={}, description="Переменные шаблона")
 
-    template: Annotated[
-        str,
-        Field(
-            min_length=config.TEMPLATE_MIN_LENGTH,
-            max_length=config.TEMPLATE_MAX_LENGTH,
-            description="Имя заранее загруженного шаблона",
-        ),
-    ]
-
-    @validator("template")
-    def template_must_be_exist(cls, v: str, values: dict) -> Path:
-        """make Path from string"""
-        token = JWT(token=values.get("token", ""))
-        tpl_place = Path(f"{config.TEMPLATES_DIR}/{token.issuer}/{v}")
-        if not tpl_place.is_file():
-            raise ValueError(f"Template {tpl_place} not exist!")
-        return tpl_place
+    template: Path = Field(
+        description="Имя заранее загруженного шаблона",
+    )
 
 
 class DocxResponse(BaseModel):
@@ -102,7 +88,7 @@ class DocxResponse(BaseModel):
 class DocxUpdateResponse(BaseModel):
     """схема для ответа на изменение отчета"""
 
-    template: str | None = None
+    template: Path | None = None
 
 
 class DocxTemplatesListResponse(BaseModel):

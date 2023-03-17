@@ -39,7 +39,7 @@ def get_template(issuer: str, template: str) -> Path:
     return path_to_template
 
 
-async def check_file_exist(name: str, replace_if_exist: bool) -> None:
+async def check_file_exist(name: Path, replace_if_exist: bool) -> None:
     """Проверяет существование файла для записи, вызывает исключение"""
     if Path(name).is_file():
         if not replace_if_exist:

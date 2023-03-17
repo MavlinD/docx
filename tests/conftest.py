@@ -1,4 +1,5 @@
 import asyncio
+from datetime import timedelta
 from typing import AsyncGenerator
 from typing import Generator
 
@@ -76,7 +77,9 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, object]:
                 pass
 
 
-async def auth_headers(audience: str, token_issuer: str = "test-auth.site.com") -> dict[str, str]:
+async def auth_headers(
+    audience: str, lifetime: timedelta = timedelta(days=1), token_issuer: str = "test-auth.site.com"
+) -> dict[str, str]:
     """Returns the authorization headers"""
 
     token_data = {
@@ -84,7 +87,7 @@ async def auth_headers(audience: str, token_issuer: str = "test-auth.site.com") 
         "aud": audience,
     }
 
-    token = generate_jwt(data=token_data)
+    token = generate_jwt(data=token_data, lifetime=lifetime)
     # log.debug(token)
     return {"AUTHORIZATION": "Bearer " + token}
 

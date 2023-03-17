@@ -1,18 +1,8 @@
-import pathlib
-
-# from collections import Mapping
-from collections import namedtuple
-from types import MappingProxyType
-from typing import Mapping, Sequence
-
 import pytest
-from docxtpl import DocxTemplate
 from httpx import AsyncClient, Headers
 
 from logrich.logger_ import log  # noqa
 
-from src.docx.config import config
-from src.docx.helpers.security import generate_jwt
 from tests.conftest import Routs, auth_headers
 
 skip = False

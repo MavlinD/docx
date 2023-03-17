@@ -63,7 +63,7 @@ async def upload_template(
     file_name = file.filename
     if filename:
         file_name = filename
-    saved_name = f"{config.TEMPLATES_DIR}/{payload.issuer}/{file_name}"
+    saved_name = Path(f"{config.TEMPLATES_DIR}/{payload.issuer}/{file_name}")
     resp = DocxUpdateResponse()
     # проверим существование
     await check_file_exist(name=saved_name, replace_if_exist=replace_if_exist)
@@ -82,6 +82,7 @@ async def upload_template(
     summary=" ",
     description=f"Требуется аудиенция: **{Audience.CREATE.value}**",
     response_model=DocxResponse,
+    # dependencies=[ Depends(JWTBearer(audience=Audience.CREATE.value), use_cache=True)],
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_403_FORBIDDEN: {
@@ -126,11 +127,16 @@ async def upload_template(
 )
 async def create_docx(
     payload: DocxCreate,
+    # payload: DocxCreate = Depends(),
+    token: DataModel = Depends(JWTBearer(audience=Audience.CREATE.value), use_cache=True),
 ) -> DocxResponse:
     """Создать файл *.docx по шаблону"""
-
-    token = JWT(token=payload.token)
-    doc = DocxTemplate(payload.template)
+    await check_file_exist(payload.template, replace_if_exist=False)
+    # token = JWT(token=payload.token)
+    log.debug(payload)
+    log.debug(token.issuer)
+    # return DocxUpdateResponse()
+    doc = DocxTemplate(Path(f"{config.TEMPLATES_DIR}/{token.issuer}/{payload.template}"))
     doc.render(payload.context)
     # log.debug(dir(dependencies))
     # log.debug(dependencies)
