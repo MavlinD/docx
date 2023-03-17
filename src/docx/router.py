@@ -3,7 +3,7 @@ import shutil
 from typing import Any
 
 import magic
-from fastapi import FastAPI, Depends, Form, UploadFile, File, HTTPException, Header
+from fastapi import FastAPI, Depends, Form, UploadFile, File, HTTPException, Header, Body
 from logrich.logger_ import log  # noqa
 from pydantic import BaseModel
 from starlette import status
@@ -27,6 +27,8 @@ from src.docx.schemas import (
     DocxUpdateResponse,
     DocxUpdate,
     DataModel,
+    bool_description,
+    DocxUpdateTplFile,
 )
 
 router = APIRouter()
@@ -59,17 +61,37 @@ def list_templates(payload: DataModel = Depends(JWTBearer(audience=Audience.READ
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_template(
-    payload: DataModel = Depends(JWTBearer(audience=Audience.UPDATE.value)),
+    payload: DataModel = Depends(JWTBearer(audience=Audience.UPDATE.value), use_cache=True),
     file=Depends(file_checker_wrapper()),
+    # data=Depends(file_checker_wrapper()),
+    # data: str = Form(...),
+    # data: DocxUpdateTplFile = Body(...),
+    # filename: str = Body(...),
+    filename: str = Form(
+        None,
+        description="Шаблон будет сохранен под указанным именем. Папки будут созданы при необходимости.<br>"
+        "Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
+    ),
+    replace_if_exist: bool = Form(
+        False, description=f"Заменить шаблон, если он существует. {bool_description}"
+    ),
+    # ) -> dict:
 ) -> DocxUpdateResponse:
+    # return {}
     log.debug(payload)
-    log.debug(file)
+    # token_ = JWT(token=payload.token)
+    # log.info("", o=token_.issuer)
+    log.debug(filename)
+    log.debug(replace_if_exist)
     return DocxUpdateResponse()
-    token_ = JWT(token=payload.token)
-    file_name = payload.file.filename
+    log.debug(data)
+    file_name = filename
+
     if payload.filename:
         file_name = payload.filename
-    saved_name = f"{config.TEMPLATES_DIR}/{token_.issuer}/{file_name}"
+    log.debug(file)
+    log.debug(file_name)
+    saved_name = f"{config.TEMPLATES_DIR}/{payload.issuer}/{file_name}"
     resp = DocxUpdateResponse()
     # log.debug(Path(saved_name).parent)
     # проверим существование
@@ -78,7 +100,7 @@ async def upload_template(
     if not Path(saved_name).parent.is_dir():
         Path(saved_name).parent.mkdir()
     with open(saved_name, "wb") as buffer:
-        shutil.copyfileobj(payload.file.file, buffer)
+        shutil.copyfileobj(file.file, buffer)
     if Path(saved_name).is_file():
         #     log.debug(saved_name)
         resp.template = saved_name

@@ -63,6 +63,15 @@ class DocxUpdate(BaseModel):
 
     # token: str
     file: UploadFile
+    # filename: str
+    # replace_if_exist: bool
+
+
+class DocxUpdateTplFile(BaseModel):
+    """Схема для обновления/загрузки отчета, для дополнительных параметров"""
+
+    # token: str
+    # file: UploadFile
     filename: str
     replace_if_exist: bool
 
@@ -144,9 +153,10 @@ class TokenCustomModel(BaseModel):
 class JWT:
     """base operation with jwt"""
 
-    def __init__(self, token: str) -> None:
+    def __init__(self, token: str = "") -> None:
+        log.warning(token)
         self.token = token
-        self._issuer = ""
+        self.issuer = ""
         self._pub_key = ""
         self._algorithm = ""
         self.audience = ""
@@ -175,15 +185,17 @@ class JWT:
         key = await get_key(f"public_keys/{self.issuer.lower()}.pub")
         return key
 
-    @property
-    def issuer(self) -> str:
+    # @property
+    def set_issuer(self) -> str:
         """Извлекает издателя токена"""
         # установим издателя токена, для этого прочитаем нагрузку без валидации.
+        log.trace(self.token)
         claimset_without_validation = jwt.decode(
             jwt=self.token, options={"verify_signature": False}
         )
+        log.debug(claimset_without_validation)
         sanitize_issuer = str(sanitize_filepath(claimset_without_validation.get("iss", "")))
-        return sanitize_issuer.strip().replace(".", "_").replace("-", "_")
+        self.issuer = sanitize_issuer.strip().replace(".", "_").replace("-", "_")
 
     @property
     async def decode_jwt(self) -> DataModel:
@@ -198,7 +210,9 @@ class JWT:
             )
             resp = DataModel(**decoded_payload)
             # добавим в вывод имя папки данного издателя токена
+            # self.issuer()
             resp.issuer = self.issuer
+            # resp.issuer = self.issuer()
             # log.debug("", o=decoded_payload)
             return resp
         except InvalidAudienceError:

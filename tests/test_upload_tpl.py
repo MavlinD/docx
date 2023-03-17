@@ -1,3 +1,4 @@
+import json
 import pathlib
 
 # from collections import Mapping
@@ -44,12 +45,22 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs, audience: str) -> 
         routes.request_to_upload_template,
         files=[file],
         data=payload,
+        # data=json.dumps(payload),
+        # data=json.dumps({"data": payload}),
+        # data={"data": json.dumps(payload)},
+        # data={
+        #     "filename": ["file1", "file2"],
+        # "filename": json.dumps(["file1", "file2"]),
+        #     "filename": ["file1", "file22"],
+        #     "filename": json.dumps(["file1", "file2"]),
+        #     "token": token,
+        # },
         headers=await auth_headers(audience=audience),
     )
-    # log.debug(resp)
+    log.debug(resp)
     data = resp.json()
-    log.debug("-", o=data)
-    return
+    log.debug("--", o=data)
+    # return
     assert resp.status_code == 201, "некорректный ответ сервера.."
     out_file = pathlib.Path(data.get("template"))
 
