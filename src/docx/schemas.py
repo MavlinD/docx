@@ -59,37 +59,6 @@ def get_secret_value(secret: SecretType) -> str:
     return secret
 
 
-class DocxUpdate(BaseModel):
-    """Схема для обновления/загрузки отчета"""
-
-    # token: str
-    file: UploadFile
-    # filename: str
-    # replace_if_exist: bool
-
-
-# @dataclass
-# class DocxUpdateTplFile:
-class DocxUpdateTplFile(BaseModel):
-    """Схема для обновления/загрузки отчета, для дополнительных параметров"""
-
-    # token: str
-    # file: UploadFile
-    # filename: str
-    # replace_if_exist: bool
-    filename: str = (
-        Form(
-            None,
-            media_type="multipart/form-data",
-            description="Шаблон будет сохранен под указанным именем. Папки будут созданы при необходимости.<br>"
-            "Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
-        ),
-    )
-    # replace_if_exist: bool = Form(
-    #     False, description=f"Заменить шаблон, если он существует. {bool_description}"
-    # ),
-
-
 class JWToken(BaseModel):
     token: str = Body(
         description=token_description,
@@ -200,7 +169,7 @@ class JWT:
         return key
 
     # @property
-    def set_issuer(self) -> str:
+    def set_issuer(self) -> None:
         """Извлекает издателя токена"""
         # установим издателя токена, для этого прочитаем нагрузку без валидации.
         log.trace(self.token)

@@ -28,18 +28,8 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs, audience: str) -> 
     """тест загрузки шаблона"""
     # config.FILE_MAX_SIZE = 0.001
 
-    # log.debug(list(config.content_type_white_list.keys()))
-    # return
-    # token_issuer = "test-auth.site.com"
-    # token_data = {
-    #     "iss": token_issuer,
-    #     "aud": ["other-aud", "docx-update"],
-    # }
-    # token = generate_jwt(data=token_data)
-    # log.debug(token)
     payload = {"filename": "temp_dir/test-filename.docx", "replace_if_exist": True}
     path_to_file = "tests/files/test_docx_template_to_upload.docx"
-    # path_to_file = "tests/files/nginx.png"
     file = ("file", open(path_to_file, "rb"))
     resp = await client.put(
         routes.request_to_upload_template,

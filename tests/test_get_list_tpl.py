@@ -26,39 +26,13 @@ reason = "Temporary off!"
 async def test_get_list_tpl(client: AsyncClient, routes: Routs, audience: str) -> None:
     """тест на получение списка шаблонов"""
 
-    # log.debug(list(config.content_type_white_list.keys()))
-    # return
-    # token_issuer = "test-auth.site.com"
-    # token_data = {
-    #     "iss": token_issuer,
-    #     "aud": ["other-aud", "docx-create"],
-    # }
-    # token = generate_jwt(data=token_data)
-    # log.debug(token)
-    # payload = {"token": token}
-    # header = headers(audience='["other-aud", "docx-create"]')
-    # auth_headers()
-    # headers = await auth_headers(audience=audience)
-    # log.debug(headers)
     resp = await client.get(
         routes.request_to_list_templates,
         headers=await auth_headers(audience=audience),
     )
     log.debug(resp)
     data = resp.json()
-    log.debug("---", o=data)
-    return
+    log.debug("-", o=data)
     # return
-    assert resp.status_code == 201, "некорректный ответ сервера.."
-    out_file = pathlib.Path(data.get("template"))
-
-    assert out_file.is_file(), "Шаблон не сохранился"
-
-    doc = DocxTemplate(str(out_file))
-    doc.render({})
-    content = set()
-    for para in doc.paragraphs:
-        content.add(para.text)
-    assert "Здравствуй мир!" in " ".join(
-        content
-    ), "Содержимое исходного шаблона и загруженного не соответствует."
+    assert resp.status_code == 200, "некорректный ответ сервера."
+    assert isinstance(data, list)

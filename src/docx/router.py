@@ -25,10 +25,8 @@ from src.docx.schemas import (
     DocxCreate,
     DocxResponse,
     DocxUpdateResponse,
-    DocxUpdate,
     DataModel,
     bool_description,
-    DocxUpdateTplFile,
 )
 
 router = APIRouter()
@@ -63,7 +61,7 @@ def list_templates(payload: DataModel = Depends(JWTBearer(audience=Audience.READ
 async def upload_template(
     # data: DocxUpdateTplFile=Depends(),
     payload: DataModel = Depends(JWTBearer(audience=Audience.UPDATE.value), use_cache=True),
-    file=Depends(file_checker_wrapper()),
+    file: UploadFile = Depends(file_checker_wrapper()),
     # data=Depends(file_checker_wrapper()),
     # data: str = Form(...),
     # filename: str = Body(...),

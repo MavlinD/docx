@@ -12,7 +12,6 @@ from src.docx.schemas import (
     TokenCustomModel,
     DocxCreate,
     JWT,
-    DocxUpdate,
     JWToken,
     SecretType,
     get_secret_value,

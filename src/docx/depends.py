@@ -12,7 +12,6 @@ from src.docx.config import config
 # from src.docx.helpers.security import decode_jwt
 from src.docx.schemas import (
     DocxCreate,
-    DocxUpdate,
     token_description,
     file_description,
     bool_description,
