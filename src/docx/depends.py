@@ -1,9 +1,10 @@
 from enum import Enum
-from typing import Any
+from typing import Any, Callable
 
 from fastapi import Form, UploadFile, File, HTTPException, Depends, Header
 from logrich.logger_ import log  # noqa
 from pydantic import BaseModel
+from pyfields import field
 from starlette import status
 
 from src.docx.config import config
@@ -99,14 +100,19 @@ async def check_file_condition(
     return True
 
 
-def file_checker_wrapper(content_type: dict, file_max_size: float) -> Any:
+def file_checker_wrapper(content_type: dict, file_max_size: float) -> Callable:
     """Обёртка над зависисмостью."""
-
     # https://stackoverflow.com/questions/65504438/how-to-add-both-file-and-json-body-in-a-fastapi-post-request
+
+    # content_type = content_type
+    # file_max_size = file_max_size
+
     class FixedContentQueryChecker:
-        def __init__(self, content_type: dict, file_max_size: float):
-            self.content_type = content_type
-            self.file_max_size = file_max_size
+        # def __init__(self):
+        #     ...
+        # def __init__(self, content_type: dict, file_max_size: float):
+        # self.content_type = content_type
+        # self.file_max_size = file_max_size
 
         def __call__(
             self,
@@ -116,7 +122,7 @@ def file_checker_wrapper(content_type: dict, file_max_size: float) -> Any:
                     content_type=content_type, file_max_size=file_max_size
                 ),
             ),
-            token: str = Form(..., description=token_description),
+            # token: str = Form(..., description=token_description),
             filename: str = Form(
                 None,
                 description="Шаблон будет сохранен под указанным именем. Папки будут созданы при необходимости.<br>"
@@ -140,9 +146,10 @@ def file_checker_wrapper(content_type: dict, file_max_size: float) -> Any:
 
             return DocxUpdate(
                 file=file,
-                token=token,
+                # token=token,
                 filename=filename,
                 replace_if_exist=replace_if_exist,
             )
 
-    return FixedContentQueryChecker(content_type, file_max_size)
+    return FixedContentQueryChecker()
+    # return FixedContentQueryChecker(content_type, file_max_size)

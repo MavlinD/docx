@@ -13,13 +13,10 @@ from src.docx.assets import APIRouter, check_file_exist
 from src.docx.config import config
 from src.docx.depends import (
     Audience,
-    # check_update_access,
-    # check_create_access,
-    check_file_size,
-    check_content_type,
-    check_file_condition,
-    file_checker_wrapper,
+    # file_checker_wrapper,
     JWTBearer,
+    # FixedContentQueryChecker,
+    file_checker_wrapper,
 )
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
 from src.docx.helpers.security import JWT
@@ -49,9 +46,9 @@ def list_templates(payload: DataModel = Depends(JWTBearer(audience=Audience.READ
     return files
 
 
-checker = file_checker_wrapper(
-    content_type=config.content_type_white_list, file_max_size=config.FILE_MAX_SIZE
-)
+# checker = file_checker_wrapper(
+#     content_type=config.content_type_white_list, file_max_size=config.FILE_MAX_SIZE
+# )
 
 
 @router.put(
@@ -65,10 +62,17 @@ checker = file_checker_wrapper(
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_template(
-    payload: DocxUpdate = Depends(checker),
+    payload: DataModel = Depends(JWTBearer(audience=Audience.UPDATE.value)),
+    # file=Depends(FixedContentQueryChecker().content_type={"qqqq": "bar"}),
+    file=Depends(
+        file_checker_wrapper(content_type=config.content_type_white_list, file_max_size=222)
+    ),
+    # file=Depends(FixedContentQueryChecker().content_type={"qqqq": "bar"}),
+    # file=Depends(FixedContentQueryChecker(content_type={"qqqq": "bar"}, file_max_size=234)),
 ) -> DocxUpdateResponse:
-    # log.debug(payload)
-    # return
+    log.debug(payload)
+    log.debug(file)
+    return DocxUpdateResponse()
     token_ = JWT(token=payload.token)
     file_name = payload.file.filename
     if payload.filename:

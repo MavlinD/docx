@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from functools import lru_cache
-from typing import Annotated, Sequence, Dict, Union
+from typing import Annotated, Sequence, Dict, Union, Any
 from pathlib import Path
 
 import jwt
@@ -45,7 +45,11 @@ class DataModel(BaseModel):
     class Config:
         extra = "allow"
 
-    issuer: str | None = None
+    issuer: Any = None
+    token: Any = None
+    filename: Any = None
+    # file: Any = None
+    replace_if_exist: Any = None
 
 
 def get_secret_value(secret: SecretType) -> str:
@@ -57,7 +61,7 @@ def get_secret_value(secret: SecretType) -> str:
 class DocxUpdate(BaseModel):
     """Схема для обновления/загрузки отчета"""
 
-    token: str
+    # token: str
     file: UploadFile
     filename: str
     replace_if_exist: bool
