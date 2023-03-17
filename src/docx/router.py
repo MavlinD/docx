@@ -13,9 +13,10 @@ from src.docx.depends import (
     file_checker_wrapper,
 )
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
-from src.docx.helpers.security import JWT
+
 from src.docx.helpers.tools import dict_hash
 from src.docx.schemas import (
+    JWT,
     DocxCreate,
     DocxResponse,
     DocxUpdateResponse,

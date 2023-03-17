@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, Callable
 
-from fastapi import UploadFile, File, Depends
+from fastapi import UploadFile, File
 from logrich.logger_ import log  # noqa
 from starlette import status
 from src.docx.config import config
@@ -60,34 +60,6 @@ async def check_content_type(
         )
 
     return file
-
-
-async def check_file_size(
-    file: UploadFile,
-) -> UploadFile:
-    """Зависимость"""
-    # log.debug(file.size)
-    if file.size and file.size > config.FILE_MAX_SIZE * 1024 * 1024:
-        raise HTTPException(
-            detail="Файл слишком большой, {:.2f} Mb".format(file.size / 1024 / 1024),
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        )
-
-    return file
-
-
-async def check_file_condition(
-    file: UploadFile = File(  # noqa
-        ...,
-        description=f"Разрешены следующие типы файлов: __{', '.join(config.content_type_white_list.keys())}__<br>"
-        f"Максимальный размер загружаемого файла: **{config.FILE_MAX_SIZE}** Mb",
-    )
-) -> bool:
-    """Зависимость"""
-    Depends(check_content_type)
-    Depends(check_file_size)
-
-    return True
 
 
 def file_checker_wrapper(

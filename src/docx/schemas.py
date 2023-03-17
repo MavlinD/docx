@@ -131,7 +131,7 @@ class JWT:
     """base operation with jwt"""
 
     def __init__(self, token: str = "") -> None:
-        log.warning(token)
+        # log.warning(token)
         self.token = token
         self.issuer = ""
         self._pub_key = ""

@@ -31,7 +31,7 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs, audience: str) -> 
     )
     log.debug(resp)
     data = resp.json()
-    log.debug("-", o=data)
+    log.debug("--", o=data)
     # return
     assert resp.status_code == 201, "некорректный ответ сервера.."
     out_file = pathlib.Path(data.get("template"))
