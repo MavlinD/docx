@@ -12,9 +12,9 @@ from docxtpl import DocxTemplate
 from src.docx.assets import APIRouter, check_file_exist
 from src.docx.config import config
 from src.docx.depends import (
-    check_create_access,
     Audience,
-    check_update_access,
+    # check_update_access,
+    # check_create_access,
     check_file_size,
     check_content_type,
     check_file_condition,
@@ -60,7 +60,7 @@ checker = file_checker_wrapper(
     summary=" ",
     description=f"Требуется аудиенция: **{Audience.UPDATE.value}**",
     dependencies=[
-        Depends(check_update_access, use_cache=True),
+        # Depends(check_update_access, use_cache=True),
     ],
     response_model=DocxUpdateResponse,
     status_code=status.HTTP_201_CREATED,
@@ -94,7 +94,7 @@ async def upload_template(
     "/create",
     summary=" ",
     description=f"Требуется аудиенция: **{Audience.CREATE.value}**",
-    dependencies=[Depends(check_create_access)],
+    # dependencies=[Depends(check_create_access)],
     response_model=DocxResponse,
     status_code=status.HTTP_201_CREATED,
     responses={

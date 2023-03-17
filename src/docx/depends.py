@@ -7,7 +7,8 @@ from pydantic import BaseModel
 from starlette import status
 
 from src.docx.config import config
-from src.docx.helpers.security import decode_jwt
+
+# from src.docx.helpers.security import decode_jwt
 from src.docx.schemas import (
     DocxCreate,
     DocxUpdate,
@@ -34,7 +35,7 @@ class JWTBearer(HTTPBearer):
     """For OpenAPI"""
 
     # https://testdriven.io/blog/fastapi-jwt-auth/
-    def __init__(self, audience: str, auto_error: bool = True):
+    def __init__(self, audience: str = "", auto_error: bool = True):
         super(JWTBearer, self).__init__(auto_error=auto_error)
         self.audience = audience
 
@@ -53,16 +54,16 @@ class JWTBearer(HTTPBearer):
             raise HTTPException(status_code=403, detail="Invalid authorization code.")
 
 
-async def check_create_access(AUTHORIZATION: str = Header()) -> bool:
-    """Зависимость, авторизует запрос на создание файла"""
-    token = AUTHORIZATION.split(" ")[1]
-    # log.trace(token)
-    payload = JWToken(token=token)
-    await decode_jwt(
-        payload=payload,
-        audience=Audience.CREATE.value,
-    )
-    return True
+# async def check_create_access(AUTHORIZATION: str = Header()) -> bool:
+#     """Зависимость, авторизует запрос на создание файла"""
+#     token = AUTHORIZATION.split(" ")[1]
+#     # log.trace(token)
+#     payload = JWToken(token=token)
+#     await decode_jwt(
+#         payload=payload,
+#         audience=Audience.CREATE.value,
+#     )
+#     return True
 
 
 # async def check_create_access(AUTHORIZATION: str = Header()) -> bool:
@@ -77,21 +78,21 @@ async def check_create_access(AUTHORIZATION: str = Header()) -> bool:
 #     return True
 
 
-async def check_update_access(
-    token: str = Form(
-        ...,
-        description=token_description,
-        # max_length=100
-    ),
-) -> bool:
-    """Зависимость, авторизует запрос на обновление шаблона"""
-    # log.trace(token)
-    jwt = JWToken(token=token)
-    await decode_jwt(
-        payload=jwt,
-        audience=Audience.UPDATE.value,
-    )
-    return True
+# async def check_update_access(
+#     token: str = Form(
+#         ...,
+#         description=token_description,
+#         # max_length=100
+#     ),
+# ) -> bool:
+#     """Зависимость, авторизует запрос на обновление шаблона"""
+#     # log.trace(token)
+#     jwt = JWToken(token=token)
+#     await decode_jwt(
+#         payload=jwt,
+#         audience=Audience.UPDATE.value,
+#     )
+#     return True
 
 
 async def check_content_type(

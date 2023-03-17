@@ -8,44 +8,53 @@ from pydantic import SecretStr
 from src.docx.config import config
 from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
 from src.docx.helpers.tools import get_key
-from src.docx.schemas import TokenCustomModel, DocxCreate, JWT, DocxUpdate, JWToken
+from src.docx.schemas import (
+    TokenCustomModel,
+    DocxCreate,
+    JWT,
+    DocxUpdate,
+    JWToken,
+    SecretType,
+    get_secret_value,
+)
 
-SecretType = Union[str, SecretStr]
+
+# SecretType = Union[str, SecretStr]
+#
+#
+# def get_secret_value(secret: SecretType) -> str:
+#     if isinstance(secret, SecretStr):
+#         return secret.get_secret_value()
+#     return secret
 
 
-def get_secret_value(secret: SecretType) -> str:
-    if isinstance(secret, SecretStr):
-        return secret.get_secret_value()
-    return secret
-
-
-async def decode_jwt(
-    payload: DocxCreate | DocxUpdate | JWToken,
-    audience: str,
-) -> dict[str, str]:
-    try:
-        # определяем наличие разрешения
-        token = JWT(token=payload.token)
-        # log.info(config.PUBLIC_KEY)
-        # log.info(config.PRIVATE_KEY)
-        # log.debug(audience)
-        # валидируем токен
-        decoded_payload = jwt.decode(
-            jwt=payload.token,
-            audience=audience,
-            key=await token.pub_key,
-            algorithms=[token.algorithm],
-        )
-        # log.debug("", o=decoded_payload)
-        return decoded_payload
-    except InvalidAudienceError:
-        raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_FOUND.value)
-    except ExpiredSignatureError:
-        raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_EXPIRE.value)
-    except ValueError:
-        raise InvalidVerifyToken(msg=ErrorCodeLocal.INVALID_TOKEN.value)
-    except DecodeError:
-        raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT.value)
+# async def decode_jwt(
+#     payload: DocxCreate | DocxUpdate | JWToken,
+#     audience: str,
+# ) -> dict[str, str]:
+#     try:
+#         # определяем наличие разрешения
+#         token = JWT(token=payload.token)
+#         # log.info(config.PUBLIC_KEY)
+#         # log.info(config.PRIVATE_KEY)
+#         # log.debug(audience)
+#         # валидируем токен
+#         decoded_payload = jwt.decode(
+#             jwt=payload.token,
+#             audience=audience,
+#             key=await token.pub_key,
+#             algorithms=[token.algorithm],
+#         )
+#         # log.debug("", o=decoded_payload)
+#         return decoded_payload
+#     except InvalidAudienceError:
+#         raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_FOUND.value)
+#     except ExpiredSignatureError:
+#         raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_EXPIRE.value)
+#     except ValueError:
+#         raise InvalidVerifyToken(msg=ErrorCodeLocal.INVALID_TOKEN.value)
+#     except DecodeError:
+#         raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT.value)
 
 
 def generate_jwt(

@@ -36,6 +36,15 @@ def file_description(content_type: dict | None = None, file_max_size: float | No
     return "<br>".join(resp)
 
 
+SecretType = Union[str, SecretStr]
+
+
+def get_secret_value(secret: SecretType) -> str:
+    if isinstance(secret, SecretStr):
+        return secret.get_secret_value()
+    return secret
+
+
 class DocxUpdate(BaseModel):
     """Схема для обновления/загрузки отчета"""
 
@@ -122,8 +131,6 @@ class TokenCustomModel(BaseModel):
 class JWT:
     """base operation with jwt"""
 
-    SecretType = Union[str, SecretStr]
-
     def __init__(self, token: str) -> None:
         self.token = token
         self._issuer = ""
@@ -196,29 +203,3 @@ class JWT:
             raise InvalidVerifyToken(msg=ErrorCodeLocal.INVALID_TOKEN.value)
         except DecodeError:
             raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT.value)
-
-    def generate_jwt(
-        self,
-        data: dict,
-        lifetime: timedelta | None = None,
-        secret: SecretType = config.PRIVATE_KEY,
-        algorithm: str = config.JWT_ALGORITHM,
-    ) -> str:
-        """only for tests"""
-        if not lifetime:
-            lifetime = timedelta(days=config.JWT_ACCESS_KEY_EXPIRES_TIME_DAYS)
-
-        data["exp"] = datetime.utcnow() + lifetime
-        # log.trace(data)
-        payload = TokenCustomModel(**data)
-        # log.debug(payload)
-        return jwt.encode(
-            payload=payload.dict(exclude_none=True),
-            key=self.get_secret_value(secret),
-            algorithm=algorithm,
-        )
-
-    def get_secret_value(self, secret: SecretType) -> str:
-        if isinstance(secret, SecretStr):
-            return secret.get_secret_value()
-        return secret

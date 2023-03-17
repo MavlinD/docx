@@ -13,7 +13,7 @@ from logrich.logger_ import log  # noqa
 
 from src.docx.config import config
 from src.docx.helpers.security import generate_jwt
-from tests.conftest import Routs
+from tests.conftest import Routs, auth_headers
 
 skip = False
 # skip = True
@@ -22,7 +22,8 @@ reason = "Temporary off!"
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-async def test_get_list_tpl(client: AsyncClient, routes: Routs, auth_headers: Headers) -> None:
+@pytest.mark.parametrize("audience", [(["other-aud", "docx-create"])])
+async def test_get_list_tpl(client: AsyncClient, routes: Routs, audience: str) -> None:
     """тест на получение списка шаблонов"""
 
     # log.debug(list(config.content_type_white_list.keys()))
@@ -35,13 +36,17 @@ async def test_get_list_tpl(client: AsyncClient, routes: Routs, auth_headers: He
     # token = generate_jwt(data=token_data)
     # log.debug(token)
     # payload = {"token": token}
+    # header = headers(audience='["other-aud", "docx-create"]')
+    # auth_headers()
+    # headers = await auth_headers(audience=audience)
+    # log.debug(headers)
     resp = await client.get(
         routes.request_to_list_templates,
-        headers=auth_headers,
+        headers=await auth_headers(audience=audience),
     )
     log.debug(resp)
     data = resp.json()
-    log.debug("---", o=data)
+    log.debug("-", o=data)
     return
     # return
     assert resp.status_code == 201, "некорректный ответ сервера.."

@@ -4,7 +4,7 @@ from functools import lru_cache
 from types import MappingProxyType
 from typing import Sequence
 
-from pydantic import BaseSettings, validator, HttpUrl
+from pydantic import BaseSettings, validator, HttpUrl, SecretStr
 from logrich.logger_ import log  # noqa
 from pydantic.fields import ModelField
 
@@ -89,15 +89,15 @@ class Settings(BaseSettings):
     # ---------- только для тестов ----------
     JWT_ALGORITHM: str = "ES256"
     TOKEN_AUDIENCE: str | list[str] | None = "test-audience"
-    PRIVATE_KEY: str = ""
+    PRIVATE_KEY: SecretStr = SecretStr("")
     JWT_ACCESS_KEY_EXPIRES_TIME_DAYS: int = 3650
 
     @validator("PRIVATE_KEY", allow_reuse=True)
     def set_private_key(
         cls, value: str, values: dict, config: BaseSettings, field: ModelField
-    ) -> str | None:
+    ) -> SecretStr | None:
         if values.get("TESTING"):
-            privkey = asyncio.run(get_key(key="tests/priv-key.pem"))
+            privkey = SecretStr(asyncio.run(get_key(key="tests/priv-key.pem")))
             return privkey
         return None
 

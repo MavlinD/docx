@@ -16,9 +16,12 @@ from logrich.logger_ import log  # noqa
 from logrich.logger_assets import console
 
 from src.docx.config import config
+
+# from src.docx.helpers.security import generate_jwt
 from src.docx.helpers.security import generate_jwt
 from src.docx.main import app as app_
 from repo.repo_assets import get_test_status_badge
+from src.docx.schemas import JWT
 from tests.test_tools import print_request, print_endpoints
 
 
@@ -73,14 +76,15 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, object]:
                 pass
 
 
-@pytest.fixture
-async def auth_headers(client: AsyncClient) -> dict[str, str]:
+# @pytest.fixture
+async def auth_headers(audience: str, token_issuer: str = "test-auth.site.com") -> dict[str, str]:
     """Returns the authorization headers"""
-    token_issuer = "test-auth.site.com"
+
     token_data = {
         "iss": token_issuer,
-        "aud": ["other-aud", "docx-create"],
+        "aud": audience,
     }
+
     token = generate_jwt(data=token_data)
     # log.debug(token)
     return {"AUTHORIZATION": "Bearer " + token}
