@@ -22,7 +22,7 @@ def get_secret_value(secret: SecretType) -> str:
 async def decode_jwt(
     payload: DocxCreate | DocxUpdate | JWToken,
     audience: str,
-) -> None:
+) -> dict[str, str]:
     try:
         # определяем наличие разрешения
         token = Jwt(token=payload.token)
@@ -30,13 +30,14 @@ async def decode_jwt(
         # log.info(config.PRIVATE_KEY)
         # log.debug(audience)
         # валидируем токен
-        jwt.decode(
+        decoded_payload = jwt.decode(
             jwt=payload.token,
             audience=audience,
             key=await token.pub_key,
             algorithms=[token.algorithm],
         )
         # log.debug("", o=decoded_payload)
+        return decoded_payload
     except InvalidAudienceError:
         raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_FOUND.value)
     except ExpiredSignatureError:

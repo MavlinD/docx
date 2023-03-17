@@ -16,6 +16,7 @@ from logrich.logger_ import log  # noqa
 from logrich.logger_assets import console
 
 from src.docx.config import config
+from src.docx.helpers.security import generate_jwt
 from src.docx.main import app as app_
 from repo.repo_assets import get_test_status_badge
 from tests.test_tools import print_request, print_endpoints
@@ -72,12 +73,26 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, object]:
                 pass
 
 
+@pytest.fixture
+async def auth_headers(client: AsyncClient) -> dict[str, str]:
+    """Returns the authorization headers"""
+    token_issuer = "test-auth.site.com"
+    token_data = {
+        "iss": token_issuer,
+        "aud": ["other-aud", "docx-create"],
+    }
+    token = generate_jwt(data=token_data)
+    # log.debug(token)
+    return {"AUTHORIZATION": "Bearer " + token}
+
+
 class Routs:
     def __init__(self, app: FastAPI) -> None:
         # Request for create docx
         self.app = app
         self.request_to_create_docx = app.url_path_for("create_docx")
         self.request_to_upload_template = app.url_path_for("upload_template")
+        self.request_to_list_templates = app.url_path_for("list_templates")
 
     def print(self) -> None:
         print_endpoints(self.app)

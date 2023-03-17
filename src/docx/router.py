@@ -3,7 +3,7 @@ import shutil
 from typing import Any
 
 import magic
-from fastapi import FastAPI, Depends, Form, UploadFile, File, HTTPException
+from fastapi import FastAPI, Depends, Form, UploadFile, File, HTTPException, Header
 from logrich.logger_ import log  # noqa
 from pydantic import BaseModel
 from starlette import status
@@ -19,6 +19,7 @@ from src.docx.depends import (
     check_content_type,
     check_file_condition,
     file_checker_wrapper,
+    JWTBearer,
 )
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
 from src.docx.helpers.security import Jwt
@@ -31,9 +32,26 @@ from src.docx.schemas import (
     token_description,
     file_description,
     DocxUpdate,
+    DocxTemplatesListResponse,
 )
 
 router = APIRouter()
+
+
+@router.get(
+    "/templates",
+    summary=" ",
+    description=f"Требуется аудиенция: **{Audience.CREATE.value}**",
+    dependencies=[
+        # Depends(check_create_access)
+        # Depends(JWTBearer(audience=Audience.CREATE.value))
+    ],
+    # response_model=DocxTemplatesListResponse,
+    status_code=status.HTTP_200_OK,
+)
+def list_templates(payload=Depends(JWTBearer(audience=Audience.CREATE.value))):
+    log.debug(payload)
+    return ["dascsa"]
 
 
 checker = file_checker_wrapper(

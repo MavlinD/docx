@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any
 
-from fastapi import Form, UploadFile, File, HTTPException, Depends
+from fastapi import Form, UploadFile, File, HTTPException, Depends, Header
 from logrich.logger_ import log  # noqa
 from pydantic import BaseModel
 from starlette import status
@@ -23,13 +23,58 @@ class Audience(str, Enum):
     UPDATE = "docx-update"
 
 
-async def check_create_access(payload: DocxCreate) -> bool:
+from fastapi import Request, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+
+class JWTBearer(HTTPBearer):
+    """For OpenAPI"""
+
+    # https://testdriven.io/blog/fastapi-jwt-auth/
+    def __init__(self, audience: str, auto_error: bool = True):
+        super(JWTBearer, self).__init__(auto_error=auto_error)
+        self.audience = audience
+
+    async def __call__(self, request: Request):
+        # log.debug(request)
+        log.debug(self.audience)
+        credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
+        if credentials:
+            if not credentials.scheme == "Bearer":
+                raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
+            token = JWToken(token=credentials.credentials)
+            payload = await decode_jwt(
+                payload=token,
+                audience=self.audience,
+                # audience=Audience.CREATE.value,
+            )
+            return payload
+        else:
+            raise HTTPException(status_code=403, detail="Invalid authorization code.")
+
+
+async def check_create_access(AUTHORIZATION: str = Header()) -> bool:
     """Зависимость, авторизует запрос на создание файла"""
+    token = AUTHORIZATION.split(" ")[1]
+    # log.trace(token)
+    payload = JWToken(token=token)
     await decode_jwt(
         payload=payload,
         audience=Audience.CREATE.value,
     )
     return True
+
+
+# async def check_create_access(AUTHORIZATION: str = Header()) -> bool:
+#     """Зависимость, авторизует запрос на создание файла"""
+#     token = AUTHORIZATION.split(" ")[1]
+#     # log.trace(token)
+#     payload = JWToken(token=token)
+#     await decode_jwt(
+#         payload=payload,
+#         audience=Audience.CREATE.value,
+#     )
+#     return True
 
 
 async def check_update_access(

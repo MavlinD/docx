@@ -94,6 +94,12 @@ class DocxUpdateResponse(BaseModel):
     template: str | None = None
 
 
+class DocxTemplatesListResponse(BaseModel):
+    """схема для ответа на запрос списка шаблонов"""
+
+    templates: list = []
+
+
 class TokenCustomModel(BaseModel):
     """
     Модель пользовательского токена, для валидации параметров запроса пользовательского токена
