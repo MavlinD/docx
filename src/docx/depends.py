@@ -113,15 +113,7 @@ def file_checker_wrapper(
             ...,
             description=file_description(content_type=content_type, file_max_size=file_max_size),
         ),
-        # filename: str = Form(
-        #     None,
-        #     description="Шаблон будет сохранен под указанным именем. Папки будут созданы при необходимости.<br>"
-        #     "Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
-        # ),
-        # replace_if_exist: bool = Form(
-        #     False, description=f"Заменить шаблон, если он существует. {bool_description}"
-        # ),
-    ) -> DocxUpdate:
+    ) -> UploadFile:
         if file.size and file.size > file_max_size * 1024 * 1024:
             raise HTTPException(
                 detail="Файл слишком большой, {:.2f} Mb".format(file.size / 1024 / 1024),
@@ -134,10 +126,6 @@ def file_checker_wrapper(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             )
         # log.debug(filename)
-        return DocxUpdate(
-            file=file,
-            # filename=filename,
-            # replace_if_exist=replace_if_exist,
-        )
+        return file
 
     return content_checker

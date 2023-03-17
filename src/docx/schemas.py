@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import lru_cache
 from typing import Annotated, Sequence, Dict, Union, Any
@@ -47,9 +48,9 @@ class DataModel(BaseModel):
 
     issuer: Any = None
     token: Any = None
-    filename: Any = None
+    # filename: Any = None
     # file: Any = None
-    replace_if_exist: Any = None
+    # replace_if_exist: Any = None
 
 
 def get_secret_value(secret: SecretType) -> str:
@@ -67,13 +68,26 @@ class DocxUpdate(BaseModel):
     # replace_if_exist: bool
 
 
+# @dataclass
+# class DocxUpdateTplFile:
 class DocxUpdateTplFile(BaseModel):
     """Схема для обновления/загрузки отчета, для дополнительных параметров"""
 
     # token: str
     # file: UploadFile
-    filename: str
-    replace_if_exist: bool
+    # filename: str
+    # replace_if_exist: bool
+    filename: str = (
+        Form(
+            None,
+            media_type="multipart/form-data",
+            description="Шаблон будет сохранен под указанным именем. Папки будут созданы при необходимости.<br>"
+            "Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
+        ),
+    )
+    # replace_if_exist: bool = Form(
+    #     False, description=f"Заменить шаблон, если он существует. {bool_description}"
+    # ),
 
 
 class JWToken(BaseModel):

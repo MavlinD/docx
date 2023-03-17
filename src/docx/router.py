@@ -61,11 +61,11 @@ def list_templates(payload: DataModel = Depends(JWTBearer(audience=Audience.READ
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_template(
+    # data: DocxUpdateTplFile=Depends(),
     payload: DataModel = Depends(JWTBearer(audience=Audience.UPDATE.value), use_cache=True),
     file=Depends(file_checker_wrapper()),
     # data=Depends(file_checker_wrapper()),
     # data: str = Form(...),
-    # data: DocxUpdateTplFile = Body(...),
     # filename: str = Body(...),
     filename: str = Form(
         None,
@@ -81,21 +81,21 @@ async def upload_template(
     log.debug(payload)
     # token_ = JWT(token=payload.token)
     # log.info("", o=token_.issuer)
+    # log.debug(data)
+    # return DocxUpdateResponse()
     log.debug(filename)
     log.debug(replace_if_exist)
-    return DocxUpdateResponse()
-    log.debug(data)
     file_name = filename
 
-    if payload.filename:
-        file_name = payload.filename
+    if filename:
+        file_name = filename
     log.debug(file)
     log.debug(file_name)
     saved_name = f"{config.TEMPLATES_DIR}/{payload.issuer}/{file_name}"
     resp = DocxUpdateResponse()
     # log.debug(Path(saved_name).parent)
     # проверим существование
-    await check_file_exist(name=saved_name, replace_if_exist=payload.replace_if_exist)
+    await check_file_exist(name=saved_name, replace_if_exist=replace_if_exist)
     # создадим вложенную папку
     if not Path(saved_name).parent.is_dir():
         Path(saved_name).parent.mkdir()
