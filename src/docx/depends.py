@@ -1,24 +1,17 @@
 from enum import Enum
 from typing import Any, Callable
 
-from fastapi import Form, UploadFile, File, HTTPException, Depends, Header
+from fastapi import UploadFile, File, Depends
 from logrich.logger_ import log  # noqa
-from pydantic import BaseModel
-from pyfields import field
 from starlette import status
-
 from src.docx.config import config
 
-# from src.docx.helpers.security import decode_jwt
 from src.docx.schemas import (
-    DocxCreate,
-    token_description,
     file_description,
-    bool_description,
-    JWToken,
     JWT,
-    DataModel,
 )
+from fastapi import Request, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 
 class Audience(str, Enum):
@@ -26,10 +19,6 @@ class Audience(str, Enum):
     CREATE = "docx-create"
     UPDATE = "docx-update"
     SUPER = "docx-super"
-
-
-from fastapi import Request, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 
 class JWTBearer(HTTPBearer):
@@ -53,7 +42,7 @@ class JWTBearer(HTTPBearer):
             token.audience = self.audience
             token.set_issuer()
             payload = await token.decode_jwt
-            log.debug("", o=payload)
+            # log.debug("", o=payload)
             return payload
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization code.")

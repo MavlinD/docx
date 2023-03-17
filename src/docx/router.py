@@ -1,11 +1,7 @@
 from pathlib import Path
 import shutil
-from typing import Any
-
-import magic
-from fastapi import FastAPI, Depends, Form, UploadFile, File, HTTPException, Header, Body
+from fastapi import FastAPI, Depends, Form, UploadFile
 from logrich.logger_ import log  # noqa
-from pydantic import BaseModel
 from starlette import status
 from docxtpl import DocxTemplate
 
@@ -13,9 +9,7 @@ from src.docx.assets import APIRouter, check_file_exist
 from src.docx.config import config
 from src.docx.depends import (
     Audience,
-    # file_checker_wrapper,
     JWTBearer,
-    # FixedContentQueryChecker,
     file_checker_wrapper,
 )
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
@@ -46,11 +40,6 @@ def list_templates(payload: DataModel = Depends(JWTBearer(audience=Audience.READ
     return files
 
 
-# checker = file_checker_wrapper(
-#     content_type=config.content_type_white_list, file_max_size=config.FILE_MAX_SIZE
-# )
-
-
 @router.put(
     "/template-upload",
     summary=" ",
@@ -59,39 +48,22 @@ def list_templates(payload: DataModel = Depends(JWTBearer(audience=Audience.READ
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_template(
-    # data: DocxUpdateTplFile=Depends(),
     payload: DataModel = Depends(JWTBearer(audience=Audience.UPDATE.value), use_cache=True),
     file: UploadFile = Depends(file_checker_wrapper()),
-    # data=Depends(file_checker_wrapper()),
-    # data: str = Form(...),
-    # filename: str = Body(...),
     filename: str = Form(
-        None,
+        "",
         description="Шаблон будет сохранен под указанным именем. Папки будут созданы при необходимости.<br>"
         "Если имя не указано, то файл сохранится как есть, с учетом замены определенных символов.",
     ),
     replace_if_exist: bool = Form(
         False, description=f"Заменить шаблон, если он существует. {bool_description}"
     ),
-    # ) -> dict:
 ) -> DocxUpdateResponse:
-    # return {}
-    log.debug(payload)
-    # token_ = JWT(token=payload.token)
-    # log.info("", o=token_.issuer)
-    # log.debug(data)
-    # return DocxUpdateResponse()
-    log.debug(filename)
-    log.debug(replace_if_exist)
-    file_name = filename
-
+    file_name = file.filename
     if filename:
         file_name = filename
-    log.debug(file)
-    log.debug(file_name)
     saved_name = f"{config.TEMPLATES_DIR}/{payload.issuer}/{file_name}"
     resp = DocxUpdateResponse()
-    # log.debug(Path(saved_name).parent)
     # проверим существование
     await check_file_exist(name=saved_name, replace_if_exist=replace_if_exist)
     # создадим вложенную папку
@@ -100,7 +72,6 @@ async def upload_template(
     with open(saved_name, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     if Path(saved_name).is_file():
-        #     log.debug(saved_name)
         resp.template = saved_name
     return resp
 
@@ -109,7 +80,6 @@ async def upload_template(
     "/create",
     summary=" ",
     description=f"Требуется аудиенция: **{Audience.CREATE.value}**",
-    # dependencies=[Depends(check_create_access)],
     response_model=DocxResponse,
     status_code=status.HTTP_201_CREATED,
     responses={

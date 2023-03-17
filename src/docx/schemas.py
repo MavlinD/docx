@@ -1,11 +1,9 @@
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-from functools import lru_cache
+from datetime import datetime
 from typing import Annotated, Sequence, Dict, Union, Any
 from pathlib import Path
 
 import jwt
-from fastapi import UploadFile, File, Form, Body, Depends
+from fastapi import Body
 from jwt import InvalidAudienceError, ExpiredSignatureError, DecodeError
 from logrich.logger_ import log  # noqa
 from pathvalidate import sanitize_filepath
@@ -15,7 +13,6 @@ from src.docx.config import config
 
 from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
 
-# from src.docx.helpers.security import SecretType, get_secret_value
 from src.docx.helpers.tools import get_key
 
 token_description = (
@@ -48,9 +45,6 @@ class DataModel(BaseModel):
 
     issuer: Any = None
     token: Any = None
-    # filename: Any = None
-    # file: Any = None
-    # replace_if_exist: Any = None
 
 
 def get_secret_value(secret: SecretType) -> str:
@@ -168,15 +162,12 @@ class JWT:
         key = await get_key(f"public_keys/{self.issuer.lower()}.pub")
         return key
 
-    # @property
     def set_issuer(self) -> None:
         """Извлекает издателя токена"""
         # установим издателя токена, для этого прочитаем нагрузку без валидации.
-        log.trace(self.token)
         claimset_without_validation = jwt.decode(
             jwt=self.token, options={"verify_signature": False}
         )
-        log.debug(claimset_without_validation)
         sanitize_issuer = str(sanitize_filepath(claimset_without_validation.get("iss", "")))
         self.issuer = sanitize_issuer.strip().replace(".", "_").replace("-", "_")
 
@@ -193,10 +184,7 @@ class JWT:
             )
             resp = DataModel(**decoded_payload)
             # добавим в вывод имя папки данного издателя токена
-            # self.issuer()
             resp.issuer = self.issuer
-            # resp.issuer = self.issuer()
-            # log.debug("", o=decoded_payload)
             return resp
         except InvalidAudienceError:
             raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_FOUND.value)
