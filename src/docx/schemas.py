@@ -129,6 +129,15 @@ class JWT:
         self._issuer = ""
         self._pub_key = ""
         self._algorithm = ""
+        self.audience = ""
+
+    @property
+    def audience(self):
+        return self._audience
+
+    @audience.setter
+    def audience(self, value):
+        self._audience = value.strip()
 
     @property
     def algorithm(self) -> str:
@@ -156,11 +165,11 @@ class JWT:
         sanitize_issuer = str(sanitize_filepath(claimset_without_validation.get("iss", "")))
         return sanitize_issuer.strip().replace(".", "_").replace("-", "_")
 
-    # @property
+    @property
     async def decode_jwt(
         self,
         # payload: DocxCreate | DocxUpdate | JWToken,
-        audience: str,
+        # audience: str,
     ) -> dict[str, str]:
         try:
             # определяем наличие разрешения
@@ -171,11 +180,13 @@ class JWT:
             # валидируем токен
             decoded_payload = jwt.decode(
                 jwt=self.token,
-                audience=audience,
+                audience=self.audience,
                 key=await self.pub_key,
                 algorithms=[self.algorithm],
             )
             # log.debug("", o=decoded_payload)
+            # добавим в вывод имя папки данного издателя токена
+            decoded_payload["issuer"] = self.issuer
             return decoded_payload
         except InvalidAudienceError:
             raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_FOUND.value)

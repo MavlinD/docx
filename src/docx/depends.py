@@ -40,17 +40,14 @@ class JWTBearer(HTTPBearer):
 
     async def __call__(self, request: Request):
         # log.debug(request)
-        log.debug(self.audience)
+        # log.debug(self.audience)
         credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
         if credentials:
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
             token = JWT(token=credentials.credentials)
-            payload = await token.decode_jwt(
-                # payload=token,
-                audience=self.audience,
-                # audience=Audience.CREATE.value,
-            )
+            token.audience = self.audience
+            payload = await token.decode_jwt
             return payload
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization code.")
