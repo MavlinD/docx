@@ -119,7 +119,7 @@ async def test_upload_tpl_with_not_allowed_ext(
     """тест загрузки шаблона недопустимого типа"""
 
     payload: dict = {}
-    path_to_file = "tests/files/lipsum1.jpg"
+    path_to_file = "tests/files/lipsum.jpg"
     file = ("file", open(path_to_file, "rb"))
     resp = await client.put(
         routes.request_to_upload_template,
