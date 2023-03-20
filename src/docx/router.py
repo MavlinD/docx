@@ -11,12 +11,12 @@ from src.docx.depends import (
     Audience,
     JWTBearer,
     file_checker_wrapper,
+    JWT_STATUS_HTTP_403_FORBIDDEN,
 )
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
 
 from src.docx.helpers.tools import dict_hash
 from src.docx.schemas import (
-    JWT,
     DocxCreate,
     DocxResponse,
     DocxUpdateResponse,
@@ -31,6 +31,9 @@ router = APIRouter()
     "/templates",
     summary=" ",
     description=f"Требуется аудиенция: **{Audience.READ.value}**",
+    responses={
+        status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
+    },
     response_model=list,
     status_code=status.HTTP_200_OK,
 )
@@ -46,6 +49,26 @@ def list_templates(payload: DataModel = Depends(JWTBearer(audience=Audience.READ
     summary=" ",
     description=f"Требуется аудиенция: **{Audience.UPDATE.value}**",
     response_model=DocxUpdateResponse,
+    responses={
+        status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+            "model": ErrorModel,
+            "content": {
+                "application/json": {
+                    "examples": {
+                        ErrorCodeLocal.FILE_IS_TOO_LARGE: {
+                            "summary": "Размер файла превышает допустимый.",
+                            "value": {"detail": ErrorCodeLocal.FILE_IS_TOO_LARGE},
+                        },
+                        ErrorCodeLocal.FILE_EXTENSION_REJECT: {
+                            "summary": "Данный тип файла не разрешен.",
+                            "value": {"detail": ErrorCodeLocal.FILE_EXTENSION_REJECT},
+                        },
+                    }
+                }
+            },
+        },
+    },
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_template(
@@ -60,6 +83,7 @@ async def upload_template(
         False, description=f"Заменить шаблон, если он существует. {bool_description}"
     ),
 ) -> DocxUpdateResponse:
+    # log.warning(config.FILE_MAX_SIZE)
     file_name = file.filename
     if filename:
         file_name = filename
@@ -82,34 +106,9 @@ async def upload_template(
     summary=" ",
     description=f"Требуется аудиенция: **{Audience.CREATE.value}**",
     response_model=DocxResponse,
-    # dependencies=[ Depends(JWTBearer(audience=Audience.CREATE.value), use_cache=True)],
     status_code=status.HTTP_201_CREATED,
     responses={
-        status.HTTP_403_FORBIDDEN: {
-            "model": ErrorModel,
-            "content": {
-                "application/json": {
-                    "examples": {
-                        ErrorCodeLocal.TOKEN_EXPIRE: {
-                            "summary": "Срок действия токена вышел.",
-                            "value": {"detail": ErrorCodeLocal.TOKEN_EXPIRE},
-                        },
-                        ErrorCodeLocal.TOKEN_AUD_NOT_FOUND: {
-                            "summary": "Действие требует определённой аудиенции.",
-                            "value": {"detail": ErrorCodeLocal.TOKEN_AUD_NOT_FOUND},
-                        },
-                        ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT: {
-                            "summary": "Структура токена не валидна.",
-                            "value": {"detail": ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT},
-                        },
-                        ErrorCodeLocal.TOKEN_ALGORITHM_NOT_FOUND: {
-                            "summary": "Алгоритм токена неизвестен.",
-                            "value": {"detail": ErrorCodeLocal.TOKEN_ALGORITHM_NOT_FOUND},
-                        },
-                    }
-                }
-            },
-        },
+        status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
         status.HTTP_404_NOT_FOUND: {
             "model": ErrorModel,
             "content": {
@@ -127,19 +126,12 @@ async def upload_template(
 )
 async def create_docx(
     payload: DocxCreate,
-    # payload: DocxCreate = Depends(),
     token: DataModel = Depends(JWTBearer(audience=Audience.CREATE.value), use_cache=True),
 ) -> DocxResponse:
     """Создать файл *.docx по шаблону"""
     await check_file_exist(payload.template, replace_if_exist=False)
-    # token = JWT(token=payload.token)
-    log.debug(payload)
-    log.debug(token.issuer)
-    # return DocxUpdateResponse()
     doc = DocxTemplate(Path(f"{config.TEMPLATES_DIR}/{token.issuer}/{payload.template}"))
     doc.render(payload.context)
-    # log.debug(dir(dependencies))
-    # log.debug(dependencies)
     # формируем уникальную ссылку на файл
     hash_payload = dict_hash(payload.context)[-8:]
     path_to_save = f"{config.DOWNLOADS_DIR}/{token.issuer}"

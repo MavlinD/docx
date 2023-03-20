@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, Union
 
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
 from logrich.logger_ import log  # noqa
 from pydantic import BaseModel
 from starlette import status
@@ -30,6 +30,8 @@ class ErrorCodeLocal(str, Enum):
     TOKEN_ALGORITHM_NOT_FOUND = "Алгоритм подписи токена неизвестен."
     TOKEN_NOT_ENOUGH_SEGMENT = "Содержит не достаточно сегментов или его структура неверна."
     TEMPLATE_NOT_EXIST = "Шаблон не найден."
+    FILE_IS_TOO_LARGE = "Файл слишком большой."
+    FILE_EXTENSION_REJECT = "Тип файла не разрешен."
 
 
 class FastAPIDocxException(HTTPException):
@@ -54,3 +56,19 @@ class FileIsExist(FastAPIDocxException):
     def __init__(self, msg: Exception | str | None = None) -> None:
         self.detail = f"Файл существует: {msg}"
         self.status_code = status.HTTP_409_CONFLICT
+
+
+class FileIsTooLarge(FastAPIDocxException):
+    def __init__(self, file: UploadFile) -> None:
+        if file.size is None:
+            size = 0
+        else:
+            size = file.size
+        self.detail = "Файл слишком большой, {:.2f} Mb".format(size / 1024 / 1024)
+        self.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+
+
+class FileExtensionReject(FastAPIDocxException):
+    def __init__(self, file: UploadFile) -> None:
+        self.detail = f"Тип файла не разрешен: {file.content_type}"
+        self.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY

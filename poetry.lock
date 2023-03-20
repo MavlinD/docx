@@ -1578,6 +1578,17 @@ files = [
 setuptools = "*"
 
 [[package]]
+name = "override-pydantic-settings"
+version = "1.0.1"
+description = "Override pydantic settings"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "override-pydantic-settings-1.0.1.tar.gz", hash = "sha256:0dbc552ff4e78e14156b89a7b67f6adbe8e8fd0105736861c5fe855a37594ab4"},
+]
+
+[[package]]
 name = "packaging"
 version = "23.0"
 description = "Core utilities for Python packages"
@@ -3106,4 +3117,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "c84423751459724201ecd6a0473fa1db4b08d8f4e3b92c27a097cad39f36d0f1"
+content-hash = "a1383e79aafddebf49b64a0c1b281b18de018d23346f2ffe825615a8ea16758b"

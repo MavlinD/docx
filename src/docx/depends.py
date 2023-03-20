@@ -3,15 +3,13 @@ from typing import Any, Callable
 
 from fastapi import UploadFile, File
 from logrich.logger_ import log  # noqa
-from starlette import status
+
 from src.docx.config import config
 
-from src.docx.schemas import (
-    file_description,
-    JWT,
-)
+from src.docx.schemas import file_description, JWT
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from src.docx.exceptions import ErrorModel, ErrorCodeLocal, FileIsTooLarge, FileExtensionReject
 
 
 class Audience(str, Enum):
@@ -25,13 +23,11 @@ class JWTBearer(HTTPBearer):
     """For OpenAPI"""
 
     # https://testdriven.io/blog/fastapi-jwt-auth/
-    def __init__(self, audience: str = "", auto_error: bool = True):
+    def __init__(self, audience: str | None = None, auto_error: bool = True):
         super(JWTBearer, self).__init__(auto_error=auto_error)
         self.audience = audience
 
     async def __call__(self, request: Request) -> Any:
-        # log.debug(request)
-        # log.debug(self.audience)
         credentials: HTTPAuthorizationCredentials | None = await super(JWTBearer, self).__call__(
             request
         )
@@ -39,7 +35,8 @@ class JWTBearer(HTTPBearer):
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
             token = JWT(token=credentials.credentials)
-            token.audience = self.audience
+            if self.audience:
+                token.audience = self.audience
             token.set_issuer()
             payload = await token.decode_jwt
             # log.debug("", o=payload)
@@ -48,25 +45,13 @@ class JWTBearer(HTTPBearer):
             raise HTTPException(status_code=403, detail="Invalid authorization code.")
 
 
-async def check_content_type(
-    file: UploadFile,
-) -> UploadFile:
-    """Зависимость"""
-    # log.debug(file.size)
-    if file.content_type not in config.content_type_white_list.values():
-        raise HTTPException(
-            detail=f"Тип файла не разрешен: {file.content_type}",
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        )
-
-    return file
-
-
 def file_checker_wrapper(
-    content_type: dict = config.content_type_white_list, file_max_size: float = config.FILE_MAX_SIZE
+    content_type: dict | None = None, file_max_size: float | None = None
 ) -> Callable:
-    """Обёртка над зависисмостью."""
-    # https://stackoverflow.com/questions/65504438/how-to-add-both-file-and-json-body-in-a-fastapi-post-request
+    if not file_max_size:
+        file_max_size = config.FILE_MAX_SIZE
+    if not content_type:
+        content_type = config.content_type_white_list
 
     def content_checker(
         file: UploadFile = File(
@@ -74,18 +59,40 @@ def file_checker_wrapper(
             description=file_description(content_type=content_type, file_max_size=file_max_size),
         ),
     ) -> UploadFile:
-        if file.size and file.size > file_max_size * 1024 * 1024:
-            raise HTTPException(
-                detail="Файл слишком большой, {:.2f} Mb".format(file.size / 1024 / 1024),
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            )
+        if file.size and (file.size > config.FILE_MAX_SIZE * 1024 * 1024):
+            raise FileIsTooLarge(file=file)
 
-        if file.content_type not in content_type.values():
-            raise HTTPException(
-                detail=f"Тип файла не разрешен: {file.content_type}",
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            )
-        # log.debug(filename)
+        if file.content_type not in config.content_type_white_list.values():
+            raise FileExtensionReject(file=file)
+
         return file
 
     return content_checker
+
+
+# Исключения для JWT
+JWT_STATUS_HTTP_403_FORBIDDEN = {
+    "model": ErrorModel,
+    "content": {
+        "application/json": {
+            "examples": {
+                ErrorCodeLocal.TOKEN_EXPIRE: {
+                    "summary": "Срок действия токена вышел.",
+                    "value": {"detail": ErrorCodeLocal.TOKEN_EXPIRE},
+                },
+                ErrorCodeLocal.TOKEN_AUD_NOT_FOUND: {
+                    "summary": "Действие требует определённой аудиенции.",
+                    "value": {"detail": ErrorCodeLocal.TOKEN_AUD_NOT_FOUND},
+                },
+                ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT: {
+                    "summary": "Структура токена не валидна.",
+                    "value": {"detail": ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT},
+                },
+                ErrorCodeLocal.TOKEN_ALGORITHM_NOT_FOUND: {
+                    "summary": "Алгоритм токена неизвестен.",
+                    "value": {"detail": ErrorCodeLocal.TOKEN_ALGORITHM_NOT_FOUND},
+                },
+            }
+        }
+    },
+}

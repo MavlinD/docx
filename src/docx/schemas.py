@@ -1,13 +1,12 @@
 from datetime import datetime
-from typing import Annotated, Sequence, Dict, Union, Any
+from typing import Annotated, Sequence, Dict, Union, Any, Iterable
 from pathlib import Path
 
 import jwt
-from fastapi import Body
 from jwt import InvalidAudienceError, ExpiredSignatureError, DecodeError
 from logrich.logger_ import log  # noqa
 from pathvalidate import sanitize_filepath
-from pydantic import BaseModel, Field, validator, EmailStr, SecretStr
+from pydantic import BaseModel, Field, EmailStr, SecretStr
 
 from src.docx.config import config
 
@@ -44,19 +43,12 @@ class DataModel(BaseModel):
         extra = "allow"
 
     issuer: Any = None
-    # token: Any = None
 
 
 def get_secret_value(secret: SecretType) -> str:
     if isinstance(secret, SecretStr):
         return secret.get_secret_value()
     return secret
-
-
-# class JWToken(BaseModel):
-#     token: str = Body(
-#         description=token_description,
-#     )
 
 
 class DocxCreate(BaseModel):
@@ -122,15 +114,15 @@ class JWT:
         self.issuer = ""
         self._pub_key = ""
         self._algorithm = ""
-        self.audience = ""
+        self._audience: str | None = None
 
     @property
-    def audience(self) -> str:
+    def audience(self) -> str | None:
         return self._audience
 
     @audience.setter
     def audience(self, value: str) -> None:
-        self._audience = value.strip()
+        self._audience = value
 
     @property
     def algorithm(self) -> str:
