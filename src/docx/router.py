@@ -37,7 +37,9 @@ router = APIRouter()
     response_model=list,
     status_code=status.HTTP_200_OK,
 )
-def list_templates(payload: DataModel = Depends(JWTBearer(audience=Audience.READ.value))) -> list:
+def list_templates(
+    payload: DataModel = Depends(JWTBearer(audience=[Audience.READ.value, Audience.SUPER.value]))
+) -> list:
     # log.debug(payload)
     p = Path(f"templates/{payload.issuer}").glob("**/*.docx")
     files = [x for x in p if x.is_file()]
@@ -72,7 +74,8 @@ def list_templates(payload: DataModel = Depends(JWTBearer(audience=Audience.READ
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_template(
-    payload: DataModel = Depends(JWTBearer(audience=Audience.UPDATE.value), use_cache=True),
+    # payload: DataModel = Depends(JWTBearer(audience=Audience.UPDATE.value), use_cache=True),
+    payload: DataModel = Depends(JWTBearer(audience=[Audience.UPDATE.value, Audience.SUPER.value])),
     file: UploadFile = Depends(file_checker_wrapper()),
     filename: str = Form(
         "",
@@ -126,7 +129,9 @@ async def upload_template(
 )
 async def create_docx(
     payload: DocxCreate,
-    token: DataModel = Depends(JWTBearer(audience=Audience.CREATE.value), use_cache=True),
+    token: DataModel = Depends(
+        JWTBearer(audience=[Audience.CREATE.value, Audience.SUPER.value]), use_cache=True
+    ),
 ) -> DocxResponse:
     """Создать файл *.docx по шаблону"""
     await check_file_exist(payload.template, replace_if_exist=False)

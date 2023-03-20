@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Callable
+from typing import Any, Callable, Iterable
 
 from fastapi import UploadFile, File
 from logrich.logger_ import log  # noqa
@@ -23,7 +23,7 @@ class JWTBearer(HTTPBearer):
     """For OpenAPI"""
 
     # https://testdriven.io/blog/fastapi-jwt-auth/
-    def __init__(self, audience: str | None = None, auto_error: bool = True):
+    def __init__(self, audience: str | Iterable[str] | None = None, auto_error: bool = True):
         super(JWTBearer, self).__init__(auto_error=auto_error)
         self.audience = audience
 
@@ -35,8 +35,7 @@ class JWTBearer(HTTPBearer):
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
             token = JWT(token=credentials.credentials)
-            if self.audience:
-                token.audience = self.audience
+            token.audience = self.audience
             token.set_issuer()
             payload = await token.decode_jwt
             # log.debug("", o=payload)

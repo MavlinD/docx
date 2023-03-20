@@ -114,14 +114,14 @@ class JWT:
         self.issuer = ""
         self._pub_key = ""
         self._algorithm = ""
-        self._audience: str | None = None
+        self._audience: str | Iterable[str] | None = None
 
     @property
     def audience(self) -> str | None:
         return self._audience
 
     @audience.setter
-    def audience(self, value: str) -> None:
+    def audience(self, value: str | Iterable[str] | None) -> None:
         self._audience = value
 
     @property
