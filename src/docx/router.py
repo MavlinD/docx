@@ -8,10 +8,10 @@ from docxtpl import DocxTemplate
 from src.docx.assets import APIRouter, check_file_exist
 from src.docx.config import config
 from src.docx.depends import (
-    Audience,
     JWTBearer,
     file_checker_wrapper,
     JWT_STATUS_HTTP_403_FORBIDDEN,
+    AudienceCompose,
 )
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal
 
@@ -30,16 +30,14 @@ router = APIRouter()
 @router.get(
     "/templates",
     summary=" ",
-    description=f"Требуется аудиенция: **{Audience.READ.value}**",
+    description=f"Требуется одна из аудиенций: **{AudienceCompose.READ}**",
     responses={
         status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
     },
     response_model=list,
     status_code=status.HTTP_200_OK,
 )
-def list_templates(
-    payload: DataModel = Depends(JWTBearer(audience=[Audience.READ.value, Audience.SUPER.value]))
-) -> list:
+def list_templates(payload: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ))) -> list:
     # log.debug(payload)
     p = Path(f"templates/{payload.issuer}").glob("**/*.docx")
     files = [x for x in p if x.is_file()]
@@ -49,7 +47,7 @@ def list_templates(
 @router.put(
     "/template-upload",
     summary=" ",
-    description=f"Требуется аудиенция: **{Audience.UPDATE.value}**",
+    description=f"Требуется аудиенция: **{AudienceCompose.UPDATE}**",
     response_model=DocxUpdateResponse,
     responses={
         status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
@@ -74,8 +72,7 @@ def list_templates(
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_template(
-    # payload: DataModel = Depends(JWTBearer(audience=Audience.UPDATE.value), use_cache=True),
-    payload: DataModel = Depends(JWTBearer(audience=[Audience.UPDATE.value, Audience.SUPER.value])),
+    payload: DataModel = Depends(JWTBearer(audience=AudienceCompose.UPDATE)),
     file: UploadFile = Depends(file_checker_wrapper()),
     filename: str = Form(
         "",
@@ -107,7 +104,7 @@ async def upload_template(
 @router.post(
     "/create",
     summary=" ",
-    description=f"Требуется аудиенция: **{Audience.CREATE.value}**",
+    description=f"Требуется аудиенция: **{AudienceCompose.CREATE}**",
     response_model=DocxResponse,
     status_code=status.HTTP_201_CREATED,
     responses={
@@ -129,9 +126,7 @@ async def upload_template(
 )
 async def create_docx(
     payload: DocxCreate,
-    token: DataModel = Depends(
-        JWTBearer(audience=[Audience.CREATE.value, Audience.SUPER.value]), use_cache=True
-    ),
+    token: DataModel = Depends(JWTBearer(audience=AudienceCompose.CREATE), use_cache=True),
 ) -> DocxResponse:
     """Создать файл *.docx по шаблону"""
     await check_file_exist(payload.template, replace_if_exist=False)

@@ -1,3 +1,4 @@
+import dataclasses
 from enum import Enum
 from typing import Any, Callable, Iterable
 
@@ -17,6 +18,13 @@ class Audience(str, Enum):
     CREATE = "docx-create"
     UPDATE = "docx-update"
     SUPER = "docx-super"
+
+
+@dataclasses.dataclass
+class AudienceCompose:
+    READ: Iterable[str] = Audience.READ.value, Audience.SUPER.value
+    CREATE: Iterable[str] = Audience.CREATE.value, Audience.SUPER.value
+    UPDATE: Iterable[str] = Audience.UPDATE.value, Audience.SUPER.value
 
 
 class JWTBearer(HTTPBearer):
