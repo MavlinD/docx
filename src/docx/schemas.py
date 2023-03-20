@@ -117,7 +117,7 @@ class JWT:
         self._audience: str | Iterable[str] | None = None
 
     @property
-    def audience(self) -> str | None:
+    def audience(self) -> str | Iterable[str] | None:
         return self._audience
 
     @audience.setter

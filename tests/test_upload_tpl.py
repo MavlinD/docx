@@ -52,7 +52,6 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs, audience: str) -> 
 @pytest.mark.parametrize("audience", [(["other-aud", "docx-super"])])
 async def test_upload_tpl_with_super_aud(client: AsyncClient, routes: Routs, audience: str) -> None:
     """тест загрузки шаблона с аудиенцией super"""
-    # config.FILE_MAX_SIZE = 0.001
 
     payload = {"filename": "temp_dir/test-filename.docx", "replace_if_exist": True}
     path_to_file = "tests/files/test_docx_template_to_upload.docx"
