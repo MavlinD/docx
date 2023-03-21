@@ -5,8 +5,6 @@ from logrich.logger_ import errlog, log
 from logrich.logger_assets import console
 from rich.style import Style
 
-# from starlette_validation_uploadfile import ValidateUploadFileMiddleware
-
 from src.docx.helpers.tools import get_project
 from src.docx.err_handlers import init_err_handlers  # noqa
 from src.docx.middleware import init_middleware  # noqa
@@ -28,7 +26,7 @@ sw_ui = {"defaultModelsExpandDepth": -1}
 tags_metadata = [
     {
         "name": "Docx",
-        "description": "Основные действия с шаблонизатором",
+        "description": "Действия с шаблонизатором.",
     },
 ]
 
@@ -44,19 +42,6 @@ def app() -> FastAPI:
         openapi_tags=tags_metadata,
     )
     init_router(app_)
-    # app_.add_middleware(
-    #     ValidateUploadFileMiddleware,
-    #     app_path=[
-    #         "/api/v1/template-upload",
-    #         # "/upload/second",
-    #     ],
-    #     max_size=16777216,
-    #     file_type=["image/png", "image/jpeg"]
-    # )
-    # uncomment below if you need custom err handlers
-    # init_err_handlers(app_)
-    # uncomment below if you need middleware
-    # init_middleware(app_)
 
     return app_
 

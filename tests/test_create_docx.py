@@ -32,7 +32,7 @@ async def test_create_docx(client: AsyncClient, routes: Routs, audience: str) ->
     )
     log.debug(resp)
     data = resp.json()
-    log.debug("--", o=data)
+    log.debug("-", o=data)
     assert resp.status_code == 201, "некорректный ответ сервера"
     out_file = pathlib.Path(data.get("filename"))
 

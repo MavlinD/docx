@@ -5,7 +5,6 @@ from httpx import AsyncClient
 
 from logrich.logger_ import log  # noqa
 
-from src.docx.helpers.tools import timer, async_timer
 from tests.conftest import Routs, auth_headers
 
 skip = False

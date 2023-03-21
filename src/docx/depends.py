@@ -112,7 +112,7 @@ FILE_STATUS_HTTP_404_NOT_FOUND = {
         "application/json": {
             "examples": {
                 ErrorCodeLocal.TEMPLATE_NOT_EXIST: {
-                    "summary": "Указанный шаблон не найден.",
+                    "summary": "Указанный файл/шаблон не найден.",
                     "value": {"detail": ErrorCodeLocal.TEMPLATE_NOT_EXIST},
                 },
             }

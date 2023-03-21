@@ -30,6 +30,7 @@ class ErrorCodeLocal(str, Enum):
     TOKEN_ALGORITHM_NOT_FOUND = "Алгоритм подписи токена неизвестен."
     TOKEN_NOT_ENOUGH_SEGMENT = "Содержит не достаточно сегментов или его структура неверна."
     TEMPLATE_NOT_EXIST = "Шаблон не найден."
+    FILE_NOT_EXIST = "Файл не найден."
     FILE_IS_TOO_LARGE = "Файл слишком большой."
     FILE_EXTENSION_REJECT = "Тип файла не разрешен."
 

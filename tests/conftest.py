@@ -101,6 +101,9 @@ class Routs:
     def request_to_download_template(self, filename: str) -> URL | str:
         return self.app.url_path_for("download_template", filename=str(filename))
 
+    def request_to_download_file(self, filename: str) -> URL | str:
+        return self.app.url_path_for("download_file", filename=str(filename))
+
     def print(self) -> None:
         print_endpoints(self.app)
 

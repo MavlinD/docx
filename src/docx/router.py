@@ -30,8 +30,35 @@ router = APIRouter()
 
 
 @router.get(
-    "/download/{filename:path}",
-    summary=" ",
+    "/downloads/{filename:path}",
+    summary="Адрес получения готовых файлов.",
+    description=f"Требуется одна из аудиенций: **{AudienceCompose.READ}**",
+    responses={
+        status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
+        status.HTTP_404_NOT_FOUND: FILE_STATUS_HTTP_404_NOT_FOUND,
+    },
+    response_class=FileResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def download_file(
+    filename: str,
+    payload: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ)),
+) -> FileResponse:
+    # log.debug(filename)
+    path = Path(f"downloads/{payload.issuer}/{filename}")
+    if not path.is_file():
+        raise FileNotExist(msg=ErrorCodeLocal.FILE_NOT_EXIST.value)
+    ret = FileResponse(
+        path=path,
+        filename=filename,
+        media_type="multipart/form-data",
+    )
+    return ret
+
+
+@router.get(
+    "/templates/{filename:path}",
+    summary="Адрес получения шаблонов.",
     description=f"Требуется одна из аудиенций: **{AudienceCompose.READ}**",
     responses={
         status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
@@ -58,7 +85,7 @@ async def download_template(
 
 @router.get(
     "/templates",
-    summary=" ",
+    summary="Выводит список шаблонов.",
     description=f"Требуется одна из аудиенций: **{AudienceCompose.READ}**",
     responses={
         status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
@@ -78,7 +105,7 @@ async def list_templates(
 
 @router.put(
     "/template-upload",
-    summary=" ",
+    summary="Здесь можно загрузить шаблон.",
     description=f"Требуется одна из аудиенций: **{AudienceCompose.UPDATE}**",
     response_model=DocxUpdateResponse,
     responses={
@@ -135,7 +162,7 @@ async def upload_template(
 
 @router.post(
     "/create",
-    summary=" ",
+    summary="Основной акт, генерация файла по шаблону.",
     description=f"Требуется одна из аудиенций: **{AudienceCompose.CREATE}**",
     response_model=DocxResponse,
     status_code=status.HTTP_201_CREATED,
@@ -161,7 +188,8 @@ async def create_docx(
 
     resp = DocxResponse(
         filename=filename,
-        url=f"{config.DOWNLOADS_URL}/{token.issuer}/{payload.filename}-{hash_payload}.docx",
+        url=f"{payload.filename}-{hash_payload}.docx",
+        # url=f"{config.DOWNLOADS_URL}/{token.issuer}/{payload.filename}-{hash_payload}.docx",
     )
     return resp
 
