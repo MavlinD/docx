@@ -5,9 +5,6 @@ __pycache__/
 */__pycache__/
 *.py[cod]
 .pyc
-backend/app/.env
-backend/.testmondata
-backend/test.db
 
 *.sqlite3
 
@@ -30,3 +27,6 @@ COMMANDS-mongodb.md
 backend/temp-request-for-verify.txt
 .env
 */**/.testmondata
+
+!templates/test_auth_site_com/docx_template.docx
+!templates/README.md
