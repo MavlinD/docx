@@ -47,7 +47,7 @@ def list_templates(payload: DataModel = Depends(JWTBearer(audience=AudienceCompo
 @router.put(
     "/template-upload",
     summary=" ",
-    description=f"Требуется аудиенция: **{AudienceCompose.UPDATE}**",
+    description=f"Требуется одна из аудиенций: **{AudienceCompose.UPDATE}**",
     response_model=DocxUpdateResponse,
     responses={
         status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
@@ -104,7 +104,7 @@ async def upload_template(
 @router.post(
     "/create",
     summary=" ",
-    description=f"Требуется аудиенция: **{AudienceCompose.CREATE}**",
+    description=f"Требуется одна из аудиенций: **{AudienceCompose.CREATE}**",
     response_model=DocxResponse,
     status_code=status.HTTP_201_CREATED,
     responses={
