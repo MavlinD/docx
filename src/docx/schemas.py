@@ -137,7 +137,7 @@ class JWT:
     @property
     async def pub_key(self) -> str:
         # log.trace("read pub key")
-        key = await get_key(f"public_keys/{self.issuer.lower()}.pub")
+        key = await get_key(f"authorized_keys/{self.issuer.lower()}.pub")
         return key
 
     def set_issuer(self) -> None:
