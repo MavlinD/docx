@@ -1,5 +1,5 @@
 import pytest
-from httpx import AsyncClient, Headers
+from httpx import AsyncClient
 
 from logrich.logger_ import log  # noqa
 

@@ -12,10 +12,10 @@ from src.docx.depends import (
     JWTBearer,
     file_checker_wrapper,
     JWT_STATUS_HTTP_403_FORBIDDEN,
-    AudienceCompose,
     FILE_STATUS_HTTP_404_NOT_FOUND,
+    AudienceCompose,
 )
-from src.docx.exceptions import ErrorModel, ErrorCodeLocal, InvalidVerifyToken, FileNotExist
+from src.docx.exceptions import ErrorModel, ErrorCodeLocal, FileNotExist
 
 from src.docx.helpers.tools import dict_hash
 from src.docx.schemas import (
@@ -38,6 +38,7 @@ router = APIRouter()
         status.HTTP_404_NOT_FOUND: FILE_STATUS_HTTP_404_NOT_FOUND,
     },
     response_class=FileResponse,
+    status_code=status.HTTP_200_OK,
 )
 async def download_template(
     filename: str,

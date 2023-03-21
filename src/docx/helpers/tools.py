@@ -45,6 +45,31 @@ def timer(func: Callable) -> Callable:
     return wrapper_timer
 
 
+def async_timer(func: Callable) -> Callable:
+    """
+    декоратор, определяет время выполнения
+    @rtype: str
+    """
+
+    @functools.wraps(func)
+    async def wrapper_timer(*args: List, **kwargs: Dict) -> Callable:
+        name = func.__name__
+        tic = time.perf_counter()
+        value = await func(*args, **kwargs)
+        toc = time.perf_counter()
+        elapsed_time = toc - tic
+        ln = len(name) + 15
+        format_time = f"{elapsed_time:0.3f} seconds"
+        print("-" * ln)
+        print("\033[0;38;5;211m" + f"{name}: {format_time}")
+        print("-" * ln)
+        if value:
+            value["elapsed_time"] = format_time
+        return value
+
+    return wrapper_timer
+
+
 def get_quarter(_date: date) -> int:
     """возвращает квартал"""
     return round((_date.month - 1) / 3 + 1)

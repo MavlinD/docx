@@ -4,6 +4,8 @@ import pytest
 from httpx import AsyncClient
 
 from logrich.logger_ import log  # noqa
+
+from src.docx.helpers.tools import timer, async_timer
 from tests.conftest import Routs, auth_headers
 
 skip = False
@@ -30,6 +32,7 @@ async def test_download_tpl(client: AsyncClient, routes: Routs, audience: str) -
     assert resp.status_code == 200
 
 
+# @async_timer
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
 @pytest.mark.parametrize("audience", [(["other-aud", "docx-read"])])
@@ -41,6 +44,8 @@ async def test_cant_download_tpl(client: AsyncClient, routes: Routs, audience: s
         routes.request_to_download_template(filename=filename),
         headers=await auth_headers(audience=audience),
     )
+    log.debug(resp.text)
     log.debug(resp)
+    # log.debug(resp.content.detail)
     log.trace(resp.elapsed)
     assert resp.status_code == 404
