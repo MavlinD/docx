@@ -1,0 +1,80 @@
+@font-face {
+    font-family: 'basis_grotesque_pro';
+    src: url('fonts/basisgrotesquepro-bold-webfont.woff2') format('woff2'),
+         url('fonts/basisgrotesquepro-bold-webfont.woff') format('woff'),
+         url('fonts/basisgrotesquepro-bold-webfont.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'basis_grotesque_pro';
+    src: url('fonts/basisgrotesquepro-light-webfont.woff2') format('woff2'),
+         url('fonts/basisgrotesquepro-light-webfont.woff') format('woff'),
+         url('fonts/basisgrotesquepro-light-webfont.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'basis_grotesque_pro';
+    src: url('fonts/basisgrotesquepro-regular-webfont.woff2') format('woff2'),
+         url('fonts/basisgrotesquepro-regular-webfont.woff') format('woff'),
+         url('fonts/basisgrotesquepro-regular-webfont.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body,
+input {
+  font-family: basis_grotesque_pro, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif
+}
+
+p a {
+	color: #1a0dab;
+	text-decoration: none
+}
+
+p a:link {
+  color: #1a0dab;
+}
+
+p a:visited {
+  color: #a01e28;
+}
+
+p a:focus {
+	color: #1a0dab;
+  border-bottom: 1px solid #1a0dab;
+}
+
+p a:hover {
+	color: #1a0dab;
+  border-bottom: 1px solid #0000ff;
+}
+
+p a:active {
+  color: #a01e28;
+  border-bottom: 1px solid #a01e28;
+}
+
+.md-footer-nav__direction {
+  opacity: 1;
+}
+
+.md-footer-nav__link--prev {
+  color:  white;
+}
+
+.md-footer-nav__link--next {
+  color:  white;
+}
+
+.md-tabs__list {
+    white-space: normal;
+    display: flex; /*Эту строку придётся убрать, когда пунктов в меню станет слишком много и они станут сильно сжиматься*/
+}
+
+.md-tabs__item {
+    height: auto;
+}

@@ -21,7 +21,7 @@ CONTENT_TYPE_WHITE_LIST = MappingProxyType(
 )
 
 
-# @lru_cache()
+@lru_cache()
 class Settings(BaseSettings):
     """
     Server config settings

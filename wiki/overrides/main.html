@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block styles %}
+  <link rel="stylesheet" href="{{ 'assets/stylesheets/main.css' | url }}">
+  {% if config.theme.palette %}
+	{% set palette = config.theme.palette %}
+	<link rel="stylesheet" href="{{ 'assets/stylesheets/palette.css' | url }}">
+  {% endif %}
+{% endblock %}
+
+{% block analytics %}
+  {% if config.google_analytics %}
+    {% include "partials/integrations/analytics.html" %}
+  {% endif %}
+{% endblock %}
