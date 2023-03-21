@@ -10,7 +10,7 @@ from _pytest.main import Session
 from _pytest.nodes import Item
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
-from httpx import AsyncClient
+from httpx import AsyncClient, URL
 
 from logrich.logger_ import log  # noqa
 
@@ -97,6 +97,9 @@ class Routs:
         self.request_to_create_docx = app.url_path_for("create_docx")
         self.request_to_upload_template = app.url_path_for("upload_template")
         self.request_to_list_templates = app.url_path_for("list_templates")
+
+    def request_to_download_template(self, filename: str) -> URL | str:
+        return self.app.url_path_for("download_template", filename=str(filename))
 
     def print(self) -> None:
         print_endpoints(self.app)

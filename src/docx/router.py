@@ -4,6 +4,7 @@ from fastapi import FastAPI, Depends, Form, UploadFile
 from logrich.logger_ import log  # noqa
 from starlette import status
 from docxtpl import DocxTemplate
+from fastapi.responses import FileResponse
 
 from src.docx.assets import APIRouter, check_file_exist
 from src.docx.config import config
@@ -12,8 +13,9 @@ from src.docx.depends import (
     file_checker_wrapper,
     JWT_STATUS_HTTP_403_FORBIDDEN,
     AudienceCompose,
+    FILE_STATUS_HTTP_404_NOT_FOUND,
 )
-from src.docx.exceptions import ErrorModel, ErrorCodeLocal
+from src.docx.exceptions import ErrorModel, ErrorCodeLocal, InvalidVerifyToken, FileNotExist
 
 from src.docx.helpers.tools import dict_hash
 from src.docx.schemas import (
@@ -28,6 +30,32 @@ router = APIRouter()
 
 
 @router.get(
+    "/download/{filename:path}",
+    summary=" ",
+    description=f"Требуется одна из аудиенций: **{AudienceCompose.READ}**",
+    responses={
+        status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
+        status.HTTP_404_NOT_FOUND: FILE_STATUS_HTTP_404_NOT_FOUND,
+    },
+    response_class=FileResponse,
+)
+async def download_template(
+    filename: str,
+    payload: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ)),
+) -> FileResponse:
+    # log.debug(filename)
+    path = Path(f"templates/{payload.issuer}/{filename}")
+    if not path.is_file():
+        raise FileNotExist(msg=ErrorCodeLocal.TEMPLATE_NOT_EXIST.value)
+    ret = FileResponse(
+        path=path,
+        filename=filename,
+        media_type="multipart/form-data",
+    )
+    return ret
+
+
+@router.get(
     "/templates",
     summary=" ",
     description=f"Требуется одна из аудиенций: **{AudienceCompose.READ}**",
@@ -37,7 +65,10 @@ router = APIRouter()
     response_model=list,
     status_code=status.HTTP_200_OK,
 )
-def list_templates(payload: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ))) -> list:
+async def list_templates(
+    payload: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ)),
+) -> list:
+    """список шаблонов на сервисе"""
     # log.debug(payload)
     p = Path(f"templates/{payload.issuer}").glob("**/*.docx")
     files = [x for x in p if x.is_file()]
@@ -109,19 +140,7 @@ async def upload_template(
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
-        status.HTTP_404_NOT_FOUND: {
-            "model": ErrorModel,
-            "content": {
-                "application/json": {
-                    "examples": {
-                        ErrorCodeLocal.TEMPLATE_NOT_EXIST: {
-                            "summary": "Указанный шаблон не найден.",
-                            "value": {"detail": ErrorCodeLocal.TEMPLATE_NOT_EXIST},
-                        },
-                    }
-                }
-            },
-        },
+        status.HTTP_404_NOT_FOUND: FILE_STATUS_HTTP_404_NOT_FOUND,
     },
 )
 async def create_docx(

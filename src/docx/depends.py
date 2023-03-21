@@ -14,7 +14,7 @@ from src.docx.exceptions import ErrorModel, ErrorCodeLocal, FileIsTooLarge, File
 
 
 class Audience(str, Enum):
-    READ = "docx-create"
+    READ = "docx-read"
     CREATE = "docx-create"
     UPDATE = "docx-update"
     SUPER = "docx-super"
@@ -43,7 +43,9 @@ class JWTBearer(HTTPBearer):
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
             token = JWT(token=credentials.credentials)
+            # log.debug(token.token)
             token.audience = self.audience
+            # log.info(self.audience)
             token.set_issuer()
             payload = await token.decode_jwt
             # log.debug("", o=payload)
@@ -98,6 +100,20 @@ JWT_STATUS_HTTP_403_FORBIDDEN = {
                 ErrorCodeLocal.TOKEN_ALGORITHM_NOT_FOUND: {
                     "summary": "Алгоритм токена неизвестен.",
                     "value": {"detail": ErrorCodeLocal.TOKEN_ALGORITHM_NOT_FOUND},
+                },
+            }
+        }
+    },
+}
+
+FILE_STATUS_HTTP_404_NOT_FOUND = {
+    "model": ErrorModel,
+    "content": {
+        "application/json": {
+            "examples": {
+                ErrorCodeLocal.TEMPLATE_NOT_EXIST: {
+                    "summary": "Указанный шаблон не найден.",
+                    "value": {"detail": ErrorCodeLocal.TEMPLATE_NOT_EXIST},
                 },
             }
         }

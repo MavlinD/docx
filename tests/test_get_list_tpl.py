@@ -12,7 +12,7 @@ reason = "Temporary off!"
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-@pytest.mark.parametrize("audience", [(["other-aud", "docx-create"])])
+@pytest.mark.parametrize("audience", [(["other-aud", "docx-read"])])
 async def test_get_list_tpl(client: AsyncClient, routes: Routs, audience: str) -> None:
     """тест на получение списка шаблонов"""
 

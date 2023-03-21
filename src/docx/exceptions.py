@@ -58,6 +58,12 @@ class FileIsExist(FastAPIDocxException):
         self.status_code = status.HTTP_409_CONFLICT
 
 
+class FileNotExist(FastAPIDocxException):
+    def __init__(self, msg: Exception | str | None = None) -> None:
+        self.detail = f"Файл не существует: {msg}"
+        self.status_code = status.HTTP_404_NOT_FOUND
+
+
 class FileIsTooLarge(FastAPIDocxException):
     def __init__(self, file: UploadFile) -> None:
         if file.size is None:
