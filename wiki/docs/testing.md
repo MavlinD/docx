@@ -8,7 +8,6 @@ poetry i
 pytest -x  
 # мониторинг изменений
 ptw -- 5 mon
-# где 5 - уровень логирования 
 ```
 где 5 - [уровень логирования](https://docs.python.org/3/library/logging.html#logging-levels) 
 

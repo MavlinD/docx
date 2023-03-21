@@ -4,31 +4,31 @@ site_description: Справочная система Docx
 site_url: http://index
 site_dir: wiki/site
 docs_dir: wiki/docs
-repo_name: auth-v2
+repo_name: docx
 repo_url: https://github.com/MavlinD/docx/
-#repo_url: https://gitlab.macrodom.ru/
 
 # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation
 theme:
   name: material
   language: ru
-#  logo: ./assets/auth-logo.png
+  logo: ./assets/MS-Word-logotip.png
   features:
     - search.highlight
+    - content.code.copy
     - toc.integrate
     - navigation.top
     - navigation.instant
   palette:
     - media: '(prefers-color-scheme: light)'
       scheme: default
-      primary: blue
+      primary: deep purple
       accent: indigo
       toggle:
         icon: material/theme-light-dark
         name: Switch to dark-mode
     - media: '(prefers-color-scheme: dark)'
       scheme: slate
-      primary: teal
+      primary: green
       accent: red
       toggle:
         icon: material/theme-light-dark
@@ -79,8 +79,8 @@ markdown_extensions:
       use_pygments: true
       noclasses: true
   - markdown.extensions.toc:
+      slugify: !!python/object/apply:pymdownx.slugs.slugify { kwds: { case: lower } }
       permalink: true
-      slugify: !!python/name:pymdownx.slugs.uslugify
 
 nav:
   - Главная: index.md
@@ -88,5 +88,4 @@ nav:
   - Тестирование: testing.md
   - Работа с документацией: api-docs.md
   - Использованы продукты: products.md
-  - OpenAPI: docs
-
+  - OpenAPI: /docs
