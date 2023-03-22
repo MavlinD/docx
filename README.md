@@ -12,8 +12,10 @@
 
 #### Развертывание (deploy)
 ```shell
+# скопировать и установить нужные значения
 cp template.env .env
-# установить нужные значения 
+# создать нужные папки
+mkdir templates downloads authorized_keys 
 # загрузить в папку authorized_keys публичный ключ/и сервисов клиентов
 # добавить нужные шаблоны в папку templates
 docker compose up 
@@ -52,7 +54,6 @@ ptw -- 5 mon
 # где 5 - уровень логирования 
 ```
 
-Полезные команды
 ```shell
 d run --rm -it --env-file=.env -p 5000:5000 --name=docx docx
 d build --build-arg SRC_NAMESPACE='--without dev' -t docx .
