@@ -31,6 +31,8 @@ tags_metadata = [
     },
 ]
 
+log.debug(config.ROOT_URL)
+
 
 def app() -> FastAPI:
     app_ = FastAPI(
