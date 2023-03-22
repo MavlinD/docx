@@ -63,6 +63,10 @@ class Settings(BaseSettings):
     API_VERSION: str = "v1"
     PROTOCOL_SCHEME: str = "http://"
     # ссылка на сайт, на странице /docs
+    # ROOT_URL: HttpUrl = HttpUrl("/", scheme='http', host='docx.mdv911.site', tld='site', host_type='domain')
+    # ROOT_URL: str = "docx.mdv911.site/"
+    # ROOT_URL: str = "http://docx.mdv911.site/"
+    # ROOT_URL: HttpUrl = "https://docx.mdv911.site/"
     ROOT_URL: str = "/docs"
 
     @validator("ROOT_URL", allow_reuse=True)
@@ -73,10 +77,9 @@ class Settings(BaseSettings):
         # log.debug(field)
         # log.debug(cls)
         root_url: HttpUrl = HttpUrl(
-            f'{values.get("API_HOSTNAME")}:{values.get("API_PORT_INTERNAL")}{value}',
+            f'{values.get("API_HOSTNAME")}',
             scheme=str(values.get("PROTOCOL_SCHEME")),
         )
-        # return 'http://0.0.0.0:5000/docs'
         return f"{root_url.scheme}{root_url}"
 
     FILENAME_MIN_LENGTH: int = 3
