@@ -1,6 +1,6 @@
 from pathlib import Path
 import shutil
-from fastapi import FastAPI, Depends, Form, UploadFile
+from fastapi import Depends, Form, UploadFile
 from logrich.logger_ import log  # noqa
 from starlette import status
 from docxtpl import DocxTemplate
@@ -189,14 +189,5 @@ async def create_docx(
     resp = DocxResponse(
         filename=filename,
         url=f"{payload.filename}-{hash_payload}.docx",
-        # url=f"{config.DOWNLOADS_URL}/{token.issuer}/{payload.filename}-{hash_payload}.docx",
     )
     return resp
-
-
-prefix = config.API_PATH_PREFIX
-__version__ = config.API_VERSION
-
-
-def init_router(app: FastAPI) -> None:
-    app.include_router(router, prefix=f"{prefix}{__version__}/docx", tags=["Docx"])

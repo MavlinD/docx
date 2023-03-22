@@ -7,10 +7,12 @@ from typing import Sequence
 from pydantic import BaseSettings, validator, HttpUrl, SecretStr
 from logrich.logger_ import log  # noqa
 from pydantic.fields import ModelField
+from starlette.templating import Jinja2Templates
 
 from src.docx.helpers.tools import get_key
 
 DOTENV_FILE = "./.env"
+templates = Jinja2Templates(directory="wiki/site")
 
 # immutable dict
 CONTENT_TYPE_WHITE_LIST = MappingProxyType(

@@ -5,6 +5,7 @@ services:
   docx:
     hostname: docx
     container_name: docx
+    restart: unless-stopped
     ports:
       - $API_PORT_INTERNAL:$API_PORT_INTERNAL
     env_file:

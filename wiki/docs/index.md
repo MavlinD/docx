@@ -35,6 +35,12 @@ cp template.env .env
 docker compose up
 ```
 
+Ниже указан тестовый бессрочный токен, публичный ключ издателя сервису уже добавлен.  
+Можно выполнять запросы с данным токеном. 
+```shell
+eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LWF1dGguc2l0ZS5jb20iLCJ0eXBlIjoiYWNjZXNzIiwiZXhwIjoxOTk0ODE5MDgxLCJhdWQiOlsiZG9jeC1zdXBlciJdfQ.nDpRlfCJlZK6MwsQERyZQfsztqNC8_MKuYApyS2IWwBEjkw3lQ7ne6OyG6qvHQS7dB2JRy_uJuJDDjswQYVWuA
+```
+
 {% 
 include 'links.md'
 rewrite-relative-urls=false

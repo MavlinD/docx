@@ -10,7 +10,7 @@ from _pytest.main import Session
 from _pytest.nodes import Item
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
-from httpx import AsyncClient, URL
+from httpx import URL
 
 from logrich.logger_ import log  # noqa
 
@@ -22,6 +22,7 @@ from src.docx.helpers.security import generate_jwt
 from src.docx.main import app as app_
 from repo.repo_assets import get_test_status_badge
 from tests.test_tools import print_request, print_endpoints
+from httpx import AsyncClient, Headers
 
 
 def pytest_sessionfinish(session: Session, exitstatus: int | ExitCode) -> None:
@@ -77,7 +78,7 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, object]:
 
 async def auth_headers(
     audience: str, lifetime: timedelta = timedelta(days=1), token_issuer: str = "test-auth.site.com"
-) -> dict[str, str]:
+) -> Headers:
     """Returns the authorization headers"""
 
     token_data = {
@@ -87,7 +88,7 @@ async def auth_headers(
 
     token = generate_jwt(data=token_data, lifetime=lifetime)
     # log.debug(token)
-    return {"AUTHORIZATION": "Bearer " + token}
+    return Headers({"AUTHORIZATION": "Bearer " + token})
 
 
 class Routs:

@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from logrich.logger_ import errlog, log
 from logrich.logger_assets import console
 from rich.style import Style
+from starlette.staticfiles import StaticFiles
 
 from src.docx.helpers.tools import get_project
 from src.docx.err_handlers import init_err_handlers  # noqa
@@ -41,6 +42,11 @@ def app() -> FastAPI:
         },
         openapi_tags=tags_metadata,
     )
+    try:
+        app_.mount("/assets", StaticFiles(directory="wiki/site/assets"), name="static")
+    except Exception as err:
+        log.warning(err)
+
     init_router(app_)
 
     return app_

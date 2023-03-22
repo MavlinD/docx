@@ -20,6 +20,7 @@ pyjwt = "^2.6.0"
 python-magic = "^0.4.27"
 python-multipart = "^0.0.6"
 uvicorn = {extras = ["standard"], version = "^0.20.0"}
+yarl = "^1.8.2"
 
 [tool.poetry.group.dev.dependencies]
 asgi-lifespan = "^2.0.0"
