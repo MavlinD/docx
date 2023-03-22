@@ -2,3 +2,6 @@
 # применяется к контексту сборки
 
 downloads
+templates
+authorized_keys
+.env

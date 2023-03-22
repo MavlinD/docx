@@ -52,6 +52,12 @@ ptw -- 5 mon
 # где 5 - уровень логирования 
 ```
 
+Полезные команды
+```shell
+d run --rm -it --env-file=.env -p 5000:5000 --name=docx docx
+d build --build-arg SRC_NAMESPACE='--without dev' -t docx .
+```
+
 [1]: https://datatracker.ietf.org/doc/html/rfc7519?roistat_visit=181883 "JWT"
 
 ----
