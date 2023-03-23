@@ -17,7 +17,7 @@ def custom_get_swagger_ui_html(
     return get_swagger_ui_html(
         openapi_url=openapi_url,
         title=title,
-        swagger_css_url="assets/custom.css",
+        swagger_css_url="static/bundle.css",
         swagger_ui_parameters=swagger_ui_parameters,
     )
 

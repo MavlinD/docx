@@ -1,0 +1,64 @@
+html, .swagger-ui .scheme-container,
+.swagger-ui .dialog-ux .modal-ux {
+    background-color: hsla(232, 15%, 21%, 1);
+}
+
+.swagger-ui .info h1, .swagger-ui .info h2, .swagger-ui .info h3, .swagger-ui .info h4, .swagger-ui .info h5,
+.swagger-ui .info .title,
+.swagger-ui .opblock-tag,
+.swagger-ui .opblock-tag small,
+.swagger-ui .opblock .opblock-summary-operation-id, .swagger-ui .opblock .opblock-summary-path, .swagger-ui .opblock .opblock-summary-path__deprecated,
+.swagger-ui .opblock .opblock-summary-description,
+.swagger-ui .opblock-description-wrapper, .swagger-ui .opblock-external-docs-wrapper, .swagger-ui .opblock-title_normal,
+.swagger-ui .opblock-description-wrapper p, .swagger-ui .opblock-external-docs-wrapper p, .swagger-ui .opblock-title_normal p,
+.swagger-ui .response-col_status,
+.swagger-ui table thead tr td, .swagger-ui table thead tr th,
+.swagger-ui,
+.swagger-ui .response-col_links,
+.swagger-ui .parameter__name,
+.swagger-ui .parameter__type,
+.swagger-ui .dialog-ux .modal-ux-header h3,
+.swagger-ui .dialog-ux .modal-ux-content h4,
+.swagger-ui label,
+.swagger-ui .btn,
+.swagger-ui .tab li button.tablinks,
+.swagger-ui .tab li,
+.swagger-ui h3.opblock-tag a.nostyle span,
+.swagger-ui .responses-inner h4, .swagger-ui .responses-inner h5 {
+    color: hsla(232, 75%, 95%, 1);
+}
+.swagger-ui .tab li:first-of-type:after{
+    background-color:  hsla(232, 75%, 95%, 1);
+}
+.swagger-ui h3.opblock-tag a.nostyle span{
+    color: #ee5757;
+}
+
+.swagger-ui a.nostyle span, .swagger-ui a.nostyle:visited span {
+    color: #f99191
+}
+
+.swagger-ui .try-out__btn {
+    color: #3b4151
+}
+
+.swagger-ui button svg {
+    fill: #cae6cb
+}
+
+.swagger-ui .model-box-control:focus, .swagger-ui .models-control:focus, .swagger-ui .opblock-summary-control:focus {
+    outline: none;
+}
+
+.response .response-col_status {
+    color: #dada17;
+    font-weight: 600;
+}
+
+.opblock-description-wrapper .opblock-description p {
+    color: #9efc83
+}
+
+.swagger-ui .response-control-media-type__accept-message {
+    color: #26b926;
+}

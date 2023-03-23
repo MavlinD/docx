@@ -33,10 +33,12 @@ cp template.env .env
 mkdir templates downloads authorized_keys 
 # загрузить в папку authorized_keys публичный ключ/и сервисов клиентов
 # добавить нужные шаблоны в папку templates
+# запустить сервис
 docker compose up 
 ```
 
-Ниже указан тестовый бессрочный токен, публичный ключ издателя сервису уже добавлен.  
+Ниже указан тестовый бессрочный токен с максимальной аудиенцией.   
+Публичный ключ издателя сервису уже добавлен.  
 Можно выполнять запросы с данным токеном. 
 ```shell
 eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LWF1dGguc2l0ZS5jb20iLCJ0eXBlIjoiYWNjZXNzIiwiZXhwIjoxOTk0ODE5MDgxLCJhdWQiOlsiZG9jeC1zdXBlciJdfQ.nDpRlfCJlZK6MwsQERyZQfsztqNC8_MKuYApyS2IWwBEjkw3lQ7ne6OyG6qvHQS7dB2JRy_uJuJDDjswQYVWuA

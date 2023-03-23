@@ -45,6 +45,7 @@ def run_app() -> FastAPI:
     )
     try:
         app.mount("/assets", StaticFiles(directory="wiki/site/assets"), name="static")
+        app.mount("/static", StaticFiles(directory="src/docx/static"), name="open-api")
 
     except Exception as err:
         log.warning(err)
