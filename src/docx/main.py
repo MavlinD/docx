@@ -50,6 +50,7 @@ def run_app() -> FastAPI:
     except Exception as err:
         log.warning(err)
 
+    # отключи линию ниже, если нужен стиль по умолчанию
     reset_open_api(app)
     init_router(app)
     # print_routs(app)

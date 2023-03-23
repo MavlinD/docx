@@ -66,3 +66,11 @@ html, .swagger-ui .scheme-container,
 .swagger-ui .response-control-media-type__accept-message {
     color: #26b926;
 }
+
+.swagger-ui .scheme-container{
+    box-shadow: none;
+}
+
+.opblock-summary .opblock-summary-path span.summary-path.slash{
+    color: #d20a0a
+}
