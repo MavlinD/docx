@@ -10,7 +10,8 @@ html, .swagger-ui .scheme-container,
 .swagger-ui .opblock .opblock-summary-operation-id, .swagger-ui .opblock .opblock-summary-path, .swagger-ui .opblock .opblock-summary-path__deprecated,
 .swagger-ui .opblock .opblock-summary-description,
 .swagger-ui .opblock-description-wrapper, .swagger-ui .opblock-external-docs-wrapper, .swagger-ui .opblock-title_normal,
-.swagger-ui .opblock-description-wrapper p, .swagger-ui .opblock-external-docs-wrapper p, .swagger-ui .opblock-title_normal p,
+.swagger-ui .opblock-description-wrapper p,
+.swagger-ui .opblock-external-docs-wrapper p, .swagger-ui .opblock-title_normal p,
 .swagger-ui .response-col_status,
 .swagger-ui table thead tr td, .swagger-ui table thead tr th,
 .swagger-ui,
@@ -29,6 +30,9 @@ html, .swagger-ui .scheme-container,
 }
 .swagger-ui .tab li:first-of-type:after{
     background-color:  hsla(232, 75%, 95%, 1);
+}
+.swagger-ui .opblock-description-wrapper p{
+    color: aquamarine
 }
 .swagger-ui h3.opblock-tag a.nostyle span{
     color: #ee5757;
