@@ -1,0 +1,11 @@
+/*@import "custom.css";*/
+@import url("https://cdn.jsdelivr.net/npm/swagger-ui-dist@4/swagger-ui.css");
+html, .swagger-ui .scheme-container {
+    background-color: #bbc9d8;
+    /*background-color: hsla(232,15%,21%,1);*/
+
+}
+
+/*.swagger-ui .scheme-container {*/
+/*    */
+/*}*/

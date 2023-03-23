@@ -19,7 +19,7 @@ from logrich.logger_assets import console
 from src.docx.config import config
 
 from src.docx.helpers.security import generate_jwt
-from src.docx.main import app as app_
+from src.docx.main import run_app as app_
 from repo.repo_assets import get_test_status_badge
 from tests.test_tools import print_request, print_endpoints
 from httpx import AsyncClient, Headers

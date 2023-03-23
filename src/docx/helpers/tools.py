@@ -3,11 +3,12 @@ import locale
 import pathlib
 import time
 from datetime import datetime, date
-from typing import Dict, List, Callable, Any, BinaryIO
+from typing import Dict, List, Callable, Any
 import hashlib
 import json
 
 import toml
+from fastapi import FastAPI
 
 from logrich.logger_ import log  # noqa
 
@@ -134,3 +135,9 @@ def dict_hash(dictionary: Dict[str, Any]) -> str:
     encoded = json.dumps(dictionary, sort_keys=True).encode()
     dhash.update(encoded)
     return dhash.hexdigest()
+
+
+def print_routs(app: FastAPI) -> None:
+    """print all app routs"""
+    for route in app.router.routes:
+        log.trace(route.path)

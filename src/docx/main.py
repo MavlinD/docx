@@ -12,6 +12,7 @@ from src.docx.middleware import init_middleware  # noqa
 from src.docx.router import init_router
 from src.docx.config import config
 
+from src.docx.router.open_api import reset_open_api
 
 project = get_project()
 
@@ -32,8 +33,8 @@ tags_metadata = [
 ]
 
 
-def app() -> FastAPI:
-    app_ = FastAPI(
+def run_app() -> FastAPI:
+    app = FastAPI(
         **sw_params,
         swagger_ui_parameters=sw_ui,
         contact={
@@ -43,13 +44,16 @@ def app() -> FastAPI:
         openapi_tags=tags_metadata,
     )
     try:
-        app_.mount("/assets", StaticFiles(directory="wiki/site/assets"), name="static")
+        app.mount("/assets", StaticFiles(directory="wiki/site/assets"), name="static")
+
     except Exception as err:
         log.warning(err)
 
-    init_router(app_)
+    reset_open_api(app)
+    init_router(app)
+    # print_routs(app)
 
-    return app_
+    return app
 
 
 @errlog.catch
@@ -58,7 +62,7 @@ def main() -> None:
         f"[green]{sw_params['title']}:{sw_params['version']}[/]", style=Style(color="magenta")
     )
     uvicorn.run(
-        "main:app",
+        "main:run_app",
         reload=config.RELOAD,
         factory=True,
         port=config.API_PORT_INTERNAL,

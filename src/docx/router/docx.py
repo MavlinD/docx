@@ -57,6 +57,26 @@ async def download_file(
 
 
 @router.get(
+    "/templates",
+    summary="Выводит список шаблонов.",
+    description=f"Требуется одна из аудиенций: **{AudienceCompose.READ}**",
+    responses={
+        status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
+    },
+    response_model=list,
+    status_code=status.HTTP_200_OK,
+)
+async def list_templates(
+    payload: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ)),
+) -> list:
+    """список шаблонов на сервисе"""
+    # log.debug(payload)
+    p = Path(f"templates/{payload.issuer}").glob("**/*.docx")
+    files = [x for x in p if x.is_file()]
+    return files
+
+
+@router.get(
     "/templates/{filename:path}",
     summary="Адрес получения шаблонов.",
     description=f"Требуется одна из аудиенций: **{AudienceCompose.READ}**",
@@ -81,26 +101,6 @@ async def download_template(
         media_type="multipart/form-data",
     )
     return ret
-
-
-@router.get(
-    "/templates",
-    summary="Выводит список шаблонов.",
-    description=f"Требуется одна из аудиенций: **{AudienceCompose.READ}**",
-    responses={
-        status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
-    },
-    response_model=list,
-    status_code=status.HTTP_200_OK,
-)
-async def list_templates(
-    payload: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ)),
-) -> list:
-    """список шаблонов на сервисе"""
-    # log.debug(payload)
-    p = Path(f"templates/{payload.issuer}").glob("**/*.docx")
-    files = [x for x in p if x.is_file()]
-    return files
 
 
 @router.put(
