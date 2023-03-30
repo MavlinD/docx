@@ -7,6 +7,7 @@ from fastapi.routing import APIRoute
 from logrich.logger_ import log  # noqa
 from typing import Optional, Dict, Any, Callable
 from starlette.responses import HTMLResponse
+from starlette.routing import BaseRoute, Route
 
 from src.docx.assets import APIRouter
 
@@ -96,9 +97,9 @@ sw_ui = {"defaultModelsExpandDepth": -1}
 def set_open_api(app: FastAPI) -> Callable:
     """custom endpoint for docs"""
 
-    async def swagger_ui_html():
+    async def swagger_ui_html() -> HTMLResponse:
         return custom_get_swagger_ui_html(
-            openapi_url=app.openapi_url,
+            openapi_url=str(app.openapi_url),
             swagger_ui_parameters=sw_ui,
             title=app.title + " - Swagger UI",
         )
@@ -109,7 +110,7 @@ def set_open_api(app: FastAPI) -> Callable:
 def reset_open_api(app: FastAPI) -> None:
     """replace standard api docs endpoint"""
     for route in app.router.routes:
-        if route.path == "/docs":
+        if isinstance(route, Route) and route.path == "/docs":
             app.routes.remove(route)
             app.routes.append(
                 APIRoute(path="/docs", endpoint=set_open_api(app), include_in_schema=False)

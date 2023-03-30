@@ -49,6 +49,33 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs, audience: str) -> 
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
+@pytest.mark.parametrize("audience", [(["other-aud", "docx-update"])])
+async def test_upload_tpl_with_fake_jwt(client: AsyncClient, routes: Routs, audience: str) -> None:
+    """тест загрузки шаблона с неправильным токеном"""
+    # config.FILE_MAX_SIZE = 0.001
+
+    payload = {"filename": "temp_dir/test-filename.docx", "replace_if_exist": True}
+    path_to_file = "tests/files/test_docx_template_to_upload.txt"
+    file = ("file", open(path_to_file, "rb"))
+    header = await auth_headers(audience=audience)
+    # log.debug(header.get("authorization"))
+    header.update({"authorization": "dgfbdfgbd"})
+    # log.debug(header.get("authorization"))
+    resp = await client.put(
+        routes.request_to_upload_template,
+        files=[file],
+        data=payload,
+        headers=header,
+    )
+    log.debug(resp)
+    data = resp.json()
+    log.debug("-", o=data)
+    # return
+    assert resp.status_code == 403, "некорректный ответ сервера.."
+
+
+@pytest.mark.skipif(skip, reason=reason)
+@pytest.mark.asyncio
 @pytest.mark.parametrize("audience", [(["other-aud", "docx-super"])])
 async def test_upload_tpl_with_super_aud(client: AsyncClient, routes: Routs, audience: str) -> None:
     """тест загрузки шаблона с аудиенцией super"""

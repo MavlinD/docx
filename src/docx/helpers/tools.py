@@ -11,6 +11,7 @@ import toml
 from fastapi import FastAPI
 
 from logrich.logger_ import log  # noqa
+from starlette.routing import Route
 
 locale.setlocale(locale.LC_ALL, "ru_RU.UTF-8")
 
@@ -140,4 +141,5 @@ def dict_hash(dictionary: Dict[str, Any]) -> str:
 def print_routs(app: FastAPI) -> None:
     """print all app routs"""
     for route in app.router.routes:
-        log.trace(route.path)
+        if isinstance(route, Route):
+            log.trace(route.path)

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "docx"
-version = "0.1.0"
+version = "0.1.1"
 description = "Docx (MS Word) template engine."
 authors = ["Mavlin Dm. <mavlind@list.ru>"]
 license = "GPLv3"
