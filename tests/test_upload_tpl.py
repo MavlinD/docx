@@ -47,7 +47,7 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs, audience: str) -> 
     ), "Содержимое исходного шаблона и загруженного не соответствует."
 
 
-@pytest.mark.skipif(skip, reason=reason)
+# @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
 @pytest.mark.parametrize("audience", [(["other-aud", "docx-update"])])
 async def test_upload_tpl_with_fake_jwt(client: AsyncClient, routes: Routs, audience: str) -> None:
@@ -59,7 +59,8 @@ async def test_upload_tpl_with_fake_jwt(client: AsyncClient, routes: Routs, audi
     file = ("file", open(path_to_file, "rb"))
     header = await auth_headers(audience=audience)
     # log.debug(header.get("authorization"))
-    header.update({"authorization": "dgfbdfgbd"})
+    # header.update({"authorization": "dgfbdfgbd"})
+    header.update({"authorization": "Bearer dgfbdfgbd"})
     # log.debug(header.get("authorization"))
     resp = await client.put(
         routes.request_to_upload_template,
@@ -69,7 +70,7 @@ async def test_upload_tpl_with_fake_jwt(client: AsyncClient, routes: Routs, audi
     )
     log.debug(resp)
     data = resp.json()
-    log.debug("-", o=data)
+    log.debug("---", o=data)
     # return
     assert resp.status_code == 403, "некорректный ответ сервера.."
 

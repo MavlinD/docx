@@ -12,7 +12,7 @@ from src.docx.config import config
 
 from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
 
-from src.docx.helpers.tools import get_key
+from src.docx.helpers.tools import get_key, jwt_exception
 
 token_description = (
     f"**JWT** подписанный асинхронным алгоритмом из списка {config.ALGORITHMS_WHITE_LIST},"
@@ -140,35 +140,27 @@ class JWT:
         key = await get_key(f"authorized_keys/{self.issuer.lower()}.pub")
         return key
 
+    @jwt_exception
     def set_issuer(self) -> None:
         """Извлекает издателя токена"""
         # установим издателя токена, для этого прочитаем нагрузку без валидации.
         claimset_without_validation = jwt.decode(
             jwt=self.token, options={"verify_signature": False}
         )
+        log.debug(claimset_without_validation)
         sanitize_issuer = str(sanitize_filepath(claimset_without_validation.get("iss", "")))
         self.issuer = sanitize_issuer.strip().replace(".", "_").replace("-", "_")
 
     @property
+    @jwt_exception
     async def decode_jwt(self) -> DataModel:
-        try:
-            # определяем наличие разрешения
-            # валидируем токен
-            decoded_payload = jwt.decode(
-                jwt=self.token,
-                audience=self.audience,
-                key=await self.pub_key,
-                algorithms=[self.algorithm],
-            )
-            resp = DataModel(**decoded_payload)
-            # добавим в вывод имя папки данного издателя токена
-            resp.issuer = self.issuer
-            return resp
-        except InvalidAudienceError:
-            raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_FOUND.value)
-        except ExpiredSignatureError:
-            raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_EXPIRE.value)
-        except ValueError:
-            raise InvalidVerifyToken(msg=ErrorCodeLocal.INVALID_TOKEN.value)
-        except DecodeError:
-            raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT.value)
+        decoded_payload = jwt.decode(
+            jwt=self.token,
+            audience=self.audience,
+            key=await self.pub_key,
+            algorithms=[self.algorithm],
+        )
+        resp = DataModel(**decoded_payload)
+        # добавим в вывод имя папки данного издателя токена
+        resp.issuer = self.issuer
+        return resp

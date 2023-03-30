@@ -7,11 +7,15 @@ from typing import Dict, List, Callable, Any
 import hashlib
 import json
 
+import jwt
 import toml
 from fastapi import FastAPI
+from jwt import InvalidAudienceError, ExpiredSignatureError, DecodeError
 
 from logrich.logger_ import log  # noqa
 from starlette.routing import Route
+
+from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
 
 locale.setlocale(locale.LC_ALL, "ru_RU.UTF-8")
 
@@ -143,3 +147,23 @@ def print_routs(app: FastAPI) -> None:
     for route in app.router.routes:
         if isinstance(route, Route):
             log.trace(route.path)
+
+
+def jwt_exception(func: Callable):
+    def wrapper(*args, **kwargs):
+        # async def decode_jwt(self) -> DataModel:
+        try:
+            resp = func(*args, **kwargs)
+            # определяем наличие разрешения
+            # валидируем токен
+            return resp
+        except InvalidAudienceError:
+            raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_FOUND.value)
+        except ExpiredSignatureError:
+            raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_EXPIRE.value)
+        except ValueError:
+            raise InvalidVerifyToken(msg=ErrorCodeLocal.INVALID_TOKEN.value)
+        except DecodeError:
+            raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT.value)
+
+    return wrapper
