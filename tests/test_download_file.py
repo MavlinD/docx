@@ -1,3 +1,5 @@
+import pathlib
+
 import pytest
 from httpx import AsyncClient
 
@@ -37,3 +39,5 @@ async def test_download_file(client: AsyncClient, routes: Routs, audience: str) 
     log.debug(resp)
     assert resp.status_code == 200
     log.debug("", o=data)
+    # зачистим артефакты
+    pathlib.Path(data.get("filename")).unlink()

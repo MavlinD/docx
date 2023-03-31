@@ -19,12 +19,6 @@ async def test_create_empty_docx(client: AsyncClient, routes: Routs, audience: s
     """тест создания пустого, незаполненного шаблона docx
     https://python-docx.readthedocs.io/en/latest/user/documents.html#opening-a-document
     """
-    token_issuer = "test-auth.site.com"
-    token_data = {
-        "iss": token_issuer,
-        "aud": ["docx-create", "other-aud"],
-    }
-    # log.debug(token)
     payload = {
         "filename": "test-filename",
         "template": "test_docx_template.docx",
@@ -37,7 +31,7 @@ async def test_create_empty_docx(client: AsyncClient, routes: Routs, audience: s
     )
     # log.debug(resp)
     data = resp.json()
-    log.debug("", o=data)
+    log.debug("-", o=data)
     assert resp.status_code == 201, "некорректный ответ сервера"
     out_file = pathlib.Path(data.get("filename"))
 
@@ -54,3 +48,5 @@ async def test_create_empty_docx(client: AsyncClient, routes: Routs, audience: s
         "Я живу в .",
         "Меня зовут .",
     } == content, "итоговый файл таки изменился"
+    # зачистим артефакты
+    pathlib.Path(data.get("filename")).unlink()

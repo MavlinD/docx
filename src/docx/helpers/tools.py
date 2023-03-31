@@ -33,9 +33,8 @@ def wrapping_logic_timer(func_name: str) -> Generator:
     tic = time.perf_counter()
     yield
     toc = time.perf_counter()
-    elapsed_time = toc - tic
-    format_time = f"{elapsed_time:0.3f} seconds"
-    print("\033[0;38;5;211m" + f"{func_name}: {format_time}")
+    format_time = f"{toc - tic:0.3f} sec."
+    log.trace(f"[green]{func_name}:[/] {format_time}")
 
 
 def duration(func: Callable) -> Callable:
@@ -44,7 +43,7 @@ def duration(func: Callable) -> Callable:
     def timing_context() -> Any:
         return wrapping_logic_timer(func.__name__)
 
-    return decorate_sync_async(timing_context, func)
+    return decorate_sync_async(decorating_context=timing_context, func=func)
 
 
 def get_quarter(_date: date) -> int:
@@ -121,7 +120,7 @@ def print_routs(app: FastAPI) -> None:
 
 
 @contextmanager
-def wrapping_logic() -> Generator:
+def wrapping_jwt_decode() -> Generator:
     """Проверка токена с обработкой исключений"""
     try:
         yield
@@ -156,4 +155,4 @@ def decorate_sync_async(decorating_context: Callable, func: Callable) -> Callabl
 
 def jwt_exception(func: Callable) -> Callable:
     """Декорирует проверку токена обработкой исключений"""
-    return decorate_sync_async(decorating_context=wrapping_logic, func=func)
+    return decorate_sync_async(decorating_context=wrapping_jwt_decode, func=func)

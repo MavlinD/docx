@@ -1,3 +1,4 @@
+import pathlib
 from pathlib import Path
 
 import pytest
@@ -25,11 +26,14 @@ async def test_download_tpl(client: AsyncClient, routes: Routs, audience: str) -
         headers=await auth_headers(audience=audience),
     )
     log.debug(resp)
+    # print(resp.content)
+    # data = resp.json()
     path = Path(f"templates/test_auth_site_com/{filename}")
     # log.debug(len(resp.content))
     assert len(resp.content) == path.stat().st_size
     log.trace(resp.elapsed)
     assert resp.status_code == 200
+    # здесь отправленный файл не сохраняется в папке downloads
 
 
 @duration
@@ -44,8 +48,8 @@ async def test_cant_download_tpl(client: AsyncClient, routes: Routs, audience: s
         routes.request_to_download_template(filename=filename),
         headers=await auth_headers(audience=audience),
     )
-    log.debug(resp.text)
+    # log.debug(resp.text)
     log.debug(resp)
     # log.debug(resp.content.detail)
-    log.trace(resp.elapsed)
+    # log.trace(resp.elapsed)
     assert resp.status_code == 404

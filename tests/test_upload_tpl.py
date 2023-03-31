@@ -73,8 +73,7 @@ async def test_upload_tpl_with_fake_jwt(client: AsyncClient, routes: Routs, audi
     )
     log.debug(resp)
     data = resp.json()
-    log.debug("---", o=data)
-    # return
+    log.debug("-", o=data)
     assert resp.status_code == 403, "некорректный ответ сервера.."
 
 

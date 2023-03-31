@@ -49,6 +49,8 @@ async def test_create_docx(client: AsyncClient, routes: Routs, audience: str) ->
     for para in doc.paragraphs:
         content.add(para.text)
     assert username in " ".join(content), "данных в итоговом файле не наблюдается"
+    # зачистим артефакты
+    pathlib.Path(data.get("filename")).unlink()
 
 
 @pytest.mark.skipif(skip, reason=reason)
@@ -58,6 +60,3 @@ async def test_create_jwt(client: AsyncClient, routes: Routs, audience: str) -> 
     """тест создания jwt"""
     headers: Headers = await auth_headers(audience=audience, lifetime=timedelta(days=3650))
     print(headers.get("Authorization"))
-
-
-#     eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LWF1dGguc2l0ZS5jb20iLCJ0eXBlIjoiYWNjZXNzIiwiZXhwIjoxOTk0ODE5MDgxLCJhdWQiOlsiZG9jeC1zdXBlciJdfQ.nDpRlfCJlZK6MwsQERyZQfsztqNC8_MKuYApyS2IWwBEjkw3lQ7ne6OyG6qvHQS7dB2JRy_uJuJDDjswQYVWuA
