@@ -5,6 +5,8 @@ from docxtpl import DocxTemplate
 from httpx import AsyncClient
 
 from logrich.logger_ import log  # noqa
+
+from src.docx.helpers.tools import duration
 from tests.conftest import Routs, auth_headers
 
 skip = False
@@ -47,7 +49,8 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs, audience: str) -> 
     ), "Содержимое исходного шаблона и загруженного не соответствует."
 
 
-# @pytest.mark.skipif(skip, reason=reason)
+# @duration
+@pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
 @pytest.mark.parametrize("audience", [(["other-aud", "docx-update"])])
 async def test_upload_tpl_with_fake_jwt(client: AsyncClient, routes: Routs, audience: str) -> None:
@@ -59,8 +62,8 @@ async def test_upload_tpl_with_fake_jwt(client: AsyncClient, routes: Routs, audi
     file = ("file", open(path_to_file, "rb"))
     header = await auth_headers(audience=audience)
     # log.debug(header.get("authorization"))
-    # header.update({"authorization": "dgfbdfgbd"})
-    header.update({"authorization": "Bearer dgfbdfgbd"})
+    # header.update({"authorization": "fake_fake_fake"})
+    header.update({"authorization": "Bearer fake_fake_fake"})
     # log.debug(header.get("authorization"))
     resp = await client.put(
         routes.request_to_upload_template,

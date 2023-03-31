@@ -31,5 +31,5 @@ async def test_expire_token(client: AsyncClient, routes: Routs, audience: str) -
     )
     # log.debug(resp)
     data = resp.json()
-    log.debug("-", o=data)
+    log.debug("--", o=data)
     assert resp.status_code == 403, "некорректный ответ сервера"

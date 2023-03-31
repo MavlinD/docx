@@ -1,13 +1,14 @@
+import asyncio
 import functools
 import locale
 import pathlib
 import time
+from contextlib import contextmanager
 from datetime import datetime, date
-from typing import Dict, List, Callable, Any
+from typing import Dict, List, Callable, Any, Generator
 import hashlib
 import json
 
-import jwt
 import toml
 from fastapi import FastAPI
 from jwt import InvalidAudienceError, ExpiredSignatureError, DecodeError
@@ -26,54 +27,24 @@ async def read_response(temp_file: str = "temp.txt") -> str:
         return fp.read()
 
 
-def timer(func: Callable) -> Callable:
-    """
-    декоратор, определяет время выполнения
-    @rtype: str
-    """
-
-    @functools.wraps(func)
-    def wrapper_timer(*args: List, **kwargs: Dict) -> Callable:
-        name = func.__name__
-        tic = time.perf_counter()
-        value = func(*args, **kwargs)
-        toc = time.perf_counter()
-        elapsed_time = toc - tic
-        ln = len(name) + 15
-        format_time = f"{elapsed_time:0.3f} seconds"
-        print("-" * ln)
-        print("\033[0;38;5;211m" + f"{name}: {format_time}")
-        print("-" * ln)
-        if value:
-            value["elapsed_time"] = format_time
-        return value
-
-    return wrapper_timer
+@contextmanager
+def wrapping_logic_timer(func_name: str) -> Generator:
+    """время выполнения кода"""
+    tic = time.perf_counter()
+    yield
+    toc = time.perf_counter()
+    elapsed_time = toc - tic
+    format_time = f"{elapsed_time:0.3f} seconds"
+    print("\033[0;38;5;211m" + f"{func_name}: {format_time}")
 
 
-def async_timer(func: Callable) -> Callable:
-    """
-    декоратор, определяет время выполнения
-    @rtype: str
-    """
+def duration(func: Callable) -> Callable:
+    """декорирует временем выполнения вызываюший код"""
 
-    @functools.wraps(func)
-    async def wrapper_timer(*args: List, **kwargs: Dict) -> Callable:
-        name = func.__name__
-        tic = time.perf_counter()
-        value = await func(*args, **kwargs)
-        toc = time.perf_counter()
-        elapsed_time = toc - tic
-        ln = len(name) + 15
-        format_time = f"{elapsed_time:0.3f} seconds"
-        print("-" * ln)
-        print("\033[0;38;5;211m" + f"{name}: {format_time}")
-        print("-" * ln)
-        if value:
-            value["elapsed_time"] = format_time
-        return value
+    def timing_context() -> Any:
+        return wrapping_logic_timer(func.__name__)
 
-    return wrapper_timer
+    return decorate_sync_async(timing_context, func)
 
 
 def get_quarter(_date: date) -> int:
@@ -149,21 +120,40 @@ def print_routs(app: FastAPI) -> None:
             log.trace(route.path)
 
 
-def jwt_exception(func: Callable):
-    def wrapper(*args, **kwargs):
-        # async def decode_jwt(self) -> DataModel:
-        try:
-            resp = func(*args, **kwargs)
-            # определяем наличие разрешения
-            # валидируем токен
-            return resp
-        except InvalidAudienceError:
-            raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_FOUND.value)
-        except ExpiredSignatureError:
-            raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_EXPIRE.value)
-        except ValueError:
-            raise InvalidVerifyToken(msg=ErrorCodeLocal.INVALID_TOKEN.value)
-        except DecodeError:
-            raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT.value)
+@contextmanager
+def wrapping_logic() -> Generator:
+    """Проверка токена с обработкой исключений"""
+    try:
+        yield
+    except InvalidAudienceError:
+        raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_FOUND.value)
+    except ExpiredSignatureError:
+        raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_EXPIRE.value)
+    except ValueError:
+        raise InvalidVerifyToken(msg=ErrorCodeLocal.INVALID_TOKEN.value)
+    except DecodeError:
+        raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT.value)
 
-    return wrapper
+
+def decorate_sync_async(decorating_context: Callable, func: Callable) -> Callable:
+    """Применяет декорации как к синхронному так и асинхронному коду"""
+    # https://n8henrie.com/2021/11/decorator-to-memoize-sync-or-async-functions-in-python/
+    # https://stackoverflow.com/questions/44169998/how-to-create-a-python-decorator-that-can-wrap-either-coroutine-or-function
+    if asyncio.iscoroutinefunction(func):
+
+        async def decorated(*args: list, **kwargs: dict) -> Any:
+            with decorating_context():
+                return await func(*args, **kwargs)
+
+    else:
+
+        def decorated(*args, **kwargs):  # type: ignore
+            with decorating_context():
+                return func(*args, **kwargs)
+
+    return functools.wraps(func)(decorated)
+
+
+def jwt_exception(func: Callable) -> Callable:
+    """Декорирует проверку токена обработкой исключений"""
+    return decorate_sync_async(decorating_context=wrapping_logic, func=func)

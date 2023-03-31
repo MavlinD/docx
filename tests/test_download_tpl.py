@@ -5,6 +5,7 @@ from httpx import AsyncClient
 
 from logrich.logger_ import log  # noqa
 
+from src.docx.helpers.tools import duration
 from tests.conftest import Routs, auth_headers
 
 skip = False
@@ -31,7 +32,7 @@ async def test_download_tpl(client: AsyncClient, routes: Routs, audience: str) -
     assert resp.status_code == 200
 
 
-# @async_timer
+@duration
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
 @pytest.mark.parametrize("audience", [(["other-aud", "docx-read"])])

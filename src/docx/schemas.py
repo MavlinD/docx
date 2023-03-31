@@ -3,7 +3,6 @@ from typing import Annotated, Sequence, Dict, Union, Any, Iterable
 from pathlib import Path
 
 import jwt
-from jwt import InvalidAudienceError, ExpiredSignatureError, DecodeError
 from logrich.logger_ import log  # noqa
 from pathvalidate import sanitize_filepath
 from pydantic import BaseModel, Field, EmailStr, SecretStr
@@ -147,7 +146,7 @@ class JWT:
         claimset_without_validation = jwt.decode(
             jwt=self.token, options={"verify_signature": False}
         )
-        log.debug(claimset_without_validation)
+        # log.debug(claimset_without_validation)
         sanitize_issuer = str(sanitize_filepath(claimset_without_validation.get("iss", "")))
         self.issuer = sanitize_issuer.strip().replace(".", "_").replace("-", "_")
 
