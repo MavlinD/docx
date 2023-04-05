@@ -12,13 +12,15 @@ reason = "Temporary off!"
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-@pytest.mark.parametrize("audience", [(["other-aud", "docx-read"])])
-async def test_get_list_tpl(client: AsyncClient, routes: Routs, audience: str) -> None:
+@pytest.mark.parametrize("audience,namespace", [(["other-aud", "docx-read"], "test-nsp")])
+async def test_get_list_tpl(
+    client: AsyncClient, routes: Routs, audience: str, namespace: str
+) -> None:
     """тест на получение списка шаблонов"""
 
     resp = await client.get(
         routes.request_to_list_templates,
-        headers=await auth_headers(audience=audience),
+        headers=await auth_headers(audience=audience, namespace=namespace),
     )
     log.debug(resp)
     data = resp.json()

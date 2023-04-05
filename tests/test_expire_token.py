@@ -12,8 +12,10 @@ reason = "Temporary off!"
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-@pytest.mark.parametrize("audience", [(["other-aud", "docx-create"])])
-async def test_expire_token(client: AsyncClient, routes: Routs, audience: str) -> None:
+@pytest.mark.parametrize("audience,namespace", [(["other-aud", "docx-create"], "test-nsp")])
+async def test_expire_token(
+    client: AsyncClient, routes: Routs, audience: str, namespace: str
+) -> None:
     """тест невозможности создания docx с просроченным токеном
     https://python-docx.readthedocs.io/en/latest/user/documents.html#opening-a-document
     """
@@ -26,7 +28,9 @@ async def test_expire_token(client: AsyncClient, routes: Routs, audience: str) -
     }
     resp = await client.post(
         routes.request_to_create_docx,
-        headers=await auth_headers(audience=audience, lifetime=timedelta(days=-1)),
+        headers=await auth_headers(
+            audience=audience, lifetime=timedelta(days=-1), namespace=namespace
+        ),
         json=payload,
     )
     # log.debug(resp)

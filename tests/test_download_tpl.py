@@ -1,4 +1,3 @@
-import pathlib
 from pathlib import Path
 
 import pytest
@@ -16,19 +15,35 @@ reason = "Temporary off!"
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-@pytest.mark.parametrize("audience", [(["other-aud", "docx-read"])])
-async def test_download_tpl(client: AsyncClient, routes: Routs, audience: str) -> None:
+@pytest.mark.parametrize("audience,namespace", [(["other-aud", "docx-read"], "test-nsp")])
+async def test_download_tpl(
+    client: AsyncClient, routes: Routs, audience: str, namespace: str
+) -> None:
     """тест скачивания шаблона"""
 
-    filename = "test_docx_template.docx"
+    filename = "test_docx_template_to_upload.docx"
+    payload = {"filename": "temp_dir/test-filename.docx", "replace_if_exist": True}
+    path_to_file = f"tests/files/{filename}"
+    file = ("file", open(path_to_file, "rb"))
+    resp = await client.put(
+        routes.request_to_upload_template,
+        files=[file],
+        data=payload,
+        headers=await auth_headers(audience=("docx-update",), namespace=namespace),
+    )
+    log.debug(resp)
+    data = resp.json()
+    log.debug("-", o=data)
+    assert resp.status_code == 201
+
     resp = await client.get(
         routes.request_to_download_template(filename=filename),
-        headers=await auth_headers(audience=audience),
+        headers=await auth_headers(audience=audience, namespace=namespace),
     )
     log.debug(resp)
     # print(resp.content)
     # data = resp.json()
-    path = Path(f"templates/test_auth_site_com/{filename}")
+    path = Path(f"templates/test_auth_site_com/{namespace}/{filename}")
     # log.debug(len(resp.content))
     assert len(resp.content) == path.stat().st_size
     log.trace(resp.elapsed)
@@ -39,14 +54,16 @@ async def test_download_tpl(client: AsyncClient, routes: Routs, audience: str) -
 @duration
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-@pytest.mark.parametrize("audience", [(["other-aud", "docx-read"])])
-async def test_cant_download_tpl(client: AsyncClient, routes: Routs, audience: str) -> None:
+@pytest.mark.parametrize("audience, namespace", [(["other-aud", "docx-read"], "test-nsp")])
+async def test_cant_download_tpl(
+    client: AsyncClient, routes: Routs, audience: str, namespace: str
+) -> None:
     """тест скачивания несуществующего шаблона"""
 
     filename = "fake_template.docx"
     resp = await client.get(
         routes.request_to_download_template(filename=filename),
-        headers=await auth_headers(audience=audience),
+        headers=await auth_headers(audience=audience, namespace=namespace),
     )
     # log.debug(resp.text)
     log.debug(resp)

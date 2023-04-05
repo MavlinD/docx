@@ -44,7 +44,7 @@ class JWTBearer(HTTPBearer):
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
             token = JWT(token=credentials.credentials)
-            # log.debug(token.token)
+            log.debug(token.token)
             token.audience = self.audience
             # log.info(self.audience)
             token.set_issuer()

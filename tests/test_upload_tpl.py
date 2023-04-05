@@ -22,9 +22,6 @@ async def test_upload_tpl(
 ) -> None:
     """тест загрузки шаблона"""
     # config.FILE_MAX_SIZE = 0.001
-    # log.debug(namespace)
-    # log.debug(audience)
-
     headers: Headers = await auth_headers(audience=audience, namespace=namespace)
     # log.debug(headers)
     payload = {"filename": "temp_dir/test-filename.docx", "replace_if_exist": True}
@@ -56,17 +53,19 @@ async def test_upload_tpl(
 
 
 # @duration
-@pytest.mark.skipif(skip, reason=reason)
+# @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-@pytest.mark.parametrize("audience", [(["other-aud", "docx-update"])])
-async def test_upload_tpl_with_fake_jwt(client: AsyncClient, routes: Routs, audience: str) -> None:
+@pytest.mark.parametrize("audience,namespace", [(["other-aud", "docx-update"], "test_nsp")])
+async def test_upload_tpl_with_fake_jwt(
+    client: AsyncClient, routes: Routs, audience: str, namespace: str
+) -> None:
     """тест загрузки шаблона с неправильным токеном"""
     # config.FILE_MAX_SIZE = 0.001
 
     payload = {"filename": "temp_dir/test-filename.docx", "replace_if_exist": True}
     path_to_file = "tests/files/test_docx_template_to_upload.txt"
     file = ("file", open(path_to_file, "rb"))
-    header = await auth_headers(audience=audience)
+    header = await auth_headers(audience=audience, namespace=namespace)
     # log.debug(header.get("authorization"))
     # header.update({"authorization": "fake_fake_fake"})
     header.update({"authorization": "Bearer fake_fake_fake"})
@@ -79,14 +78,16 @@ async def test_upload_tpl_with_fake_jwt(client: AsyncClient, routes: Routs, audi
     )
     log.debug(resp)
     data = resp.json()
-    log.debug("--", o=data)
+    log.debug("---", o=data)
     assert resp.status_code == 403, "некорректный ответ сервера.."
 
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-@pytest.mark.parametrize("audience", [(["other-aud", "docx-super"])])
-async def test_upload_tpl_with_super_aud(client: AsyncClient, routes: Routs, audience: str) -> None:
+@pytest.mark.parametrize("audience,namespace", [(["other-aud", "docx-super"], "test_nsp")])
+async def test_upload_tpl_with_super_aud(
+    client: AsyncClient, routes: Routs, audience: str, namespace: str
+) -> None:
     """тест загрузки шаблона с аудиенцией super"""
 
     payload = {"filename": "temp_dir/test-filename.docx", "replace_if_exist": True}
@@ -96,7 +97,7 @@ async def test_upload_tpl_with_super_aud(client: AsyncClient, routes: Routs, aud
         routes.request_to_upload_template,
         files=[file],
         data=payload,
-        headers=await auth_headers(audience=audience),
+        headers=await auth_headers(audience=audience, namespace=namespace),
     )
     log.debug(resp)
     data = resp.json()
@@ -119,9 +120,10 @@ async def test_upload_tpl_with_super_aud(client: AsyncClient, routes: Routs, aud
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-@pytest.mark.parametrize("audience", [(["other-aud", "docx-update"])])
+@pytest.mark.parametrize("audience,namespace", [(["other-aud", "docx-update"], "test_nsp")])
+# @pytest.mark.parametrize("audience", [(["other-aud", "docx-update"])])
 async def test_upload_tpl_without_filename(
-    client: AsyncClient, routes: Routs, audience: str
+    client: AsyncClient, routes: Routs, audience: str, namespace: str
 ) -> None:
     """тест загрузки шаблона без указания имени"""
 
@@ -132,7 +134,7 @@ async def test_upload_tpl_without_filename(
         routes.request_to_upload_template,
         files=[file],
         data=payload,
-        headers=await auth_headers(audience=audience),
+        headers=await auth_headers(audience=audience, namespace=namespace),
     )
     log.debug(resp)
     data = resp.json()
