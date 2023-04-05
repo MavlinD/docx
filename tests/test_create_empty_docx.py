@@ -14,8 +14,10 @@ reason = "Temporary off!"
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-@pytest.mark.parametrize("audience", [(["other-aud", "docx-create"])])
-async def test_create_empty_docx(client: AsyncClient, routes: Routs, audience: str) -> None:
+@pytest.mark.parametrize("audience,namespace", [(["other-aud", "docx-create"], "test_nsp")])
+async def test_create_empty_docx(
+    client: AsyncClient, routes: Routs, audience: str, namespace: str
+) -> None:
     """тест создания пустого, незаполненного шаблона docx
     https://python-docx.readthedocs.io/en/latest/user/documents.html#opening-a-document
     """
@@ -27,7 +29,7 @@ async def test_create_empty_docx(client: AsyncClient, routes: Routs, audience: s
     resp = await client.post(
         routes.request_to_create_docx,
         json=payload,
-        headers=await auth_headers(audience=audience),
+        headers=await auth_headers(audience=audience, namespace=namespace),
     )
     # log.debug(resp)
     data = resp.json()
