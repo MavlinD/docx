@@ -5,7 +5,7 @@ from pathlib import Path
 import jwt
 from logrich.logger_ import log  # noqa
 from pathvalidate import sanitize_filepath
-from pydantic import BaseModel, Field, EmailStr, SecretStr
+from pydantic import BaseModel, Field, EmailStr, SecretStr, validator
 
 from src.docx.config import config
 
@@ -40,8 +40,28 @@ class DataModel(BaseModel):
 
     class Config:
         extra = "allow"
+        # error_msg_templates = {
+        #     "value_error.nsp": "email address is not valid.",
+        # }
 
     issuer: Any = None
+    # nsp: Any = None
+    # nsp: str
+    # nsp: str = ""
+    # nsp: str = Field(
+    #     min_length=config.FILENAME_MIN_LENGTH,
+    #     max_length=config.FILENAME_MAX_LENGTH,
+    #     description="Папка или пространство имен пользователя",
+    # )
+
+    # @validator("nsp")
+    # def mast_present_nsp(cls, v: str) -> str:
+    #     """rise if nsp not exist"""
+    #     log.debug(111111111111111)
+    #     log.trace(v)
+    # if not v:
+    #     raise ValueError("Папка пользователя не указана!")
+    # return v
 
 
 def get_secret_value(secret: SecretType) -> str:
@@ -72,7 +92,7 @@ class DocxCreate(BaseModel):
 class DocxResponse(BaseModel):
     """схема для ответа на создание отчета"""
 
-    filename: str
+    filename: str | Path
     url: str
 
 
@@ -97,6 +117,7 @@ class TokenCustomModel(BaseModel):
     iss: str = Field(description="издатель токена")
     sub: str | None = Field(default=None, description="тема токена")
     type: str = Field(default="access", description="тип токена")
+    nsp: str | None = Field(default="", description="namespace или папка пользователя")
     exp: datetime
     email: EmailStr | None = None
     aud: Sequence[str] = Field(
@@ -159,6 +180,7 @@ class JWT:
             key=await self.pub_key,
             algorithms=[self.algorithm],
         )
+        # log.debug("", o=decoded_payload)
         resp = DataModel(**decoded_payload)
         # добавим в вывод имя папки данного издателя токена
         resp.issuer = self.issuer

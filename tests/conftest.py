@@ -77,14 +77,14 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, object]:
 
 
 async def auth_headers(
-    audience: str, lifetime: timedelta = timedelta(days=1), token_issuer: str = "test-auth.site.com"
+    audience: str,
+    lifetime: timedelta = timedelta(days=1),
+    token_issuer: str = "test-auth.site.com",
+    namespace: str | None = None,
 ) -> Headers:
     """Returns the authorization headers"""
 
-    token_data = {
-        "iss": token_issuer,
-        "aud": audience,
-    }
+    token_data = {"iss": token_issuer, "aud": audience, "nsp": namespace}
 
     token = generate_jwt(data=token_data, lifetime=lifetime)
     # log.debug(token)

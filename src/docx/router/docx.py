@@ -2,6 +2,7 @@ from pathlib import Path
 import shutil
 from fastapi import Depends, Form, UploadFile
 from logrich.logger_ import log  # noqa
+from pathvalidate import sanitize_filepath
 from starlette import status
 from docxtpl import DocxTemplate
 from fastapi.responses import FileResponse
@@ -131,7 +132,6 @@ async def download_template(
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_template(
-    payload: DataModel = Depends(JWTBearer(audience=AudienceCompose.UPDATE)),
     file: UploadFile = Depends(file_checker_wrapper()),
     filename: str = Form(
         "",
@@ -141,18 +141,23 @@ async def upload_template(
     replace_if_exist: bool = Form(
         False, description=f"Заменить шаблон, если он существует. {bool_description}"
     ),
+    token: DataModel = Depends(JWTBearer(audience=AudienceCompose.UPDATE)),
 ) -> DocxUpdateResponse:
     # log.warning(config.FILE_MAX_SIZE)
     file_name = file.filename
     if filename:
         file_name = filename
-    saved_name = Path(f"{config.TEMPLATES_DIR}/{payload.issuer}/{file_name}")
+    saved_name = Path(
+        sanitize_filepath(f"{config.TEMPLATES_DIR}/{token.issuer}/{file_name}")
+        # sanitize_filepath(f"{config.TEMPLATES_DIR}/{token.issuer}/{token.nsp}/{file_name}")
+    )
     resp = DocxUpdateResponse()
     # проверим существование
     await check_file_exist(name=saved_name, replace_if_exist=replace_if_exist)
     # создадим вложенную папку
     if not Path(saved_name).parent.is_dir():
         Path(saved_name).parent.mkdir()
+        # Path(saved_name).parent.mkdir(parents=True, exist_ok=True)
     with open(saved_name, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     if Path(saved_name).is_file():
@@ -176,14 +181,15 @@ async def create_docx(
     token: DataModel = Depends(JWTBearer(audience=AudienceCompose.CREATE), use_cache=True),
 ) -> DocxResponse:
     """Создать файл *.docx по шаблону"""
+    log.debug("", o=token)
     await check_file_exist(payload.template, replace_if_exist=False)
     doc = DocxTemplate(Path(f"{config.TEMPLATES_DIR}/{token.issuer}/{payload.template}"))
     doc.render(payload.context)
     # формируем уникальную ссылку на файл
     hash_payload = dict_hash(payload.context)[-8:]
-    path_to_save = f"{config.DOWNLOADS_DIR}/{token.issuer}"
+    path_to_save = sanitize_filepath(f"{config.DOWNLOADS_DIR}/{token.issuer}/{token.nsp}")
     Path(path_to_save).mkdir(parents=True, exist_ok=True)
-    filename = f"{path_to_save}/{payload.filename}-{hash_payload}.docx"
+    filename = sanitize_filepath(f"{path_to_save}/{payload.filename}-{hash_payload}.docx")
     doc.save(filename=filename)
 
     resp = DocxResponse(

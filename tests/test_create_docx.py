@@ -6,6 +6,8 @@ from docxtpl import DocxTemplate
 from httpx import AsyncClient, Headers
 
 from logrich.logger_ import log  # noqa
+from pathvalidate import sanitize_filepath
+
 from tests.conftest import Routs, auth_headers
 
 skip = False
@@ -15,8 +17,10 @@ reason = "Temporary off!"
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-@pytest.mark.parametrize("audience", [(["other-aud", "docx-create"])])
-async def test_create_docx(client: AsyncClient, routes: Routs, audience: str) -> None:
+@pytest.mark.parametrize("audience,namespace", [(["other-aud", "docx-create"], "test_nsp")])
+async def test_create_docx(
+    client: AsyncClient, routes: Routs, audience: str, namespace: str
+) -> None:
     """тест создания docx
     https://python-docx.readthedocs.io/en/latest/user/documents.html#opening-a-document
     """
@@ -26,7 +30,11 @@ async def test_create_docx(client: AsyncClient, routes: Routs, audience: str) ->
         "template": "test_docx_template.docx",
         "context": {"username": username, "place": "Кемерово"},
     }
-    headers: Headers = await auth_headers(audience=audience)
+    # pathlib.Path(t).mkdir()
+    # t = sanitize_filepath("mdv/tst:@|\tst")
+    # log.debug(str(t))
+    # return
+    headers: Headers = await auth_headers(audience=audience, namespace=namespace)
     # log.debug(dir(headers))
     # log.debug(headers.values())
     # log.debug(headers.get("Authorization"))
@@ -38,6 +46,8 @@ async def test_create_docx(client: AsyncClient, routes: Routs, audience: str) ->
     log.debug(resp)
     data = resp.json()
     log.debug("-", o=data)
+    log.trace(namespace)
+    return
     assert resp.status_code == 201, "некорректный ответ сервера"
     out_file = pathlib.Path(data.get("filename"))
 

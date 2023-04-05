@@ -14,6 +14,7 @@ from fastapi import FastAPI
 from jwt import InvalidAudienceError, ExpiredSignatureError, DecodeError
 
 from logrich.logger_ import log  # noqa
+from pydantic import ValidationError
 from starlette.routing import Route
 
 from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
@@ -130,6 +131,12 @@ def wrapping_jwt_decode() -> Generator:
         raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_EXPIRE.value)
     except ValueError:
         raise InvalidVerifyToken(msg=ErrorCodeLocal.INVALID_TOKEN.value)
+    # except ValidationError as err:
+    # log.debug(str(err.message))
+    # log.debug(dir(err))
+    # log.debug(err.errors())
+    # raise InvalidVerifyToken()
+    # raise InvalidVerifyToken(msg="не валиден")
     except DecodeError:
         raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT.value)
 
