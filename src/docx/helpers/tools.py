@@ -129,8 +129,8 @@ def wrapping_jwt_decode() -> Generator:
         raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_FOUND.value)
     except ExpiredSignatureError:
         raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_EXPIRE.value)
-    except ValueError:
-        raise InvalidVerifyToken(msg=ErrorCodeLocal.INVALID_TOKEN.value)
+    # except ValueError as err:
+    #     raise InvalidVerifyToken(msg=ErrorCodeLocal.INVALID_TOKEN.value)
     # except ValidationError as err:
     # log.debug(str(err.message))
     # log.debug(dir(err))

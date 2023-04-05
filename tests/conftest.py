@@ -85,7 +85,8 @@ async def auth_headers(
     """Returns the authorization headers"""
 
     token_data = {"iss": token_issuer, "aud": audience, "nsp": namespace}
-
+    log.debug(namespace)
+    # log.debug(audience)
     token = generate_jwt(data=token_data, lifetime=lifetime)
     # log.debug(token)
     return Headers({"AUTHORIZATION": "Bearer " + token})

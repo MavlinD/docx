@@ -9,7 +9,13 @@ from pydantic import BaseModel, Field, EmailStr, SecretStr, validator
 
 from src.docx.config import config
 
-from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
+from src.docx.exceptions import (
+    InvalidVerifyToken,
+    ErrorCodeLocal,
+    NameSpaceNotSet,
+    IssuerNotSet,
+    IssuerPubKeyNotFound,
+)
 
 from src.docx.helpers.tools import get_key, jwt_exception
 
@@ -40,28 +46,23 @@ class DataModel(BaseModel):
 
     class Config:
         extra = "allow"
-        # error_msg_templates = {
-        #     "value_error.nsp": "email address is not valid.",
-        # }
 
-    issuer: Any = None
-    # nsp: Any = None
-    # nsp: str
-    # nsp: str = ""
-    # nsp: str = Field(
-    #     min_length=config.FILENAME_MIN_LENGTH,
-    #     max_length=config.FILENAME_MAX_LENGTH,
-    #     description="Папка или пространство имен пользователя",
-    # )
+    issuer: str = ""
+    nsp: str = ""
 
-    # @validator("nsp")
-    # def mast_present_nsp(cls, v: str) -> str:
-    #     """rise if nsp not exist"""
-    #     log.debug(111111111111111)
-    #     log.trace(v)
-    # if not v:
-    #     raise ValueError("Папка пользователя не указана!")
-    # return v
+    @validator("nsp")
+    def check_nsp(cls, v: str) -> str:
+        """rise if nsp not exist"""
+        if not v:
+            raise NameSpaceNotSet(f"Поле токена nsp: {v}")
+        return v
+
+    @validator("issuer")
+    def check_issuer(cls, v: str) -> str:
+        """rise if issuer not exist"""
+        if not v:
+            raise IssuerNotSet(f"Поле токена iss: {v}")
+        return v
 
 
 def get_secret_value(secret: SecretType) -> str:
@@ -157,8 +158,11 @@ class JWT:
     @property
     async def pub_key(self) -> str:
         # log.trace("read pub key")
-        key = await get_key(f"authorized_keys/{self.issuer.lower()}.pub")
-        return key
+        try:
+            key = await get_key(f"authorized_keys/{self.issuer}.pub")
+            return key
+        except FileNotFoundError:
+            raise IssuerPubKeyNotFound(msg=self.issuer)
 
     @jwt_exception
     def set_issuer(self) -> None:
@@ -169,17 +173,24 @@ class JWT:
         )
         # log.debug(claimset_without_validation)
         sanitize_issuer = str(sanitize_filepath(claimset_without_validation.get("iss", "")))
-        self.issuer = sanitize_issuer.strip().replace(".", "_").replace("-", "_")
+        issuer = sanitize_issuer.strip().replace(".", "_").replace("-", "_").lower()
+        if not issuer:
+            raise IssuerNotSet
+        self.issuer = issuer
 
     @property
     @jwt_exception
     async def decode_jwt(self) -> DataModel:
+        # log.trace(self.audience)
         decoded_payload = jwt.decode(
             jwt=self.token,
             audience=self.audience,
             key=await self.pub_key,
             algorithms=[self.algorithm],
         )
+
+        decoded_payload.setdefault("nsp", "")
+        decoded_payload.setdefault("iss", "")
         # log.debug("", o=decoded_payload)
         resp = DataModel(**decoded_payload)
         # добавим в вывод имя папки данного издателя токена

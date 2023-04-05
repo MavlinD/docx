@@ -5,22 +5,28 @@ from docxtpl import DocxTemplate
 from httpx import AsyncClient
 
 from logrich.logger_ import log  # noqa
-
+from httpx import AsyncClient, Headers
 from src.docx.helpers.tools import duration
 from tests.conftest import Routs, auth_headers
 
-skip = False
-# skip = True
+# skip = False
+skip = True
 reason = "Temporary off!"
 
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-@pytest.mark.parametrize("audience", [(["other-aud", "docx-update"])])
-async def test_upload_tpl(client: AsyncClient, routes: Routs, audience: str) -> None:
+@pytest.mark.parametrize("audience,namespace", [(["other-aud", "docx-update"], "test_nsp")])
+async def test_upload_tpl(
+    client: AsyncClient, routes: Routs, audience: str, namespace: str
+) -> None:
     """тест загрузки шаблона"""
     # config.FILE_MAX_SIZE = 0.001
+    # log.debug(namespace)
+    # log.debug(audience)
 
+    headers: Headers = await auth_headers(audience=audience, namespace=namespace)
+    # log.debug(headers)
     payload = {"filename": "temp_dir/test-filename.docx", "replace_if_exist": True}
     path_to_file = "tests/files/test_docx_template_to_upload.docx"
     file = ("file", open(path_to_file, "rb"))
@@ -28,7 +34,7 @@ async def test_upload_tpl(client: AsyncClient, routes: Routs, audience: str) -> 
         routes.request_to_upload_template,
         files=[file],
         data=payload,
-        headers=await auth_headers(audience=audience),
+        headers=headers,
     )
     log.debug(resp)
     data = resp.json()

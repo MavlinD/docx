@@ -79,3 +79,21 @@ class FileExtensionReject(FastAPIDocxException):
     def __init__(self, file: UploadFile) -> None:
         self.detail = f"Тип файла не разрешен: {file.content_type}"
         self.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+
+
+class NameSpaceNotSet(FastAPIDocxException):
+    def __init__(self, msg: Exception | str | None = None) -> None:
+        self.detail = f"Папка пользователя не указана: {msg}"
+        self.status_code = status.HTTP_400_BAD_REQUEST
+
+
+class IssuerNotSet(FastAPIDocxException):
+    def __init__(self, msg: Exception | str | None = None) -> None:
+        self.detail = f"Издатель токена не указан: {msg}"
+        self.status_code = status.HTTP_400_BAD_REQUEST
+
+
+class IssuerPubKeyNotFound(FastAPIDocxException):
+    def __init__(self, msg: Exception | str | None = None) -> None:
+        self.detail = f"Публичный ключ издателя токена не найден: {msg}"
+        self.status_code = status.HTTP_400_BAD_REQUEST

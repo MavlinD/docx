@@ -43,10 +43,10 @@ router = APIRouter()
 )
 async def download_file(
     filename: str,
-    payload: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ)),
+    token: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ)),
 ) -> FileResponse:
     # log.debug(filename)
-    path = Path(f"downloads/{payload.issuer}/{filename}")
+    path = Path(f"downloads/{token.issuer}/{token.nsp}/{filename}")
     if not path.is_file():
         raise FileNotExist(msg=ErrorCodeLocal.FILE_NOT_EXIST.value)
     ret = FileResponse(
@@ -68,11 +68,11 @@ async def download_file(
     status_code=status.HTTP_200_OK,
 )
 async def list_templates(
-    payload: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ)),
+    token: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ)),
 ) -> list:
     """список шаблонов на сервисе"""
-    # log.debug(payload)
-    p = Path(f"templates/{payload.issuer}").glob("**/*.docx")
+    # log.debug(token)
+    p = Path(f"templates/{token.issuer}/{token.nsp}").glob("**/*.docx")
     files = [x for x in p if x.is_file()]
     return files
 
@@ -90,10 +90,10 @@ async def list_templates(
 )
 async def download_template(
     filename: str,
-    payload: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ)),
+    token: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ)),
 ) -> FileResponse:
     # log.debug(filename)
-    path = Path(f"templates/{payload.issuer}/{filename}")
+    path = Path(f"templates/{token.issuer}/{token.nsp}/{filename}")
     if not path.is_file():
         raise FileNotExist(msg=ErrorCodeLocal.TEMPLATE_NOT_EXIST.value)
     ret = FileResponse(
@@ -147,17 +147,16 @@ async def upload_template(
     file_name = file.filename
     if filename:
         file_name = filename
+    log.debug("", o=token)
     saved_name = Path(
-        sanitize_filepath(f"{config.TEMPLATES_DIR}/{token.issuer}/{file_name}")
-        # sanitize_filepath(f"{config.TEMPLATES_DIR}/{token.issuer}/{token.nsp}/{file_name}")
+        sanitize_filepath(f"{config.TEMPLATES_DIR}/{token.issuer}/{token.nsp}/{file_name}")
     )
     resp = DocxUpdateResponse()
     # проверим существование
     await check_file_exist(name=saved_name, replace_if_exist=replace_if_exist)
     # создадим вложенную папку
     if not Path(saved_name).parent.is_dir():
-        Path(saved_name).parent.mkdir()
-        # Path(saved_name).parent.mkdir(parents=True, exist_ok=True)
+        Path(saved_name).parent.mkdir(parents=True, exist_ok=True)
     with open(saved_name, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     if Path(saved_name).is_file():
@@ -181,9 +180,11 @@ async def create_docx(
     token: DataModel = Depends(JWTBearer(audience=AudienceCompose.CREATE), use_cache=True),
 ) -> DocxResponse:
     """Создать файл *.docx по шаблону"""
-    log.debug("", o=token)
+    # log.debug("", o=token)
     await check_file_exist(payload.template, replace_if_exist=False)
-    doc = DocxTemplate(Path(f"{config.TEMPLATES_DIR}/{token.issuer}/{payload.template}"))
+    doc = DocxTemplate(
+        Path(f"{config.TEMPLATES_DIR}/{token.issuer}/{token.nsp}/{payload.template}")
+    )
     doc.render(payload.context)
     # формируем уникальную ссылку на файл
     hash_payload = dict_hash(payload.context)[-8:]
