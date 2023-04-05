@@ -30,14 +30,7 @@ async def test_create_docx(
         "template": "test_docx_template.docx",
         "context": {"username": username, "place": "Кемерово"},
     }
-    # pathlib.Path(t).mkdir()
-    # t = sanitize_filepath("mdv/tst:@|\tst")
-    # log.debug(str(t))
-    # return
     headers: Headers = await auth_headers(audience=audience, namespace=namespace)
-    # log.debug(dir(headers))
-    # log.debug(headers.values())
-    # log.debug(headers.get("Authorization"))
     resp = await client.post(
         routes.request_to_create_docx,
         json=payload,
@@ -46,8 +39,6 @@ async def test_create_docx(
     log.debug(resp)
     data = resp.json()
     log.debug("-", o=data)
-    log.trace(namespace)
-    return
     assert resp.status_code == 201, "некорректный ответ сервера"
     out_file = pathlib.Path(data.get("filename"))
 
@@ -59,11 +50,12 @@ async def test_create_docx(
     for para in doc.paragraphs:
         content.add(para.text)
     assert username in " ".join(content), "данных в итоговом файле не наблюдается"
+    # return
     # зачистим артефакты
     pathlib.Path(data.get("filename")).unlink()
 
 
-@pytest.mark.skipif(skip, reason=reason)
+@pytest.mark.skipif(skip, reason="tool test")
 @pytest.mark.asyncio
 @pytest.mark.parametrize("audience", [(["docx-super"])])
 async def test_create_jwt(client: AsyncClient, routes: Routs, audience: str) -> None:

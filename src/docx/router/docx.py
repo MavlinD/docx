@@ -7,7 +7,7 @@ from starlette import status
 from docxtpl import DocxTemplate
 from fastapi.responses import FileResponse
 
-from src.docx.assets import APIRouter, check_file_exist
+from src.docx.assets import APIRouter, check_file_exist, get_template
 from src.docx.config import config
 from src.docx.depends import (
     JWTBearer,
@@ -181,10 +181,8 @@ async def create_docx(
 ) -> DocxResponse:
     """Создать файл *.docx по шаблону"""
     # log.debug("", o=token)
-    await check_file_exist(payload.template, replace_if_exist=False)
-    doc = DocxTemplate(
-        Path(f"{config.TEMPLATES_DIR}/{token.issuer}/{token.nsp}/{payload.template}")
-    )
+    template = get_template(issuer=token.issuer, template=payload.template)
+    doc = DocxTemplate(template)
     doc.render(payload.context)
     # формируем уникальную ссылку на файл
     hash_payload = dict_hash(payload.context)[-8:]

@@ -29,10 +29,10 @@ class APIRouter(FastAPIRouter):
         return decorator
 
 
-def get_template(issuer: str, template: str) -> Path:
-    log.trace(config.TEMPLATES_DIR)
-    log.trace(issuer)
-    log.trace(template)
+def get_template(issuer: str, template: str | Path) -> Path:
+    # log.trace(config.TEMPLATES_DIR)
+    # log.trace(issuer)
+    # log.trace(template)
     path_to_template = Path(f"{config.TEMPLATES_DIR}/{issuer}/{template}")
     if not path_to_template.is_file():
         raise PathToTemplateNotExist(msg=str(path_to_template))
@@ -44,3 +44,9 @@ async def check_file_exist(name: Path, replace_if_exist: bool) -> None:
     if Path(name).is_file():
         if not replace_if_exist:
             raise FileIsExist(msg=str(name))
+
+
+# async def check_template_exist(name: Path) -> None:
+#     """Проверяет существование шаблона, вызывает исключение"""
+#     if not Path(name).is_file():
+#         raise FileIsExist(msg=str(name))
