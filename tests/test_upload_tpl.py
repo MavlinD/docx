@@ -2,15 +2,14 @@ import pathlib
 
 import pytest
 from docxtpl import DocxTemplate
-from httpx import AsyncClient
 
 from logrich.logger_ import log  # noqa
 from httpx import AsyncClient, Headers
-from src.docx.helpers.tools import duration
+from src.docx.helpers.tools import duration  # noqa
 from tests.conftest import Routs, auth_headers
 
-# skip = False
-skip = True
+skip = False
+# skip = True
 reason = "Temporary off!"
 
 
@@ -78,7 +77,7 @@ async def test_upload_tpl_with_fake_jwt(
     )
     log.debug(resp)
     data = resp.json()
-    log.debug("---", o=data)
+    log.debug("-", o=data)
     assert resp.status_code == 403, "некорректный ответ сервера.."
 
 

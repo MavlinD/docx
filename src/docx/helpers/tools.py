@@ -14,12 +14,23 @@ from fastapi import FastAPI
 from jwt import InvalidAudienceError, ExpiredSignatureError, DecodeError
 
 from logrich.logger_ import log  # noqa
-from pydantic import ValidationError
+from pathvalidate import sanitize_filepath
 from starlette.routing import Route
+from transliterate import translit
 
 from src.docx.exceptions import InvalidVerifyToken, ErrorCodeLocal
 
 locale.setlocale(locale.LC_ALL, "ru_RU.UTF-8")
+
+
+def sanity_str(string: str, language_code: str = "ru") -> str:
+    """санитизирует и нормализует национальные алфавиты"""
+    str_ = translit(
+        str(sanitize_filepath(string)).replace(" ", "_").lower(),
+        language_code=language_code,
+        reversed=True,
+    )
+    return str_
 
 
 async def read_response(temp_file: str = "temp.txt") -> str:
@@ -129,14 +140,6 @@ def wrapping_jwt_decode() -> Generator:
         raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_AUD_NOT_FOUND.value)
     except ExpiredSignatureError:
         raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_EXPIRE.value)
-    # except ValueError as err:
-    #     raise InvalidVerifyToken(msg=ErrorCodeLocal.INVALID_TOKEN.value)
-    # except ValidationError as err:
-    # log.debug(str(err.message))
-    # log.debug(dir(err))
-    # log.debug(err.errors())
-    # raise InvalidVerifyToken()
-    # raise InvalidVerifyToken(msg="не валиден")
     except DecodeError:
         raise InvalidVerifyToken(msg=ErrorCodeLocal.TOKEN_NOT_ENOUGH_SEGMENT.value)
 

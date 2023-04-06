@@ -132,7 +132,6 @@ async def download_template(
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_template(
-    file: UploadFile = Depends(file_checker_wrapper()),
     filename: str = Form(
         "",
         description="Шаблон будет сохранен под указанным именем. Папки будут созданы при необходимости.<br>"
@@ -142,6 +141,7 @@ async def upload_template(
         False, description=f"Заменить шаблон, если он существует. {bool_description}"
     ),
     token: DataModel = Depends(JWTBearer(audience=AudienceCompose.UPDATE)),
+    file: UploadFile = Depends(file_checker_wrapper()),
 ) -> DocxUpdateResponse:
     # log.warning(config.FILE_MAX_SIZE)
     file_name = file.filename

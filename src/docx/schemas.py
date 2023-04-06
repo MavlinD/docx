@@ -55,6 +55,9 @@ class DataModel(BaseModel):
         """rise if nsp not exist"""
         if not v:
             raise NameSpaceNotSet(f"Поле токена nsp: {v}")
+        if v.find(",") != -1:
+            # это когда пользователь входит в несколько групп вида nsp_*
+            raise NameSpaceNotSet(f"Поле токена nsp не должно содержать запятых: {v}")
         return v
 
     @validator("issuer")
