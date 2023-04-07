@@ -6,7 +6,6 @@ from docxtpl import DocxTemplate
 from httpx import AsyncClient, Headers
 
 from logrich.logger_ import log  # noqa
-from pathvalidate import sanitize_filepath
 
 from tests.conftest import Routs, auth_headers
 
@@ -61,4 +60,4 @@ async def test_create_docx(
 async def test_create_jwt(client: AsyncClient, routes: Routs, audience: str) -> None:
     """тест создания jwt"""
     headers: Headers = await auth_headers(audience=audience, lifetime=timedelta(days=3650))
-    print(headers.get("Authorization"))
+    log.debug(headers.get("Authorization"))

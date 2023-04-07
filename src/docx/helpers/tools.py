@@ -2,6 +2,7 @@ import asyncio
 import functools
 import locale
 import pathlib
+import re
 import time
 from contextlib import contextmanager
 from datetime import datetime, date
@@ -30,6 +31,7 @@ def sanity_str(string: str, language_code: str = "ru") -> str:
         language_code=language_code,
         reversed=True,
     )
+    str_ = re.sub("'|\"|@|%|#|$|&|\*|=", "", str_)  # noqa
     return str_
 
 

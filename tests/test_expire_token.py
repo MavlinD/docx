@@ -74,7 +74,7 @@ async def test_token_with_only_one_nsp(
 @pytest.mark.asyncio
 async def test_sinitaze_file_path() -> None:
     """тест транслитерации файловых путей"""
-    filename: str = "Мой файл.xlsm"
+    filename: str = "Мой за#мечате@льный шабл%он.xlsm"
     new_name = sanity_str(string=filename)
     log.debug(new_name)
-    assert new_name == "moj_fajl.xlsm"
+    assert new_name == "moj_zamechatelnyj_shablon.xlsm"

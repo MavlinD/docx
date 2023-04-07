@@ -18,7 +18,7 @@ from src.docx.depends import (
 )
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal, FileNotExist
 
-from src.docx.helpers.tools import dict_hash
+from src.docx.helpers.tools import dict_hash, sanity_str
 from src.docx.schemas import (
     DocxCreate,
     DocxResponse,
@@ -147,9 +147,9 @@ async def upload_template(
     file_name = file.filename
     if filename:
         file_name = filename
-    log.debug("", o=token)
+    # log.debug("", o=token)
     saved_name = Path(
-        sanitize_filepath(f"{config.TEMPLATES_DIR}/{token.issuer}/{token.nsp}/{file_name}")
+        sanity_str(string=f"{config.TEMPLATES_DIR}/{token.issuer}/{token.nsp}/{file_name}")
     )
     resp = DocxUpdateResponse()
     # проверим существование
@@ -188,7 +188,7 @@ async def create_docx(
     hash_payload = dict_hash(payload.context)[-8:]
     path_to_save = sanitize_filepath(f"{config.DOWNLOADS_DIR}/{token.issuer}/{token.nsp}")
     Path(path_to_save).mkdir(parents=True, exist_ok=True)
-    filename = sanitize_filepath(f"{path_to_save}/{payload.filename}-{hash_payload}.docx")
+    filename = sanity_str(string=f"{path_to_save}/{payload.filename}-{hash_payload}.docx")
     doc.save(filename=filename)
 
     resp = DocxResponse(
