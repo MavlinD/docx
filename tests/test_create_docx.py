@@ -72,8 +72,6 @@ async def test_create_docx(
         content.add(para.text)
     assert username in " ".join(content), "данных в итоговом файле не наблюдается"
     # return
-    # зачистим артефакты
-    out_file.unlink()
 
 
 @pytest.mark.skipif(skip, reason="tool test")

@@ -22,7 +22,7 @@ from src.docx.config import config
 from src.docx.helpers.security import generate_jwt
 from src.docx.main import run_app as app_
 from repo.repo_assets import get_test_status_badge
-from tests.test_tools import print_request, print_endpoints, purge_dir
+from tests.test_tools import print_request, print_endpoints, purge_dir, purge_files
 from httpx import AsyncClient, Headers
 
 
@@ -34,13 +34,14 @@ def pytest_sessionfinish(session: Session, exitstatus: int | ExitCode) -> None:
 
 
 @pytest.fixture(autouse=True)
-def run_before_and_after_tests(tmpdir: str) -> Generator:
+async def run_before_and_after_tests(tmpdir: str) -> Generator:
     """Fixture to execute asserts before and after a test is run"""
     print()
     yield
     # зачистим папки с артефактами
     for folder in (config.DOWNLOADS_DIR, config.TEMPLATES_DIR):
-        purge_dir(path=folder, execute=True)
+        await purge_files(path=folder, glob="**/*.docx", execute=True)
+        await purge_dir(path=folder, glob="*", execute=True)
 
 
 @pytest.fixture

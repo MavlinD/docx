@@ -52,8 +52,6 @@ async def test_upload_tpl(
     assert "Здравствуй мир!" in " ".join(
         content
     ), "Содержимое исходного шаблона и загруженного не соответствует."
-    # зачистим артефакты
-    out_file.unlink()
 
 
 # @duration
@@ -123,9 +121,6 @@ async def test_upload_tpl_with_super_aud(
         content
     ), "Содержимое исходного шаблона и загруженного не соответствует."
 
-    # зачистим артефакты
-    out_file.unlink()
-
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
@@ -163,6 +158,3 @@ async def test_upload_tpl_without_filename(
     assert "Здравствуй мир!" in " ".join(
         content
     ), "Содержимое исходного шаблона и загруженного не соответствует."
-
-    # зачистим артефакты
-    out_file.unlink()

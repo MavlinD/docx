@@ -74,5 +74,3 @@ async def test_create_empty_docx(
         "Я живу в .",
         "Меня зовут .",
     } == content, "итоговый файл таки изменился"
-    # зачистим артефакты
-    out_file.unlink()

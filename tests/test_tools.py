@@ -22,18 +22,27 @@ def print_endpoints(app: FastAPI) -> None:
         )
 
 
-def is_empty(folder: Path) -> bool:
+async def is_empty(folder: Path) -> bool:
     """check folder for empty"""
     # log.debug(folder)
     # log.info(folder.stat().st_size)
     return not any(folder.iterdir())
 
 
-def purge_dir(path: str, glob: str = "**/*", execute: bool = False) -> None:
+async def purge_dir(path: str, glob: str = "**/*", execute: bool = False) -> None:
     """purge dir from empty folders"""
     for p in Path(path).rglob(glob):
         if p.is_dir() and not p.is_file():
-            if is_empty(p):
+            if await is_empty(p):
                 if execute:
-                    log.trace(p)
+                    # log.trace(p)
                     p.rmdir()
+
+
+async def purge_files(path: str, glob: str = "*", execute: bool = False) -> None:
+    """purge dir from files"""
+    for node in Path(path).rglob(glob):
+        if node.is_file():
+            if execute:
+                # log.trace(f"удаляю: {node}")
+                node.unlink()

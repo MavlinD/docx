@@ -1,11 +1,8 @@
-import pathlib
-
 import pytest
 from httpx import AsyncClient, Headers
 
 from logrich.logger_ import log  # noqa
 
-from src.docx.config import config
 from tests.conftest import Routs, auth_headers
 
 skip = False
@@ -62,8 +59,3 @@ async def test_download_file(
     log.debug(resp)
     log.debug("", o=data)
     assert resp.status_code == 200
-    # зачистим артефакты
-    out_file = pathlib.Path(
-        f'{config.DOWNLOADS_DIR}/{data.get("issuer")}/{data.get("nsp")}/{data.get("url")}'
-    )
-    out_file.unlink()
