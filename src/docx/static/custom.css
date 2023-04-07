@@ -28,13 +28,16 @@ html, .swagger-ui .scheme-container,
 .swagger-ui .responses-inner h4, .swagger-ui .responses-inner h5 {
     color: hsla(232, 75%, 95%, 1);
 }
-.swagger-ui .tab li:first-of-type:after{
-    background-color:  hsla(232, 75%, 95%, 1);
+
+.swagger-ui .tab li:first-of-type:after {
+    background-color: hsla(232, 75%, 95%, 1);
 }
-.swagger-ui .opblock-description-wrapper p{
+
+.swagger-ui .opblock-description-wrapper p {
     color: aquamarine
 }
-.swagger-ui h3.opblock-tag a.nostyle span{
+
+.swagger-ui h3.opblock-tag a.nostyle span {
     color: #ee5757;
 }
 
@@ -67,34 +70,47 @@ html, .swagger-ui .scheme-container,
     color: #26b926;
 }
 
-.swagger-ui .scheme-container{
+.swagger-ui .scheme-container {
     box-shadow: none;
 }
 
-.opblock-summary .opblock-summary-path span.summary-path.slash{
+.opblock-summary .opblock-summary-path span.summary-path.slash,
+.swagger-ui a.nostyle span.brace{
     color: #d20a0a
 }
 
 .swagger-ui .model-title__text,
 .property-row.required td,
-.swagger-ui table.model tr.description td:first-child, .swagger-ui table.model tr.property-row.required td:first-child
-{
+.swagger-ui table.model tr.description td:first-child, .swagger-ui table.model tr.property-row.required td:first-child {
     color: whitesmoke;
 }
-.renderedMarkdown{
+
+.renderedMarkdown {
     color: #afeab0;
 }
-.swagger-ui table.model tr.description td:first-child{
+
+.swagger-ui table.model tr.description td:first-child {
     color: #248a26;
 
 }
-.swagger-ui .prop-type{
+
+.swagger-ui .prop-type {
     color: #677eea;
 
 }
-.swagger-ui .model{
+
+.swagger-ui .model {
     color: #b6a333;
 }
-.swagger-ui .model .property.primitive{
+
+.swagger-ui .model .property.primitive {
     color: green;
+}
+
+/*.swagger-ui a.nostyle span.brace{*/
+/*скобки параметров*/
+/*    color:blue;*/
+/*}*/
+.swagger-ui a.nostyle .summary-path.param{
+    color: #00c4ff;
 }
