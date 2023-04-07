@@ -104,7 +104,7 @@ class DocxResponse(BaseModel):
 class DocxUpdateResponse(BaseModel):
     """схема для ответа на изменение отчета"""
 
-    template: Path | None = None
+    template: str | Path | None = None
     issuer: str | None = None
     nsp: str | None = None
 
@@ -145,7 +145,7 @@ class JWT:
         # log.warning(token)
         self.token = token
         self.issuer = ""
-        self._nsp = ""
+        self._nsp: str | None = ""
         self._pub_key = ""
         self._algorithm = ""
         self._audience: str | Iterable[str] | None = None

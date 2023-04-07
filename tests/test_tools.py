@@ -32,7 +32,7 @@ def is_empty(folder: Path) -> bool:
 def purge_dir(path: str, glob: str = "**/*", execute: bool = False) -> None:
     """purge dir from empty folders"""
     for p in Path(path).rglob(glob):
-        if p.is_dir and not p.is_file():
+        if p.is_dir() and not p.is_file():
             if is_empty(p):
                 log.trace(p)
                 if execute:

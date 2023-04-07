@@ -1,10 +1,9 @@
 import pathlib
 
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, Headers
 
 from logrich.logger_ import log  # noqa
-from starlette.datastructures import Headers
 
 from src.docx.config import config
 from tests.conftest import Routs, auth_headers
@@ -33,7 +32,7 @@ async def test_delete_tpl(
     # сначала загрузим шаблон
     headers: Headers = await auth_headers(audience=audience, namespace=namespace)
     # log.debug(headers)
-    payload = {"filename": "temp_dir/test-filename.docx", "replace_if_exist": True}
+    payload = {"filename": "temp_dir/test-filename.docx", "replace_if_exist": str(True)}
     path_to_file = "tests/files/test_docx_template_to_upload.docx"
     file = ("file", open(path_to_file, "rb"))
     resp = await client.put(

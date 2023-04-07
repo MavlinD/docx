@@ -2,10 +2,9 @@ import pathlib
 
 import pytest
 from docxtpl import DocxTemplate
-from httpx import AsyncClient
+from httpx import AsyncClient, Headers
 
 from logrich.logger_ import log  # noqa
-from starlette.datastructures import Headers
 
 from src.docx.config import config
 from tests.conftest import Routs, auth_headers
