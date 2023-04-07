@@ -53,7 +53,7 @@ async def test_upload_tpl(
         content
     ), "Содержимое исходного шаблона и загруженного не соответствует."
     # зачистим артефакты
-    pathlib.Path(out_file).unlink()
+    out_file.unlink()
 
 
 # @duration

@@ -34,6 +34,6 @@ def purge_dir(path: str, glob: str = "**/*", execute: bool = False) -> None:
     for p in Path(path).rglob(glob):
         if p.is_dir() and not p.is_file():
             if is_empty(p):
-                log.trace(p)
                 if execute:
-                    p.unlink()
+                    log.trace(p)
+                    p.rmdir()

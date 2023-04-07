@@ -30,10 +30,6 @@ def pytest_sessionfinish(session: Session, exitstatus: int | ExitCode) -> None:
     """получит бейдж для статуса тестов"""
     print()
     if config.LOCAL:
-        # зачистим папки с артефактами
-        for folder in (config.DOWNLOADS_DIR, config.TEMPLATES_DIR):
-            purge_dir(folder, execute=False)
-
         asyncio.run(get_test_status_badge(status=exitstatus))
 
 
@@ -42,6 +38,9 @@ def run_before_and_after_tests(tmpdir: str) -> Generator:
     """Fixture to execute asserts before and after a test is run"""
     print()
     yield
+    # зачистим папки с артефактами
+    for folder in (config.DOWNLOADS_DIR, config.TEMPLATES_DIR):
+        purge_dir(path=folder, execute=True)
 
 
 @pytest.fixture

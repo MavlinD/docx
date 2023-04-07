@@ -25,13 +25,9 @@ async def test_get_list_tpl(
     """тест на получение списка шаблонов"""
     headers = await auth_headers(audience=audience, namespace=namespace)
     # определим издателя токена
-    token = JWT(
-        token=headers.get("Authorization")[7:].strip(), path_to_authorized_keys="authorized_keys"
-    )
+    token = JWT(token=headers.get("Authorization")[7:].strip())
     token.set_issuer()
     token.audience = audience
-    jwt_payload = await token.decode_jwt
-    # log.debug("", o=jwt_payload)
     # return
     # сначала удалим все ранее загруженные шаблоны
     for p in Path(f"{config.TEMPLATES_DIR}/{token.issuer}/{token.nsp}").glob("**/*.docx"):
@@ -80,7 +76,12 @@ async def test_get_list_tpl(
     assert resp.status_code == 200, "некорректный ответ сервера."
     assert isinstance(data.get("templates"), list)
     assert data.get("issuer") == token.issuer
-    assert data.get("templates") == [
+    uploaded_tpls = [
         payload["filename"],
         payload2["filename"],
     ]
+    assert data.get("templates") == uploaded_tpls
+    # зачистим артефакты
+    for p in Path(f"{config.TEMPLATES_DIR}/{token.issuer}/{token.nsp}").glob("**/*.docx"):
+        # log.trace(p)
+        p.unlink()
