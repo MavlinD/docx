@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, Sequence, Dict, Union, Any, Iterable
+from typing import Annotated, Sequence, Dict, Union, Iterable
 from pathlib import Path
 
 import jwt
@@ -97,16 +97,16 @@ class DocxResponse(BaseModel):
     """схема для ответа на создание отчета"""
 
     url: str | Path
-    nsp: str
-    issuer: str
+    issuer: str = Field(description="издатель токена")
+    nsp: str = Field(description="namespace или папка пользователя")
 
 
 class DocxUpdateResponse(BaseModel):
     """схема для ответа на изменение отчета"""
 
-    template: str | Path | None = None
-    issuer: str | None = None
-    nsp: str | None = None
+    template: str | Path | None = Field(description="имя шаблона")
+    issuer: str = Field(description="издатель токена")
+    nsp: str = Field(description="namespace или папка пользователя")
 
 
 class DocxDeleteResponse(DocxUpdateResponse):
@@ -116,9 +116,9 @@ class DocxDeleteResponse(DocxUpdateResponse):
 class DocxTemplatesListResponse(BaseModel):
     """схема для ответа на запрос списка шаблонов"""
 
-    templates: list = [str | Path]
-    issuer: str
-    nsp: str
+    templates: list[str, Path]
+    issuer: str = Field(description="издатель токена")
+    nsp: str = Field(description="namespace или папка пользователя")
 
 
 class TokenCustomModel(BaseModel):
@@ -203,6 +203,7 @@ class JWT:
     @property
     @jwt_exception
     async def decode_jwt(self) -> DataModel:
+        """decode jwt"""
         # log.trace(self.audience)
         decoded_payload = jwt.decode(
             jwt=self.token,

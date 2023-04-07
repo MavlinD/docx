@@ -15,6 +15,7 @@ from src.docx.depends import (
     JWT_STATUS_HTTP_403_FORBIDDEN,
     FILE_STATUS_HTTP_404_NOT_FOUND,
     AudienceCompose,
+    JWT_HTTP_400_BAD_REQUEST,
 )
 from src.docx.exceptions import ErrorModel, ErrorCodeLocal, FileNotExist
 
@@ -37,6 +38,7 @@ router = APIRouter()
     summary="Адрес получения готовых файлов.",
     description=f"Требуется одна из аудиенций: **{AudienceCompose.READ}**",
     responses={
+        status.HTTP_400_BAD_REQUEST: JWT_HTTP_400_BAD_REQUEST,
         status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
         status.HTTP_404_NOT_FOUND: FILE_STATUS_HTTP_404_NOT_FOUND,
     },
@@ -64,6 +66,7 @@ async def download_file(
     summary="Выводит список шаблонов.",
     description=f"Требуется одна из аудиенций: **{AudienceCompose.READ}**",
     responses={
+        status.HTTP_400_BAD_REQUEST: JWT_HTTP_400_BAD_REQUEST,
         status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
     },
     response_model=DocxTemplatesListResponse,
@@ -91,6 +94,7 @@ async def list_templates(
     summary="Адрес получения шаблонов.",
     description=f"Требуется одна из аудиенций: **{AudienceCompose.READ}**",
     responses={
+        status.HTTP_400_BAD_REQUEST: JWT_HTTP_400_BAD_REQUEST,
         status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
         status.HTTP_404_NOT_FOUND: FILE_STATUS_HTTP_404_NOT_FOUND,
     },
@@ -119,6 +123,7 @@ async def download_template(
     description=f"Требуется одна из аудиенций: **{AudienceCompose.UPDATE}**",
     response_model=DocxUpdateResponse,
     responses={
+        status.HTTP_400_BAD_REQUEST: JWT_HTTP_400_BAD_REQUEST,
         status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
         status.HTTP_422_UNPROCESSABLE_ENTITY: {
             "model": ErrorModel,
@@ -179,6 +184,7 @@ async def upload_template(
     description=f"Требуется одна из аудиенций: **{AudienceCompose.DELETE}**",
     response_model=DocxDeleteResponse,
     responses={
+        status.HTTP_400_BAD_REQUEST: JWT_HTTP_400_BAD_REQUEST,
         status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
         status.HTTP_404_NOT_FOUND: FILE_STATUS_HTTP_404_NOT_FOUND,
     },
@@ -206,6 +212,7 @@ async def delete_file(
     response_model=DocxResponse,
     status_code=status.HTTP_201_CREATED,
     responses={
+        status.HTTP_400_BAD_REQUEST: JWT_HTTP_400_BAD_REQUEST,
         status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
         status.HTTP_404_NOT_FOUND: FILE_STATUS_HTTP_404_NOT_FOUND,
     },

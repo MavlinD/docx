@@ -109,6 +109,20 @@ JWT_STATUS_HTTP_403_FORBIDDEN = {
     },
 }
 
+JWT_HTTP_400_BAD_REQUEST = {
+    "model": ErrorModel,
+    "content": {
+        "application/json": {
+            "examples": {
+                ErrorCodeLocal.TOKEN_NSP_NOT_FOUND: {
+                    "summary": "Токен должен содержать поле NSP - папку пользователя.",
+                    "value": {"detail": ErrorCodeLocal.TOKEN_NSP_NOT_FOUND},
+                },
+            }
+        }
+    },
+}
+
 FILE_STATUS_HTTP_404_NOT_FOUND = {
     "model": ErrorModel,
     "content": {

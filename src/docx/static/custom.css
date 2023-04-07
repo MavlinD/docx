@@ -74,3 +74,27 @@ html, .swagger-ui .scheme-container,
 .opblock-summary .opblock-summary-path span.summary-path.slash{
     color: #d20a0a
 }
+
+.swagger-ui .model-title__text,
+.property-row.required td,
+.swagger-ui table.model tr.description td:first-child, .swagger-ui table.model tr.property-row.required td:first-child
+{
+    color: whitesmoke;
+}
+.renderedMarkdown{
+    color: #afeab0;
+}
+.swagger-ui table.model tr.description td:first-child{
+    color: #248a26;
+
+}
+.swagger-ui .prop-type{
+    color: #677eea;
+
+}
+.swagger-ui .model{
+    color: #b6a333;
+}
+.swagger-ui .model .property.primitive{
+    color: green;
+}

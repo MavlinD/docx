@@ -27,6 +27,7 @@ class ErrorCodeLocal(str, Enum):
     TOKEN_EXPIRE = "Срок действия токена истёк."
     INVALID_TOKEN = "Подпись не валидна."
     TOKEN_AUD_NOT_FOUND = "Требуемая аудиенция токена не найдена."
+    TOKEN_NSP_NOT_FOUND = "Поле токена NSP не найдено или содержит некорректное значение."
     TOKEN_ALGORITHM_NOT_FOUND = "Алгоритм подписи токена неизвестен."
     TOKEN_NOT_ENOUGH_SEGMENT = "Содержит не достаточно сегментов или его структура неверна."
     TEMPLATE_NOT_EXIST = "Шаблон не найден."
