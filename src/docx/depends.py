@@ -17,6 +17,7 @@ class Audience(str, Enum):
     READ = "docx-read"
     CREATE = "docx-create"
     UPDATE = "docx-update"
+    DELETE = "docx-delete"
     SUPER = "docx-super"
 
 
@@ -25,6 +26,7 @@ class AudienceCompose:
     READ: Iterable[str] = Audience.READ.value, Audience.SUPER.value
     CREATE: Iterable[str] = Audience.CREATE.value, Audience.SUPER.value
     UPDATE: Iterable[str] = Audience.UPDATE.value, Audience.SUPER.value
+    DELETE: Iterable[str] = Audience.DELETE.value, Audience.SUPER.value
 
 
 class JWTBearer(HTTPBearer):
@@ -44,7 +46,7 @@ class JWTBearer(HTTPBearer):
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
             token = JWT(token=credentials.credentials)
-            log.debug(token.token)
+            # log.debug(token.token)
             token.audience = self.audience
             # log.info(self.audience)
             token.set_issuer()

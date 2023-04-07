@@ -25,6 +25,7 @@ from src.docx.schemas import (
     DocxUpdateResponse,
     DataModel,
     bool_description,
+    DocxDeleteResponse,
 )
 
 router = APIRouter()
@@ -106,7 +107,7 @@ async def download_template(
 
 @router.put(
     "/template-upload",
-    summary="Здесь можно загрузить шаблон.",
+    summary="Здесь можно загрузить шаблон. Имя файла допускает вложенность в папки.",
     description=f"Требуется одна из аудиенций: **{AudienceCompose.UPDATE}**",
     response_model=DocxUpdateResponse,
     responses={
@@ -146,12 +147,12 @@ async def upload_template(
     # log.warning(config.FILE_MAX_SIZE)
     file_name = file.filename
     if filename:
-        file_name = filename
+        file_name = sanity_str(string=filename)
     # log.debug("", o=token)
     saved_name = Path(
         sanity_str(string=f"{config.TEMPLATES_DIR}/{token.issuer}/{token.nsp}/{file_name}")
     )
-    resp = DocxUpdateResponse()
+    resp = DocxUpdateResponse(nsp=token.nsp, issuer=token.issuer)
     # проверим существование
     await check_file_exist(name=saved_name, replace_if_exist=replace_if_exist)
     # создадим вложенную папку
@@ -160,7 +161,33 @@ async def upload_template(
     with open(saved_name, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     if Path(saved_name).is_file():
-        resp.template = saved_name
+        resp.template = file_name
+    return resp
+
+
+@router.delete(
+    "/template/{filename:path}",
+    summary="Здесь можно удалить шаблон.",
+    description=f"Требуется одна из аудиенций: **{AudienceCompose.DELETE}**",
+    response_model=DocxDeleteResponse,
+    responses={
+        status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
+        status.HTTP_404_NOT_FOUND: FILE_STATUS_HTTP_404_NOT_FOUND,
+    },
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def delete_file(
+    filename: str,
+    token: DataModel = Depends(JWTBearer(audience=AudienceCompose.UPDATE)),
+) -> DocxDeleteResponse:
+    # log.debug(filename)
+    name_to_delete = Path(
+        sanity_str(string=f"{config.TEMPLATES_DIR}/{token.issuer}/{token.nsp}/{filename}")
+    )
+    resp = DocxDeleteResponse(nsp=token.nsp, issuer=token.issuer)
+    if name_to_delete.is_file():
+        name_to_delete.unlink()
+
     return resp
 
 

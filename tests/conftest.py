@@ -1,5 +1,6 @@
 import asyncio
 from datetime import timedelta
+from pathlib import Path
 from typing import AsyncGenerator, Sequence
 from typing import Generator
 
@@ -105,6 +106,9 @@ class Routs:
 
     def request_to_download_file(self, filename: str) -> URL | str:
         return self.app.url_path_for("download_file", filename=str(filename))
+
+    def request_to_delete_file(self, filename: str | Path) -> URL | str:
+        return self.app.url_path_for("delete_file", filename=str(filename))
 
     def print(self) -> None:
         print_endpoints(self.app)

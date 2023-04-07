@@ -2,6 +2,7 @@ import pathlib
 
 import pytest
 from docxtpl import DocxTemplate
+from src.docx.config import config
 
 from logrich.logger_ import log  # noqa
 from httpx import AsyncClient, Headers
@@ -37,7 +38,9 @@ async def test_upload_tpl(
     log.debug("--", o=data)
     # return
     assert resp.status_code == 201, "некорректный ответ сервера.."
-    out_file = pathlib.Path(data.get("template"))
+    out_file = pathlib.Path(
+        f'{config.TEMPLATES_DIR}/{data.get("issuer")}/{data.get("nsp")}/{data.get("template")}'
+    )
 
     assert out_file.is_file(), "Шаблон не сохранился"
 
@@ -49,6 +52,8 @@ async def test_upload_tpl(
     assert "Здравствуй мир!" in " ".join(
         content
     ), "Содержимое исходного шаблона и загруженного не соответствует."
+    # зачистим артефакты
+    pathlib.Path(out_file).unlink()
 
 
 # @duration
@@ -103,7 +108,9 @@ async def test_upload_tpl_with_super_aud(
     log.debug("--", o=data)
     # return
     assert resp.status_code == 201, "некорректный ответ сервера.."
-    out_file = pathlib.Path(data.get("template"))
+    out_file = pathlib.Path(
+        f'{config.TEMPLATES_DIR}/{data.get("issuer")}/{data.get("nsp")}/{data.get("template")}'
+    )
 
     assert out_file.is_file(), "Шаблон не сохранился"
 
@@ -120,7 +127,6 @@ async def test_upload_tpl_with_super_aud(
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
 @pytest.mark.parametrize("audience,namespace", [(["other-aud", "docx-update"], "test_nsp")])
-# @pytest.mark.parametrize("audience", [(["other-aud", "docx-update"])])
 async def test_upload_tpl_without_filename(
     client: AsyncClient, routes: Routs, audience: str, namespace: str
 ) -> None:
@@ -140,7 +146,9 @@ async def test_upload_tpl_without_filename(
     log.debug("-", o=data)
     # return
     assert resp.status_code == 201, "некорректный ответ сервера."
-    out_file = pathlib.Path(data.get("template"))
+    out_file = pathlib.Path(
+        f'{config.TEMPLATES_DIR}/{data.get("issuer")}/{data.get("nsp")}/{data.get("template")}'
+    )
 
     assert out_file.is_file(), "Шаблон не сохранился"
 

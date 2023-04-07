@@ -104,6 +104,16 @@ class DocxUpdateResponse(BaseModel):
     """схема для ответа на изменение отчета"""
 
     template: Path | None = None
+    issuer: str | None = None
+    nsp: str | None = None
+
+
+class DocxDeleteResponse(DocxUpdateResponse):
+    """схема для ответа на удаление файла"""
+
+    # template: Path | None = None
+    # issuer: str | None = None
+    # nsp: str | None = None
 
 
 class DocxTemplatesListResponse(BaseModel):
