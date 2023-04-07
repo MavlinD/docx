@@ -7,6 +7,7 @@ from httpx import AsyncClient, Headers
 
 from logrich.logger_ import log  # noqa
 
+from src.docx.config import config
 from tests.conftest import Routs, auth_headers
 
 skip = False
@@ -16,20 +17,38 @@ reason = "Temporary off!"
 
 @pytest.mark.skipif(skip, reason=reason)
 @pytest.mark.asyncio
-@pytest.mark.parametrize("audience,namespace", [(["other-aud", "docx-create"], "test_nsp")])
+@pytest.mark.parametrize(
+    "audience,namespace", [(["other-aud", "docx-create", "docx-update"], "test-nsp")]
+)
 async def test_create_docx(
     client: AsyncClient, routes: Routs, audience: str, namespace: str
 ) -> None:
     """тест создания docx
     https://python-docx.readthedocs.io/en/latest/user/documents.html#opening-a-document
     """
+    # сначала загрузим шаблон
+    payload = {"filename": "test-filename.docx", "replace_if_exist": True}
+    path_to_file = "tests/files/test_docx_template_to_upload.docx"
+    file = ("file", open(path_to_file, "rb"))
+    headers: Headers = await auth_headers(audience=audience, namespace=namespace)
+    resp = await client.put(
+        routes.request_to_upload_template,
+        files=[file],
+        data=payload,
+        headers=headers,
+    )
+    log.debug(resp)
+    data = resp.json()
+    log.debug("-", o=data)
+    # return
+    assert resp.status_code == 201, "некорректный ответ сервера."
+
     username = "Васян Хмурый"
     payload = {
         "filename": "test-filename",
-        "template": "test_docx_template.docx",
+        "template": "test-filename.docx",
         "context": {"username": username, "place": "Кемерово"},
     }
-    headers: Headers = await auth_headers(audience=audience, namespace=namespace)
     resp = await client.post(
         routes.request_to_create_docx,
         json=payload,
@@ -37,9 +56,12 @@ async def test_create_docx(
     )
     log.debug(resp)
     data = resp.json()
-    log.debug("-", o=data)
+    log.debug("--", o=data)
+    # return
     assert resp.status_code == 201, "некорректный ответ сервера"
-    out_file = pathlib.Path(data.get("filename"))
+    out_file = pathlib.Path(
+        f'{config.DOWNLOADS_DIR}/{data.get("issuer")}/{data.get("nsp")}/{data.get("url")}'
+    )
 
     assert out_file.is_file(), "итоговый файл не сохранился"
 
@@ -51,7 +73,7 @@ async def test_create_docx(
     assert username in " ".join(content), "данных в итоговом файле не наблюдается"
     # return
     # зачистим артефакты
-    pathlib.Path(data.get("filename")).unlink()
+    out_file.unlink()
 
 
 @pytest.mark.skipif(skip, reason="tool test")

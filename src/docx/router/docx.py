@@ -26,6 +26,7 @@ from src.docx.schemas import (
     DataModel,
     bool_description,
     DocxDeleteResponse,
+    DocxTemplatesListResponse,
 )
 
 router = APIRouter()
@@ -65,17 +66,24 @@ async def download_file(
     responses={
         status.HTTP_403_FORBIDDEN: JWT_STATUS_HTTP_403_FORBIDDEN,
     },
-    response_model=list,
+    response_model=DocxTemplatesListResponse,
     status_code=status.HTTP_200_OK,
 )
 async def list_templates(
     token: DataModel = Depends(JWTBearer(audience=AudienceCompose.READ)),
-) -> list:
+) -> DocxTemplatesListResponse:
     """список шаблонов на сервисе"""
     # log.debug(token)
-    p = Path(f"templates/{token.issuer}/{token.nsp}").glob("**/*.docx")
-    files = [x for x in p if x.is_file()]
-    return files
+    path = Path(f"templates/{token.issuer}/{token.nsp}").glob("**/*.docx")
+    files = [
+        str(x).replace(f"{config.TEMPLATES_DIR}/{token.issuer}/{token.nsp}/", "")
+        for x in path
+        if x.is_file()
+    ]
+
+    resp = DocxTemplatesListResponse(templates=files, issuer=token.issuer, nsp=token.nsp)
+
+    return resp
 
 
 @router.get(
@@ -208,7 +216,7 @@ async def create_docx(
 ) -> DocxResponse:
     """Создать файл *.docx по шаблону"""
     # log.debug("", o=token)
-    template = get_template(issuer=token.issuer, template=payload.template)
+    template = get_template(issuer=token.issuer, nsp=token.nsp, template=payload.template)
     doc = DocxTemplate(template)
     doc.render(payload.context)
     # формируем уникальную ссылку на файл
@@ -219,7 +227,8 @@ async def create_docx(
     doc.save(filename=filename)
 
     resp = DocxResponse(
-        filename=filename,
         url=f"{payload.filename}-{hash_payload}.docx",
+        nsp=token.nsp,
+        issuer=token.issuer,
     )
     return resp

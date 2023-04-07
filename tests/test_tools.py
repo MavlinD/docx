@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from httpx import Request
 from logrich.logger_ import log
@@ -18,3 +20,20 @@ def print_endpoints(app: FastAPI) -> None:
         log.info(
             f"[#EE82EE]{str(next(iter(rout.methods))) + ':':<7}[/][#ADFF2F]{rout.path}:[/] [#FF4500]{rout.name}[/]"  # type: ignore
         )
+
+
+def is_empty(folder: Path) -> bool:
+    """check folder for empty"""
+    # log.debug(folder)
+    # log.info(folder.stat().st_size)
+    return not any(folder.iterdir())
+
+
+def purge_dir(path: str, glob: str = "**/*", execute: bool = False) -> None:
+    """purge dir from empty folders"""
+    for p in Path(path).rglob(glob):
+        if p.is_dir and not p.is_file():
+            if is_empty(p):
+                log.trace(p)
+                if execute:
+                    p.unlink()

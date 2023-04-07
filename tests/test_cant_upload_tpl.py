@@ -1,5 +1,5 @@
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, Headers
 
 from logrich.logger_ import log  # noqa
 from override_settings import async_override_settings
@@ -140,7 +140,29 @@ async def test_upload_tpl_without_replace(
 ) -> None:
     """тест загрузки шаблона без замены существующего файла, для замены нужно указать нужный флаг"""
 
-    payload: dict = {}
+    # сначала загрузим шаблон
+    template_name = "test-filename.docx"
+    payload = {"filename": template_name, "replace_if_exist": True}
+    path_to_file = "tests/files/test_docx_template_to_upload.docx"
+    file = ("file", open(path_to_file, "rb"))
+    headers: Headers = await auth_headers(audience=audience, namespace=namespace)
+    resp = await client.put(
+        routes.request_to_upload_template,
+        files=[file],
+        data=payload,
+        headers=headers,
+    )
+    log.debug(resp)
+    data = resp.json()
+    log.debug("-", o=data)
+    # return
+    assert resp.status_code == 201, "некорректный ответ сервера."
+
+    # теперь запросим создание отчета
+
+    payload = {
+        "filename": template_name,
+    }
     path_to_file = "tests/files/test_docx_template_to_upload.docx"
     file = ("file", open(path_to_file, "rb"))
     resp = await client.put(

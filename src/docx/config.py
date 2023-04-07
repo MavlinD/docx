@@ -79,6 +79,7 @@ class Settings(BaseSettings):
     TOKEN_AUDIENCE: str | list[str] | None = "test-audience"
     PRIVATE_KEY: SecretStr = SecretStr("")
     JWT_ACCESS_KEY_EXPIRES_TIME_DAYS: int = 3650
+    TEST_ISSUER: str = "test-auth.site.com"
 
     @validator("PRIVATE_KEY", allow_reuse=True)
     def set_private_key(

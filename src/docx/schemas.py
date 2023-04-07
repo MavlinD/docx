@@ -96,8 +96,9 @@ class DocxCreate(BaseModel):
 class DocxResponse(BaseModel):
     """схема для ответа на создание отчета"""
 
-    filename: str | Path
-    url: str
+    url: str | Path
+    nsp: str
+    issuer: str
 
 
 class DocxUpdateResponse(BaseModel):
@@ -111,15 +112,13 @@ class DocxUpdateResponse(BaseModel):
 class DocxDeleteResponse(DocxUpdateResponse):
     """схема для ответа на удаление файла"""
 
-    # template: Path | None = None
-    # issuer: str | None = None
-    # nsp: str | None = None
-
 
 class DocxTemplatesListResponse(BaseModel):
     """схема для ответа на запрос списка шаблонов"""
 
-    templates: list = []
+    templates: list = [str | Path]
+    issuer: str
+    nsp: str
 
 
 class TokenCustomModel(BaseModel):
@@ -142,13 +141,15 @@ class TokenCustomModel(BaseModel):
 class JWT:
     """base operation with jwt"""
 
-    def __init__(self, token: str = "") -> None:
+    def __init__(self, token: str = "", path_to_authorized_keys: str = "authorized_keys") -> None:
         # log.warning(token)
         self.token = token
         self.issuer = ""
+        self._nsp = ""
         self._pub_key = ""
         self._algorithm = ""
         self._audience: str | Iterable[str] | None = None
+        self.path_to_authorized_keys = path_to_authorized_keys
 
     @property
     def audience(self) -> str | Iterable[str] | None:
@@ -157,6 +158,14 @@ class JWT:
     @audience.setter
     def audience(self, value: str | Iterable[str] | None) -> None:
         self._audience = value
+
+    @property
+    def nsp(self) -> str | None:
+        return self._nsp
+
+    @nsp.setter
+    def nsp(self, value: str | None) -> None:
+        self._nsp = value
 
     @property
     def algorithm(self) -> str:
@@ -172,7 +181,7 @@ class JWT:
     async def pub_key(self) -> str:
         # log.trace("read pub key")
         try:
-            key = await get_key(f"authorized_keys/{self.issuer}.pub")
+            key = await get_key(f"{self.path_to_authorized_keys}/{self.issuer}.pub")
             return key
         except FileNotFoundError:
             raise IssuerPubKeyNotFound(msg=self.issuer)

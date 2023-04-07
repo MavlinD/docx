@@ -22,7 +22,7 @@ from src.docx.config import config
 from src.docx.helpers.security import generate_jwt
 from src.docx.main import run_app as app_
 from repo.repo_assets import get_test_status_badge
-from tests.test_tools import print_request, print_endpoints
+from tests.test_tools import print_request, print_endpoints, purge_dir
 from httpx import AsyncClient, Headers
 
 
@@ -30,7 +30,10 @@ def pytest_sessionfinish(session: Session, exitstatus: int | ExitCode) -> None:
     """получит бейдж для статуса тестов"""
     print()
     if config.LOCAL:
-        # log.debug(config.LOCAL)
+        # зачистим папки с артефактами
+        for folder in (config.DOWNLOADS_DIR, config.TEMPLATES_DIR):
+            purge_dir(folder, execute=False)
+
         asyncio.run(get_test_status_badge(status=exitstatus))
 
 
@@ -80,7 +83,7 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, object]:
 async def auth_headers(
     audience: Sequence,
     lifetime: timedelta = timedelta(days=1),
-    token_issuer: str = "test-auth.site.com",
+    token_issuer: str = config.TEST_ISSUER,
     namespace: str | None = None,
 ) -> Headers:
     """Returns the authorization headers"""
